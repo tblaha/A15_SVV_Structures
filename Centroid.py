@@ -74,7 +74,19 @@ for q in range(7):
     i+=1
 
 
-#the single 
+#the 45 degree stiffener on the curved edge:
+#First to the spar, then to the z location of the split point, then back to centroid
+Z_st_rot_bar=w+h*0.5*m.sqrt(2)-Y_st_bar*0.5*m.sqrt(2)
+#add
+Area_Sum+=Area_st
+Area_Distance_Sum+=Z_st_rot_bar*Area_st
+
+#the 90 deg stiffener on the tip of the curved edge
+#Half area because considering half stiffener
+Z_st_straight_bar=UC.c_a-Y_st_bar
+#add
+Area_Sum+=Area_st*0.5
+Area_Distance_Sum+=Z_st_straight_bar*Area_st*0.5
 
 
 #Add spar: 
@@ -88,7 +100,7 @@ Area_Distance_Sum+=A_sp*d_z_st
 Z_bar_wrong_coords=Area_Distance_Sum/Area_Sum
 Z_bar=Z_bar_wrong_coords-w
 
-print(Z_bar)
+print(Z_bar_wrong_coords)
 
 
 
