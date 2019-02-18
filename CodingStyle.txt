@@ -1,0 +1,17 @@
+Function names:
+    --> first letter lower case, all other words upper case
+    --> "myFunctionIsGreat"
+
+Comments:
+    --> small comments about a single line or very few lines of code go immediately above that line
+    --> larger comments should precede different sections in the code and describe the overall procedure
+
+Variables:
+    --> underscors connect the words: "x_coords"
+    --> underscores also indictate subscripts: "x_2"
+    
+Misc:
+    --> no arbitrary loose numbers in formulas. If you need a constant: define it first in a separate variable and make a comment about what it means
+        --> https://www.quora.com/What-is-a-magic-number-in-programming
+        
+        
