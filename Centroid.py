@@ -17,7 +17,7 @@ import math as m
 #(Sum of Area*Distance)/(Sum of Area)
 Area_Sum=0 #Area
 Area_Distance_Sum=0 #Area*Distance
-Y_Bar=0
+Y_bar=0
 
 #First find angle between z axis and the diagonal part.
 h=UC.h_a / 2 #also r
