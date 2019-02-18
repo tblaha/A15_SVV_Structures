@@ -11,7 +11,7 @@ import math as m
 
 #Calculated from the far right tip. Shifted to proper coordinate system in the 
 #end. Proper coordinate system origin starts at spar.
-#Furthermore it is important to note that only one half is considered.
+#Furthermore it is important to note that only top half is considered.
 
 #Equation to be used for z_bar is 
 #(Sum of Area*Distance)/(Sum of Area)
@@ -90,7 +90,7 @@ Area_Distance_Sum+=Z_st_straight_bar*Area_st*0.5
 
 
 #Add spar: 
-z_sp=w
+z_sp=UC.c_a
 A_sp=UC.h_a*UC.t_sp
 
 Area_Sum+=A_sp
@@ -100,7 +100,8 @@ Area_Distance_Sum+=A_sp*d_z_st
 Z_bar_wrong_coords=Area_Distance_Sum/Area_Sum
 Z_bar=Z_bar_wrong_coords-w
 
-print(Z_bar_wrong_coords)
+print(Y_bar)
+print(Z_bar)
 
 
 
