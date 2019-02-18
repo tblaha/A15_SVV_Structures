@@ -47,15 +47,16 @@ skin_Curved_Z=4*h/(m.pi*3)+(w)
 Area_Sum+=skin_Curved_Area
 Area_Distance_Sum+=skin_Area*skin_Curved_Z
 
-
+#=========================
 #Stiffeners loose analysis
+#=========================
 Area_st=(UC.w_st+UC.h_st)*UC.t_st
 #Looking at stiffener like: _|_  
 #z going left, y going up, zbar=0
 #ybar calc:
 Y_st_bar=((UC.w_st*UC.t_st)*(UC.t_st/2))/Area_st
 
-#rotated to find Z from the T split for the rotated:
+#rotated to find Z from the T split for the rotated position:
 Z_st_bar=Y_st_bar*m.sin(angle)
 #Stiffeners distributed equally over straight part of skin. 
 #N_st=17, 7 on skin part, 9 segments Stiffener spacing: 
