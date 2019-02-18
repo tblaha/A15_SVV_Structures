@@ -4,7 +4,7 @@ Created on Mon Feb 18 14:04:53 2019
 
 @author: daanv
 """
-#All in metres, N, N/m, Deg
+#All in mm, N, N/m, Deg
 c_a=547     #Chord Length Aileron,          0.547m
 l_a=2771    #Length of the aileron,         2.771m
 x_h1=153    #X-pos Hinge 1,                 0.153m
