@@ -51,7 +51,7 @@ def findCentroid():
     Area_Distance_Sum+=skin_Area*skin_Curved_Z
     
     #=========================
-    #Stiffeners loose analysis
+    #Stiffeners separate analysis
     #=========================
     Area_st=(UC.w_st+UC.h_st)*UC.t_st
     #Looking at stiffener like: _|_  
