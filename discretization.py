@@ -79,10 +79,19 @@ def discretizeSpan(x_h1, x_h2, x_h3, d_a, l_a, nodes_between):
     # | 0     |
     # | 15.5  |
     # | ...   |
+    #
+    # Concentrations of nodes will exist aruond x_h1, x_h2, x_h3, x_h2+/-d_a
+    # Sections: 0 to x_h1, x_h1 to x_h2-da, x_h2-da to x_h2, x_h2 to x_h2+da,
+    # x_h2+da to x_h3, x_h3 to l_a
+    # adding one hundreth mm at the start, removing one at the end to
+    # prevent overlap
+    location_list=[0,x_h1,x_h2-d_a,x_h2,x_h2+d_a,l_a]
+    total_nodes=nodes_between*4
+    nodes_per_part=nodes_between/2
+    nodes=numpy.zeros[8*nodes_between]
+    for i in range(len(location_list)-1):
+        sec_start=location_list[i]
+        sec_end=location_list[i+1]
+        sec_pos=np.logspace(sec_start,sec_end
     
-    return 0
-    
-
-
 Bs = discretizeCrossSection(h_a, c_a, n_st, 2)
-    
