@@ -6,7 +6,7 @@ This is a temporary script file.
 """
 
 
-def discretizeCrossSetion(number_of_stiffeners, booms_between):
+def discretizeCrossSection(number_of_stiffeners, booms_between):
     # Takes the geometry, the number of stiffeners and the number of booms in
     # between each stiffener and compute boom locations and areas
     # --- INPUTS --- #

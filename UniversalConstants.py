@@ -30,3 +30,5 @@ q=4530      #Distributed aerodynamic load,  4.53kN/m
 
 #Centroid defined as Z_bar, Y_bar=0
 #Z_bar is from hinge line
+#Z_bar_tip is from tip
+#findCentroid() #Returns Y_bar,Z_bar,Z_bar_tip
