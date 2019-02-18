@@ -89,7 +89,6 @@ Z_st_straight_bar=UC.c_a-Y_st_bar
 Area_Sum+=Area_st*0.5
 Area_Distance_Sum+=Z_st_straight_bar*Area_st*0.5
 
-
 #Add spar: 
 z_sp=UC.c_a
 A_sp=UC.h_a*UC.t_sp
