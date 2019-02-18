@@ -5,6 +5,8 @@ Spyder Editor
 This is a temporary script file.
 """
 
+from math import *
+import numpy as np
 
 def discretizeCrossSection(number_of_stiffeners, booms_between):
     # Takes the geometry, the number of stiffeners and the number of booms in
@@ -48,6 +50,9 @@ def discretizeSpan(x_h1, x_h2, x_h3, d_a, l_a, nodes_between):
     # | 0     |
     # | 15.5  |
     # | ...   |
-    
-    
+    #
+    # Concentrations of nodes will exist aruond x_h1, x_h2, x_h3, x_h2+/-d_a
+    # Sections: 0 to x_h1, x_h1 to x_h2-da, x_h2-da to x_h2, x_h2 to x_h2+da,
+    # x_h2+da to x_h3, x_h3 to l_a
+    nodes=nump
     

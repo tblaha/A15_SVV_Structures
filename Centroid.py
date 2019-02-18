@@ -44,7 +44,7 @@ def findCentroid():
     l_Skin_Curved=2*m.pi*h/4
     skin_Curved_Area=l_Skin_Curved*UC.t_sk
     #Quarter-circular area centroid is 4r/3pi
-    skin_Curved_Z=4*h/(m.pi*3)+(w)
+    skin_Curved_Z=(4*h/(m.pi*3))+(w)
     
     #Add
     Area_Sum+=skin_Curved_Area
