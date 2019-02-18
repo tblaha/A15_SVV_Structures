@@ -3,4 +3,8 @@ This is a test. Weird stuff
 
 Second line
 
+<<<<<<< HEAD
 hallo hall0 
+=======
+:-)
+>>>>>>> 8c6cb0c4eb0a232d86af66c463d5ad314b108597
