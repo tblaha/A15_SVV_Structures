@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-Author: tblaha
+Author: tblaha & dverkooij
 Date  : 2019-02-18
 """
 
