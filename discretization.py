@@ -29,7 +29,7 @@ def discretizeCrossSection(h_a, c_a, n_st, A_st, t_sk, t_sp, y_c, z_c, booms_bet
     # | 0     | 0     | 1                 | 2                 | 1       |
     # | ...
     #
-    # cell id: 1 (exclusively left cell, clockwise sorted)
+    # cell id: 1 (exclusively left cell, anticlockwise sorted)
     #          2 (exclusively right cell, clockwise sorted)
     #          3 (exclusively spar, downwards sorted)
     
@@ -235,3 +235,4 @@ def discretizeSpan(x_h1, x_h2, x_h3, d_a, l_a, nodes_between=50,ec=0.0001,offset
             nodes[start_index+o]=sec_pos[o]    
     return nodes
 
+B=discretizeCrossSection(h_a, c_a, n_st, 1, t_sk, t_sp, 2, 3, 5)
