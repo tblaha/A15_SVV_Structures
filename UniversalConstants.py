@@ -28,7 +28,11 @@ q=4530      #Distributed aerodynamic load,  4.53kN/m
 
 #Module specific: 
 
-#Centroid defined as Z_bar, Y_bar=0
+#Centroid.py
+#centroid defined as Z_bar, Y_bar=0
 #Z_bar is from hinge line
-#Z_bar_tip is from tip
-#findCentroid() #Returns Y_bar,Z_bar,Z_bar_tip
+#findCentroid() #Returns Y_bar,Z_bar
+
+#discretization.py
+#discretizeSpan(x_h1, x_h2, x_h3, d_a, l_a, nodes_between=50,ec=0.0001,offset=30)
+#discretizes the span with concentrations of nodes around points of interest
