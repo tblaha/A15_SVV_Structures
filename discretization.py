@@ -9,7 +9,7 @@ import numpy as np
 
 import matplotlib.pyplot as plt
 
-def discretizeCrossSection(h_a, c_a, n_st, booms_between):
+def discretizeCrossSection(h_a, c_a, n_st, A_st, t_sk, t_sp, y_c, z_c, booms_between):
     # Takes the geometry, the number of stiffeners and the number of booms in
     # between each stiffener and compute boom locations and areas
     #
@@ -18,6 +18,9 @@ def discretizeCrossSection(h_a, c_a, n_st, booms_between):
     # c_a                 : chord length of aileron (float)
     # n_st                : The amount of equally spaced stiffeners along the
     #                       perimiter of the skin panels (int)
+    # A_st                : Stiffener area
+    # t_sk                : skin thickness
+    # t_sp                : spar thickness
     # booms_between       : The amount of booms in between stiffeners; 
     #                       stiffeners themselves are automatically booms (int)
     # --- OUTPUTS --- #
@@ -30,35 +33,123 @@ def discretizeCrossSection(h_a, c_a, n_st, booms_between):
     #          2 (exclusively right cell, clockwise sorted)
     #          3 (exclusively spar, downwards sorted)
     
+    spar_upscaling = 4
+    
     # we know that there are n_st+booms_between*(n_st+1) booms, so we can
     # iterate over that range and figure out each boom
-    Bs = np.zeros((n_st+booms_between*(n_st+1), 5))
+    S = np.zeros((n_st+1, 5))
+    B = np.zeros((n_st+booms_between*(n_st+1+spar_upscaling)+2, 5))
     
     # Find total arc length of the semi circle
     sc_arc_length = h_a*np.pi/2
     
     # Total length of the 2 straight sections
-    straight_length = 2*np.sqrt(h_a**2 + (c_a-h_a)**2)
+    straight_length = 2*np.sqrt((h_a/2)**2 + (c_a-h_a/2)**2)
     
     # Total length
     total_length = sc_arc_length + straight_length
     
     # length per segment
-    length_per_segment = total_length/(n_st+1)
+    length_per_stiff_seg = total_length/(len(S))
+    length_per_boom_seg  = total_length/(len(B)-booms_between*spar_upscaling-2)
     
     # stiffeners in the circular segment
-    stiffs_circular = np.floor(sc_arc_length/length_per_segment)
+    stiffs_quarter_circular = np.floor(sc_arc_length/2/length_per_stiff_seg)
+    booms_quarter_circular  = np.floor(sc_arc_length/2/length_per_boom_seg)
+    
     
     # booms in circular section
-    for i in range(int(stiffs_circular)):
-        unit_angle = (2 - i) * length_per_segment/(2*sc_arc_length) * 2*np.pi;
-        Bs[i,0]    = np.sin(unit_angle)*h_a/2
-        Bs[i,1]    = np.cos(unit_angle)*h_a/2
+    for i in range(int(booms_quarter_circular)*2+1):
+        unit_angle = (booms_quarter_circular - i) * length_per_boom_seg/(2*sc_arc_length) * 2*np.pi
+        B[i,0]     = np.sin(unit_angle)*h_a/2
+        B[i,1]     = np.cos(unit_angle)*h_a/2
+        B[i,4]     = 1
+        if i:
+            B[i,2]   += t_sk/6 * length_per_boom_seg * (2 + (B[i-1,1]-z_c)/(B[i,1]-z_c))
+            B[i-1,2] += t_sk/6 * length_per_boom_seg * (2 + (B[i,1]-z_c)  /(B[i-1,1]-z_c))
+            B[i,3]   += t_sk/6 * length_per_boom_seg * (2 + (B[i-1,0]-y_c)/(B[i,0]-y_c))
+            B[i-1,3] += t_sk/6 * length_per_boom_seg * (2 + (B[i,0]-y_c)  /(B[i-1,0]-y_c))
         
         
+    leftover_arc_length = sc_arc_length/2 - unit_angle*h_a/2
+    straight_sec_start  = length_per_boom_seg-leftover_arc_length%length_per_boom_seg
+    
+    # stiffeners in the straight segment
+    stiffs_half_straight    = np.ceil((straight_length/2-straight_sec_start)/length_per_stiff_seg)
+    booms_half_straight     = np.ceil((straight_length/2-straight_sec_start)/length_per_boom_seg)
         
-    return  Bs
+    # booms in straight section
+    for j in range(int(booms_half_straight)):
+        i = i + 1
         
+        unit_vec = np.array([[h_a/2], [-c_a+h_a/2]])
+        unit_vec = unit_vec/np.linalg.norm(unit_vec)
+        
+        bottom_pnt = np.array([[-h_a/2],[0]])
+        
+        B[i,0:2]   = np.transpose(bottom_pnt + unit_vec * (straight_sec_start + j * length_per_boom_seg))
+        B[i,4]     = 2
+        
+        if j:
+            B[i,2]   += t_sk/6 * length_per_boom_seg * (2 + (B[i-1,1]-z_c)/(B[i,1]-z_c))
+            B[i-1,2] += t_sk/6 * length_per_boom_seg * (2 + (B[i,1]-z_c)  /(B[i-1,1]-z_c))
+            B[i,3]   += t_sk/6 * length_per_boom_seg * (2 + (B[i-1,0]-y_c)/(B[i,0]-y_c))
+            B[i-1,3] += t_sk/6 * length_per_boom_seg * (2 + (B[i,0]-y_c)  /(B[i-1,0]-y_c))
+        
+        
+    
+    k = i
+    
+    for j in range(int(booms_half_straight)):
+        i = i + 1
+        
+        B[i,0:2] = B[k, 0:2] * np.array([[-1, 1]])
+        B[i,4]   = 2
+        
+        k = k - 1
+        
+        if j:
+            B[i,2]   += t_sk/6 * length_per_boom_seg * (2 + (B[i-1,1]-z_c)/(B[i,1]-z_c))
+            B[i-1,2] += t_sk/6 * length_per_boom_seg * (2 + (B[i,1]-z_c)  /(B[i-1,1]-z_c))
+            B[i,3]   += t_sk/6 * length_per_boom_seg * (2 + (B[i-1,0]-y_c)/(B[i,0]-y_c))
+            B[i-1,3] += t_sk/6 * length_per_boom_seg * (2 + (B[i,0]-y_c)  /(B[i-1,0]-y_c))
+        
+    # booms in spar section
+    for l in range(booms_between*spar_upscaling+2):
+        i = i + 1
+        
+        B[i, 0:2] = np.array([ (l) * h_a / (booms_between*spar_upscaling+1) - h_a/2, 0] )
+        B[i,4]    = 3
+        
+        if l:
+            B[i,2]   += t_sp/6 * length_per_boom_seg * (2 + (B[i-1,1]-z_c)/(B[i,1]-z_c))
+            B[i-1,2] += t_sp/6 * length_per_boom_seg * (2 + (B[i,1]-z_c)  /(B[i-1,1]-z_c))
+            B[i,3]   += t_sp/6 * length_per_boom_seg * (2 + (B[i-1,0]-y_c)/(B[i,0]-y_c))
+            B[i-1,3] += t_sp/6 * length_per_boom_seg * (2 + (B[i,0]-y_c)  /(B[i-1,0]-y_c))
+        
+        
+    return  B
+       
+
+ 
+def plotCrossSection(h_a, c_a, n_st, B):
+
+    import matplotlib.pyplot as plt
+    fig, axs = plt.subplots(2, 1)
+    axs[0].scatter(B[:,1], B[:,0], B[:,2])
+    axs[1].scatter(B[:,1], B[:,0], B[:,3])
+    
+    axs[0].axis('equal')
+    axs[1].axis('equal')
+    axs[0].invert_xaxis()
+    axs[1].invert_xaxis()
+    fig.tight_layout()
+    plt.show()
+    
+    
+#for i in range(4):
+#    B = discretizeCrossSection(h_a, c_a, n_st, t_st*(w_st+h_st-t_st), t_sk, t_sp, 0, -150, i)
+#    plotCrossSection(h_a, c_a, n_st, B)
     
     
 def discretizeSpan(x_h1, x_h2, x_h3, d_a, l_a, nodes_between=50,ec=0.0001,offset=30,):
