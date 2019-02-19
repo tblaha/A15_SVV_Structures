@@ -55,9 +55,15 @@ def baseShearFlows(I_zz,I_yy,V_z,V_y,B_array):
     
         
         #Do this until new cell/spar
-        while ID !=(ID+1):
+        while ID !=(ID+1) and i<128:
+            
+            #Update Qb_z
             Qb_z[i,0]=i+1
             Qb_z[i,1]=qb_z
+            
+            #Update Qb_y
+            Qb_y[i,0]=i+1
+            Qb_y[i,1]=qb_y
             
             qb_z = qb_z + (-(V_z)/I_yy)*B_array[i,2]*B_array[i,1]
             qb_y = qb_y+(-(V_y)/I_zz)*B_array[i,3]*B_array[i,0]
@@ -68,7 +74,9 @@ def baseShearFlows(I_zz,I_yy,V_z,V_y,B_array):
         
     return Qb_z, Qb_y
 
-Qb=baseShearFlows(2,3,-30,20,B)
+Qb=baseShearFlows(2,3,-30,20,B)[0]
+
+
 
 
     
