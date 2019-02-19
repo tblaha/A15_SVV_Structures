@@ -280,3 +280,4 @@ def discretizeSpan(x_h1, x_h2, x_h3, d_a, l_a, nodes_between=50,ec=0.0001,offset
             nodes[start_index+o]=sec_pos[o]    
     return nodes
 
+B=discretizeCrossSection(h_a, c_a, n_st, 1, t_sk, t_sp, 2, 3, 5)
