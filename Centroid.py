@@ -93,5 +93,3 @@ def findCentroid():
     
     #output
     return Y_bar,Z_bar
-
-print(findCentroid())
