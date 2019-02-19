@@ -197,7 +197,7 @@ for i in range(10,-1,-1):
     plotCrossSection(h_a, c_a, n_st, B)
     
     
-def discretizeSpan(x_h1, x_h2, x_h3, d_a, l_a, nodes_between=50,ec=0.0001,offset=30,):
+def discretizeSpan(x_h1, x_h2, x_h3, d_a, l_a, nodes_between=50,ec=0.0001,offset=30):
     # Takes the spanwise characteristics of the aileron and computes a
     # discretization at which the deflection of leading edge and trailing edge
     # will be computed later. Spanwise nodes (the x-location of the discrete
