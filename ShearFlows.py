@@ -46,7 +46,7 @@ def baseShearFlows(I_zz,I_yy,V_z,V_y,B_array):
     i=0
     
     #Do this for all 3 cells based on their IDs
-    while ID<=3.:
+    while ID<=3:
         
         #Initialize base shear at 0 in each cell as this will start from the
         #point of the cut
@@ -82,8 +82,16 @@ def baseShearFlows(I_zz,I_yy,V_z,V_y,B_array):
         
     return Qb_z, Qb_y
 
-Qb=baseShearFlows(2,3,-30,20,B)[0]
+Qb_z=baseShearFlows(2,3,-30,20,B)[0]
+Qb_y=baseShearFlows(2,3,-30,20,B)[1]
 
+#Shear flow in the spar is constant
+for i in range(len(Qb)):
+    
+    if Qb[i,2] == 3:
+        Shear_Force_Spar_3 = Qb[i,1]
+
+#Line_Integral_qb_3 = (qb_3*)/(t_sp*G)
 
 
 

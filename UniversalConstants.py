@@ -25,6 +25,7 @@ theta=26    #Degrees max deflection,        26
 p=91700     #Force of actuator 1,           91.7kN
 q=4.530     #Distributed aerodynamic load,  4.53kN/m
 E=69e3      # Young's modulus Aluminium     69GPa
+G=28e3      # Shear modulus Aluminium     28GPa
 
 #Rounded cell
 Cell_Area1=0.5*pi*(h_a/2)**2
