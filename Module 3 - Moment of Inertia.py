@@ -16,8 +16,8 @@ def MomentOfInertia(BoomDiscretization):
     I_yy = 0
     i = 0 
     for i in range((len((BoomDiscretization)))):
-        I_zz = BoomDiscretization[i, UC.location_Bz] * BoomDiscretization[i, UC.location_y] + I_zz
-        I_yy = BoomDiscretization[i, UC.location_By] * BoomDiscretization[i, UC.location_z] + I_yy
+        I_zz = BoomDiscretization[i, UC.location_Bz] * BoomDiscretization[i, UC.location_y]**2 + I_zz
+        I_yy = BoomDiscretization[i, UC.location_By] * BoomDiscretization[i, UC.location_z]**2 + I_yy
         i =+i
     return(I_zz, I_yy)
 
