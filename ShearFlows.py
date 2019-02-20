@@ -9,6 +9,10 @@ import numpy as np
 from UniversalConstants import *
 from discretization import *
 
+import matplotlib.pyplot as plt
+
+
+
 def baseShearFlows(I_zz,I_yy,V_z,V_y,B_array):
     #This function takes in the MOI parmeters as well as internal shear forces and 
     #cross sectional boom discretization.
@@ -40,13 +44,14 @@ def baseShearFlows(I_zz,I_yy,V_z,V_y,B_array):
     Qb_y = np.zeros((len(B_array[:,0]),3))
     
     #Initialize first cell
-    ID=1
+    ID_current=1
+    ID_new = 1
     
     #Looping across all the booms
     i=0
     
     #Do this for all 3 cells based on their IDs
-    while ID<=3:
+    while ID_current<=3:
         
         #Initialize base shear at 0 in each cell as this will start from the
         #point of the cut
@@ -57,43 +62,35 @@ def baseShearFlows(I_zz,I_yy,V_z,V_y,B_array):
         #Do this until new cell/spar
 
         
-        while ID!=ID+1:
-            if i==128:
+        while ID_current==ID_new:
+            if i==len(B[:,0]):
                 break
             #Update Qb_z
             Qb_z[i,0]=i+1
             Qb_z[i,1]=qb_z
-            Qb_z[i,2]=ID
+            Qb_z[i,2]=ID_current
             
             #Update Qb_y
             Qb_y[i,0]=i+1
             Qb_y[i,1]=qb_y
-            Qb_y[i,2]=ID
+            Qb_y[i,2]=ID_current
             
-            
-            qb_z = qb_z + (-(V_z)/I_yy)*B_array[i,2]*B_array[i,1]
-            qb_y = qb_y+ (-(V_y)/I_zz)*B_array[i,3]*B_array[i,0]
-            ID=B_array[i,4]
             i=i+1
+            qb_z = qb_z + (-(V_z)/I_yy)*B_array[i,2]*-B_array[i,1]
+            qb_y = qb_y+ (-(V_y)/I_zz)*B_array[i,3]*-B_array[i,0]
+            ID_new=B_array[i,4]
+            
         
         
         #Move on to next cell or spar
-        ID+=1
+        ID_current+=1
         
     return Qb_z, Qb_y
 
-Qb_z=baseShearFlows(2,3,-30,20,B)[0]
-Qb_y=baseShearFlows(2,3,-30,20,B)[1]
+Qb_z=baseShearFlows(23,528,30,20,B)[0]
+Qb_y=baseShearFlows(23,528,30,20,B)[1]
+print (Qb_y)
 
-#Shear flow in the spar is constant
-for i in range(len(Qb)):
-    
-    if Qb[i,2] == 3:
-        Shear_Force_Spar_3 = Qb[i,1]
+#Check with a plot:
 
 #Line_Integral_qb_3 = (qb_3*)/(t_sp*G)
-
-
-
-    
-    
