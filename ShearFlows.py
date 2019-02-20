@@ -36,8 +36,8 @@ def baseShearFlows(I_zz,I_yy,V_z,V_y,B_array):
     #Note q1 will be the represent the shear flow between boom 0 and 1 and so on
     
     #Create output arrays which will have the same number of rows as input boom area array
-    Qb_z = np.zeros((len(B_array[:,0]),2))
-    Qb_y = np.zeros((len(B_array[:,0]),2))
+    Qb_z = np.zeros((len(B_array[:,0]),3))
+    Qb_y = np.zeros((len(B_array[:,0]),3))
     
     #Initialize first cell
     ID=1
@@ -55,21 +55,29 @@ def baseShearFlows(I_zz,I_yy,V_z,V_y,B_array):
     
         
         #Do this until new cell/spar
-        while ID !=(ID+1) and i<128:
-            
+
+        
+        while ID!=ID+1:
+            if i==128:
+                break
             #Update Qb_z
             Qb_z[i,0]=i+1
             Qb_z[i,1]=qb_z
+            Qb_z[i,2]=ID
             
             #Update Qb_y
             Qb_y[i,0]=i+1
             Qb_y[i,1]=qb_y
+            Qb_y[i,2]=ID
+            
             
             qb_z = qb_z + (-(V_z)/I_yy)*B_array[i,2]*B_array[i,1]
-            qb_y = qb_y+(-(V_y)/I_zz)*B_array[i,3]*B_array[i,0]
-            i=i+1
+            qb_y = qb_y+ (-(V_y)/I_zz)*B_array[i,3]*B_array[i,0]
             ID=B_array[i,4]
+            i=i+1
         
+        
+        #Move on to next cell or spar
         ID+=1
         
     return Qb_z, Qb_y
