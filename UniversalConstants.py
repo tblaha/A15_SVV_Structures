@@ -4,7 +4,7 @@ Created on Mon Feb 18 14:04:53 2019
 
 @author: daanv
 """
-#All in mm, N, N/m, Deg
+#All in mm, N, N/mm, N/mm^2, Deg
 c_a=547     #Chord Length Aileron,          0.547m
 l_a=2771    #Length of the aileron,         2.771m
 x_h1=153    #X-pos Hinge 1,                 0.153m
@@ -22,7 +22,8 @@ d_1=11.03   #Vertical displacement hinge 1, 1.103cm
 d_3=16.42   #Vertical displacement hinge 3, 1.642cm
 theta=26    #Degrees max deflection,        26
 p=91700     #Force of actuator 1,           91.7kN
-q=4530      #Distributed aerodynamic load,  4.53kN/m
+q=4.530     #Distributed aerodynamic load,  4.53kN/m
+E=69e3      # Young's modulus Aluminium     69GPa
 
 
 
@@ -36,3 +37,10 @@ q=4530      #Distributed aerodynamic load,  4.53kN/m
 #discretization.py
 #discretizeSpan(x_h1, x_h2, x_h3, d_a, l_a, nodes_between=50,ec=0.0001,offset=30)
 #discretizes the span with concentrations of nodes around points of interest
+
+#################Module 3#################
+#Moment of inertia defined as I_zz and I_yy
+location_Bz = 0
+location_By = 1
+location_z = 2
+location_y = 3
