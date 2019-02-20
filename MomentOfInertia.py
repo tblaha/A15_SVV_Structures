@@ -18,8 +18,8 @@ def MomentOfInertia(BoomDiscretization):
     #Iterates over the amount of rows 
     for i in range((len((BoomDiscretization)))):
         #Formula moment of inertia. 
-        I_zz = BoomDiscretization[i, UC.location_Bz] * BoomDiscretization[i, UC.location_y]**2 + I_zz
-        I_yy = BoomDiscretization[i, UC.location_By] * BoomDiscretization[i, UC.location_z]**2 + I_yy
+        I_zz = BoomDiscretization[i, UC.location_Bz] * (BoomDiscretization[i, UC.location_y]**2 + findCentroid()[0]) + I_zz
+        I_yy = BoomDiscretization[i, UC.location_By] * (BoomDiscretization[i, UC.location_z]**2 + findCentroid()[1]) + I_yy
         i =+i
     return(I_zz, I_yy)
 

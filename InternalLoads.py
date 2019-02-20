@@ -10,3 +10,29 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 
+def InternalShearForcey (A):
+    
+    
+    return
+
+def InternalShearForcez (A):
+    
+    
+    return
+
+def InternalMomentx (A):
+    
+    
+    return
+
+
+def InternalMomenty (A):
+    
+    
+    return
+
+
+def InternalMomentz (A):
+    
+    
+    return
