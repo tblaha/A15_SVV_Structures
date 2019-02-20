@@ -29,18 +29,43 @@ E=69e3      # Young's modulus Aluminium     69GPa
 
 #Module specific: 
 
+#################Module 1#################
 #Centroid.py
 #centroid defined as Z_bar, Y_bar=0
 #Z_bar is from hinge line
 #findCentroid() #Returns Y_bar,Z_bar
 
+#################Module 2#################
 #discretization.py
 #discretizeSpan(x_h1, x_h2, x_h3, d_a, l_a, nodes_between=50,ec=0.0001,offset=30)
 #discretizes the span with concentrations of nodes around points of interest
 
 #################Module 3#################
-#Moment of inertia defined as I_zz and I_yy
+#MomentOfInertia.py
+#Moment of inertia is defined as I_zz and I_yy
+#Output is given as a (I_zz, I_yy)
+#The variables underneath give the placement of the boom area and the distance of that boom area in the discretization matrix
 location_Bz = 0
 location_By = 1
 location_z = 2
 location_y = 3
+
+
+#################Module 4#################
+
+
+
+
+#################Module 5#################
+
+
+
+#################Module 6#################
+
+
+
+#################Module 7#################
+
+
+
+#################Module 8#################
