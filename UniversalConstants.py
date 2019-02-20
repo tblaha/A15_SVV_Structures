@@ -4,6 +4,7 @@ Created on Mon Feb 18 14:04:53 2019
 
 @author: daanv
 """
+from math import *
 #All in mm, N, N/mm, N/mm^2, Deg
 c_a=547     #Chord Length Aileron,          0.547m
 l_a=2771    #Length of the aileron,         2.771m
@@ -25,7 +26,10 @@ p=91700     #Force of actuator 1,           91.7kN
 q=4.530     #Distributed aerodynamic load,  4.53kN/m
 E=69e3      # Young's modulus Aluminium     69GPa
 
-
+#Rounded cell
+Cell_Area1=0.5*pi*(h_a/2)**2
+#Cell with two diagonal parts
+Cell_Area2=(c_a-(h_a/2))*(h_a/2)
 
 #Module specific: 
 
