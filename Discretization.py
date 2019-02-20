@@ -7,22 +7,24 @@ Date  : 2019-02-18
 from UniversalConstants import *
 import numpy as np
 
-import matplotlib.pyplot as plt
-
 def discretizeCrossSection(h_a, c_a, n_st, A_st, t_sk, t_sp, y_c, z_c, booms_between):
     # Takes the geometry, the number of stiffeners and the number of booms in
-    # between each stiffener and compute boom locations and areas
+    # between each 2 stiffeners and computes boom locations and corresponding 
+    # areas
     #
     # --- INPUTS --- #
-    # h_a                 : height of aileron (float)
-    # c_a                 : chord length of aileron (float)
+    # h_a                 : height of aileron [mm] (float)
+    # c_a                 : chord length of aileron [mm] (float)
     # n_st                : The amount of equally spaced stiffeners along the
-    #                       perimiter of the skin panels (int)
-    # A_st                : Stiffener area
-    # t_sk                : skin thickness
-    # t_sp                : spar thickness
+    #                       perimiter of the skin panels [-] (int)
+    # A_st                : Stiffener area [mm^2] (float) = (w_st+h_st-t_st)*t_st
+    # t_sk                : skin thickness [mm] (float)
+    # t_sp                : spar thickness [mm] (float)
+    # y_c                 : y-component of centroid [mm] (float)
+    # z_c                 : z-component of centroid [mm] (float) MEASURED FROM HINGE LINE
     # booms_between       : The amount of booms in between stiffeners; 
     #                       stiffeners themselves are automatically booms (int)
+    #
     # --- OUTPUTS --- #
     # 2d numpy array:
     # | y-loc | z-loc | area if y-bending | area if z-bending | cell id |
@@ -33,42 +35,91 @@ def discretizeCrossSection(h_a, c_a, n_st, A_st, t_sk, t_sp, y_c, z_c, booms_bet
     #          2 (exclusively right cell, counter clockwise sorted)
     #          3 (exclusively spar, downwards sorted)
     
+    
+    # ----- General setup and preallocation ----- #
+    # just some simple stuff
+    
+    # to achieve a more uniform boom distribution, more booms between the 2 
+    # ends of the spars are needed. This is a factor for this upscaling
     spar_upscaling = 4
     
-    # we know that there are n_st+booms_between*(n_st+1) booms, so we can
-    # iterate over that range and figure out each boom
-    S = np.zeros((n_st+1, 5))
-    B = np.zeros((n_st+booms_between*(n_st+1+spar_upscaling)+2, 5))
+    # in total there will be n_st stiffeners, so prealloc that
+    S = np.zeros((n_st, 5))
+    
+    # for booms, that is more complex:
+    # n_st +                         # one boom at every stiffener
+    # booms_between*(n_st+1) +       # in each of the (n_st+1) segments there are booms_between booms
+    # booms_between*spar_upscaling + # upscaling for the spar
+    # 2                              # two additional booms at the ends of the spar
+    B = np.zeros((n_st + booms_between*(n_st+1+spar_upscaling), 5)) # works better without the +2
+    
+    
+    
+    # ----- Length and numbers of booms ----- #
+    # compute the lenth of the in-between segments and 
+    # calculate the amount of stiffeners and booms (stiffeners <= booms) in the
+    # circular section
     
     # Find total arc length of the semi circle
     sc_arc_length = h_a*np.pi/2
     
-    # Total length of the 2 straight sections
+    # Total length of the straight sections
     straight_length = 2*np.sqrt((h_a/2)**2 + (c_a-h_a/2)**2)
     
     # Total length
     total_length = sc_arc_length + straight_length
     
-    # length per segment
+    # length per segment in between stiffeners
     length_per_stiff_seg = total_length/(len(S))
-    length_per_boom_seg  = total_length/(len(B)-booms_between*spar_upscaling-2)
     
-    # stiffeners in the circular segment
+    # length per boom segment (here, the booms in the spar need to be
+    # subtracted since we want to know the length intervals in the skin, not
+    # the spar as the spar is handled later)
+    length_per_boom_seg  = total_length/(len(B)-booms_between*spar_upscaling) # works better without the -2
+    
+    # number of stiffeners and booms in the circular segment
     stiffs_quarter_circular = np.floor(sc_arc_length/2/length_per_stiff_seg)
     booms_quarter_circular  = np.floor(sc_arc_length/2/length_per_boom_seg)
+
+
+    
+    
+    # ----- booms in circular section ----- #
+    # iterate over the amount of booms (CCW) in the circular section (using the
+    # angle that the lines connecting the hinge line and the booms make) and
+    # compute their area by taking skin contributions and adding the stiffener
+    # area where there is a stiffener    
     
     # going counter clockwise from the first boom in the circular sections,
-    # where is the first stiffener?
+    # how many lonely booms are there until we hit the first stiffener
+    # NOTE: the +1 is needed because every repetitive unit of stiffeners and
+    # in-between booms is (booms_between+1)
     booms_to_first_stiff = (booms_quarter_circular)%(booms_between+1)
     
-    # booms in circular section
-    for i in range(int(booms_quarter_circular)*2+1):
-        unit_angle = (booms_quarter_circular - i) * length_per_boom_seg/(2*sc_arc_length) * 2*np.pi
-        B[i,0]     = np.sin(unit_angle)*h_a/2
-        B[i,1]     = np.cos(unit_angle)*h_a/2
+    # iterate over the booms in the circular section
+    for i in range(int(booms_quarter_circular)*2+1): # +1 because there is one on the z-axis
+        
+        # the radial distance of each boom in the circular section is constant,
+        # so only the angle needs to be calculated: 0 angle means on the z-axis
+        # and positive angle means below the z-axis
+        angle = (booms_quarter_circular - i) * length_per_boom_seg/(2*sc_arc_length) * 2*np.pi
+        
+        # using the angle, get the location using the radial distance h_a/2
+        B[i,0]     = np.sin(angle)*h_a/2
+        B[i,1]     = np.cos(angle)*h_a/2
+        
+        # all the booms computed in this for-loop are in beam section 1
         B[i,4]     = 1
-        if i:
-            if abs(B[i,1]-z_c) > 1e-6:
+        
+        # add the skin contributions of the skin segments in-between the booms
+        # treated in this section (the "outside" contribution to the booms at
+        # the very end and the very beginning of this section will be added
+        # later when fixing corner cases)
+        # one skin segment distributes to two booms, i and i-1
+        if i: # if not the first boom in this for-loop
+            if abs(B[i,1]-z_c) > 1e-6: # quick check if not infinite
+                # stress ratio reduces to length ratio from neutral line because
+                # we assume pure bending with linear variation
                 B[i,2]   += t_sk/6 * length_per_boom_seg * (2 + (B[i-1,1]-z_c)/(B[i,1]-z_c))
             if abs(B[i-1,1]-z_c) > 1e-6:
                 B[i-1,2] += t_sk/6 * length_per_boom_seg * (2 + (B[i,1]-z_c)  /(B[i-1,1]-z_c))
@@ -77,125 +128,185 @@ def discretizeCrossSection(h_a, c_a, n_st, A_st, t_sk, t_sp, y_c, z_c, booms_bet
             if abs(B[i-1,0]-y_c) > 1e-6:
                 B[i-1,3] += t_sk/6 * length_per_boom_seg * (2 + (B[i,0]-y_c)  /(B[i-1,0]-y_c))
         
-        # Add stiffener area
-        if not (i-booms_to_first_stiff)%(booms_between+1):
-            B[i,2]   += A_st
-            B[i,3]   += A_st
+        # Add stiffener area, if we are encoutering a stiffener (if the modulo
+        # returns 0)
+        # booms_to_first_stiff is the offset to the first stiffener when going
+        # CCW
+        if not (i-booms_to_first_stiff)%(booms_between+1): 
+            B[i,2] += A_st
+            B[i,3] += A_st
         
         # Fix corner cases
-        if i == 0:
-            B[i,2]  += t_sk/6 * (np.pi/2 - unit_angle) * h_a/2 * (2 + (0-z_c)/(B[i,1]-z_c))
-            B[i,3]  += t_sk/6 * (np.pi/2 - unit_angle) * h_a/2 * (2 + (h_a/2-y_c)/(B[i,0]-y_c))
+        if i == 0: # if first boom
+            # (np.pi/2 - angle) * h_a/2 is the arc length from the first boom
+            # to the top end of the spar
+            B[i,2]  += t_sk/6 * (np.pi/2 - angle) * h_a/2 * (2 + (0-z_c)/(B[i,1]-z_c))
+            B[i,3]  += t_sk/6 * (np.pi/2 - angle) * h_a/2 * (2 + (h_a/2-y_c)/(B[i,0]-y_c))
             
-        if i == int(booms_quarter_circular)*2+1-1:
-            B[i,2]  += t_sk/6 * (np.pi/2 + unit_angle) * h_a/2 * (2 + (0-z_c)/(B[i,1]-z_c))
-            B[i,3]  += t_sk/6 * (np.pi/2 + unit_angle) * h_a/2 * (2 + (-h_a/2-y_c)/(B[i,0]-y_c))
-            
-            
-    leftover_arc_length = sc_arc_length/2 - unit_angle*h_a/2
-    straight_sec_start  = length_per_boom_seg-leftover_arc_length%length_per_boom_seg
+        if i == int(booms_quarter_circular)*2+1-1: # if last boom
+            # (np.pi/2 + angle) * h_a/2 is the arc length from the last boom
+            # to the top end of the spar
+            B[i,2]  += t_sk/6 * (np.pi/2 + angle) * h_a/2 * (2 + (0-z_c)/(B[i,1]-z_c))
+            B[i,3]  += t_sk/6 * (np.pi/2 + angle) * h_a/2 * (2 + (-h_a/2-y_c)/(B[i,0]-y_c))
+
+
     
-    # stiffeners in the straight segment
+    
+    # ----- booms in straight sections ----- #
+    # compute the boom locations and areas in the same general way as above 
+    # but now for the bottom straight segement. Then, basically reverse the
+    # and mirror the locations to the top straight segment.
+    
+    # compute the length in the straight segment for when the first boom
+    # appears (straight_sec_start)
+    leftover_arc_length = sc_arc_length/2 - angle*h_a/2 # arc length still in circular segment
+    straight_sec_start  = length_per_boom_seg-leftover_arc_length%length_per_boom_seg
+        
+    # stiffeners and booms in either of the two straight segments
     stiffs_half_straight    = np.floor((straight_length/2-straight_sec_start)/length_per_stiff_seg)
     booms_half_straight     = np.floor((straight_length/2-straight_sec_start)/length_per_boom_seg)
         
-    # booms in straight section
+    # iterate again
     for j in range(int(booms_half_straight)):
+        
+        # count up i (i will be used as the index in B throughout)
         i = i + 1
         
+        # direction vector that the booms will be on (representing the straight
+        # line from [0,-h_a/2] to [h_a/2-c_a, 0])
         unit_vec = np.array([[h_a/2], [-c_a+h_a/2]])
         unit_vec = unit_vec/np.linalg.norm(unit_vec)
         
+        # starting point of that line
         bottom_pnt = np.array([[-h_a/2],[0]])
         
+        # multiply the arc length from the starting point to the boom i (which
+        # is (straight_sec_start + j * length_per_boom_seg)) to the unit_vec
+        # and add the result to the bottom point
         B[i,0:2]   = np.transpose(bottom_pnt + unit_vec * (straight_sec_start + j * length_per_boom_seg))
+        
+        # we are in section 2
         B[i,4]     = 2
         
+        # skin contributions (exactly like above)
         if j:
             B[i,2]   += t_sk/6 * length_per_boom_seg * (2 + (B[i-1,1]-z_c)/(B[i,1]-z_c))
             B[i-1,2] += t_sk/6 * length_per_boom_seg * (2 + (B[i,1]-z_c)  /(B[i-1,1]-z_c))
             B[i,3]   += t_sk/6 * length_per_boom_seg * (2 + (B[i-1,0]-y_c)/(B[i,0]-y_c))
             B[i-1,3] += t_sk/6 * length_per_boom_seg * (2 + (B[i,0]-y_c)  /(B[i-1,0]-y_c))
         
+        # add the stiffener area where there is a stiffener
         if not (i-booms_to_first_stiff)%(booms_between+1):
             B[i,2]   += A_st
             B[i,3]   += A_st
     
-        # Fix corner cases
+        # Fix corner cases, but only for the first one
+        # AM I SURE THAT THERE IS NO CORNER CASE AT THE END OF THIS SECTION
         if j == 0:
             B[i,2]  += t_sk/6 * straight_sec_start * (2 + (0-z_c)/(B[i,1]-z_c))
             B[i,3]  += t_sk/6 * straight_sec_start * (2 + (-h_a/2-y_c)/(B[i,0]-y_c))
             
-    
-    k = i
-    
+            
+    # second (top) straight segment by mirroring the booms
+    k = i # index in the B array to call the booms computed for the bottom
     for j in range(int(booms_half_straight)):
         i = i + 1
         
+        # mirroring about the z-axis
         B[i,0:2] = B[k, 0:2] * np.array([[-1, 1]])
+        
+        # still section 2
         B[i,4]   = 2
         
+        # count down the index to move to the next boom of the bottom
         k = k - 1
         
+        # skin contributions (exactly like above)
         if j:
             B[i,2]   += t_sk/6 * length_per_boom_seg * (2 + (B[i-1,1]-z_c)/(B[i,1]-z_c))
             B[i-1,2] += t_sk/6 * length_per_boom_seg * (2 + (B[i,1]-z_c)  /(B[i-1,1]-z_c))
             B[i,3]   += t_sk/6 * length_per_boom_seg * (2 + (B[i-1,0]-y_c)/(B[i,0]-y_c))
             B[i-1,3] += t_sk/6 * length_per_boom_seg * (2 + (B[i,0]-y_c)  /(B[i-1,0]-y_c))
         
+        # add the stiffener area where there is a stiffener
         if not (i-booms_to_first_stiff-booms_between+2)%(booms_between+1):
             B[i,2]   += A_st
             B[i,3]   += A_st
             
-        # Fix corner cases            
+        # Fix corner cases, but only for the last one
+        # AM I SURE THAT THERE IS NO CORNER CASE AT THE START OF THIS SECTION         
         if j == int(booms_half_straight)-1:
             B[i,2]  += t_sk/6 * straight_sec_start * (2 + (0-z_c)/(B[i,1]-z_c))
             B[i,3]  += t_sk/6 * straight_sec_start * (2 + (h_a/2-y_c)/(B[i,0]-y_c))
         
-    # booms in spar section
-    for l in range(booms_between*spar_upscaling+2):
+        
+        
+    # ----- booms in spar ----- #
+    for l in range(booms_between*spar_upscaling+2): # the two comes from the top and bottom ends
         i = i + 1
         
+        # walk down from the top (h_a/2) to the bottom (-h_a+h_a/2)
         B[i, 0:2] = np.array([ -l * h_a / (booms_between*spar_upscaling+1) + h_a/2, 0] )
+        
+        # we call the spar section 3
         B[i,4]    = 3
         
+        # just like above, skin contributions
         if l:
             B[i,2]   += t_sp/6 * length_per_boom_seg * (2 + (B[i-1,1]-z_c)/(B[i,1]-z_c))
             B[i-1,2] += t_sp/6 * length_per_boom_seg * (2 + (B[i,1]-z_c)  /(B[i-1,1]-z_c))
             B[i,3]   += t_sp/6 * length_per_boom_seg * (2 + (B[i-1,0]-y_c)/(B[i,0]-y_c))
             B[i-1,3] += t_sp/6 * length_per_boom_seg * (2 + (B[i,0]-y_c)  /(B[i-1,0]-y_c))
         
+        # no stiffeners in here
+        
+        # top corner case        
         if l == 0:
             B[i,2]   += t_sp/6 * length_per_boom_seg * (2 + (0-z_c)/(B[i,1]-z_c))
             B[i,3]   += t_sp/6 * length_per_boom_seg * (2 + (h_a/2-y_c)/(B[i,0]-y_c))
-            
+          
+        # bottom corner case
         if l == booms_between*spar_upscaling+2-1:
             B[i,2]   += t_sp/6 * length_per_boom_seg * (2 + (0-z_c)/(B[i,1]-z_c))
             B[i,3]   += t_sp/6 * length_per_boom_seg * (2 + (-h_a/2-y_c)/(B[i,0]-y_c))
         
+        
+        
+    # finally, return the booms
     return  B
        
 
  
-def plotCrossSection(h_a, c_a, n_st, B):
+def plotCrossSection(B):
+    # plots the 2 cross sectional discretization for verification
+    #
+    # --- INPUTS --- #
+    # B: the boom array
+    #
+    # --- OUTPUTS --- #
+    # none
 
     import matplotlib.pyplot as plt
+    
+    # two subplots (first for bending around y, second for z)
     fig, axs = plt.subplots(2, 1)
+    
+    # put down the scatter with the area as the size argument
     axs[0].scatter(B[:,1], B[:,0], B[:,2])
     axs[1].scatter(B[:,1], B[:,0], B[:,3])
     
+    # format: axis equal and invert the z axis (x-axis in the plot referece frame)
     axs[0].axis('equal')
     axs[1].axis('equal')
     axs[0].invert_xaxis()
     axs[1].invert_xaxis()
+    
+    # make pretty
     fig.tight_layout()
+    
+    # show
     plt.show()
-    
-    
-for i in range(10,-1,-1):
-    B = discretizeCrossSection(h_a, c_a, n_st, t_st*(w_st+h_st-t_st), t_sk, t_sp, 0, -98, i)
-    plotCrossSection(h_a, c_a, n_st, B)
-    
+      
     
 def discretizeSpan(x_h1, x_h2, x_h3, d_a, l_a, nodes_between=50,ec=0.0001,offset=30):
     # Takes the spanwise characteristics of the aileron and computes a
@@ -280,4 +391,12 @@ def discretizeSpan(x_h1, x_h2, x_h3, d_a, l_a, nodes_between=50,ec=0.0001,offset
             nodes[start_index+o]=sec_pos[o]    
     return nodes
 
-B=discretizeCrossSection(h_a, c_a, n_st, 1, t_sk, t_sp, 2, 3, 5)
+
+
+
+# debugging
+
+#B=discretizeCrossSection(h_a, c_a, n_st, 1, t_sk, t_sp, 0, -98, 3)
+#for i in range(10,-1,-1):
+#     B = discretizeCrossSection(h_a, c_a, n_st, t_st*(w_st+h_st-t_st), t_sk, t_sp, 0, -98, i)
+#     plotCrossSection(B)
