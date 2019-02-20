@@ -7,7 +7,7 @@ Created on Tue Feb 19 14:57:40 2019
 
 import numpy as np
 from UniversalConstants import *
-from discretization import *
+from Discretization import *
 
 import matplotlib.pyplot as plt
 
@@ -43,6 +43,10 @@ def baseShearFlows(I_zz,I_yy,V_z,V_y,B_array):
     Qb_z = np.zeros((len(B_array[:,0]),3))
     Qb_y = np.zeros((len(B_array[:,0]),3))
     
+    B_Distance = np.zeros((len(B_array[:,0]),4))
+    
+    Line_Integral_qb = np.zeros((len(B_array[:,0]),4))
+    
     #Initialize first cell
     ID_current=1
     ID_new = 1
@@ -57,8 +61,10 @@ def baseShearFlows(I_zz,I_yy,V_z,V_y,B_array):
         #point of the cut
         qb_z=0
         qb_y=0
+        Line_Integral_qb_1=0.
+        Line_Integral_qb_2=0.
+        Line_Integral_qb_3=0.
     
-        
         #Do this until new cell/spar
 
         
@@ -75,22 +81,61 @@ def baseShearFlows(I_zz,I_yy,V_z,V_y,B_array):
             Qb_y[i,1]=qb_y
             Qb_y[i,2]=ID_current
             
+            #Update B_Distance
+            B_Distance[i,0]=i+1
+            B_Distance[i,3]=ID_current
+            
+            #Update Line integral q_b
+            Line_Integral_qb[i,0]=i+1
+            Line_Integral_qb[i,3]=ID_current
+            
+            #Distance between each boom. 
+            #FORMAT: / i number / y-direction / z-direction / ID /
+            B_Distance[i,1]=B[i+1,0]-B[i,0]
+            B_Distance[i,2]=B[i+1,1]-B[i,1]
+            
+            #Line Integral q_b in cell 1.
+            #Formula used: (q_b*Length)/(t_skin*G)
+            #FORMAT: / i number / q_b_y / q_b_z / ID /
+            #if statement: when the ID is equal to 1 or 2, we use t_skin. when ID is equal to 3, then we should use t_spar.
+            #I summed up the line integral shear flows for skin 1, skin 2 and spar 3 (old value + q_b_y + q_b_z).
+            if (ID_current == 1):
+                Line_Integral_qb[i,1] = (np.multiply(Qb_y[i,1],B_Distance[i,1]))/(t_sk*G)
+                Line_Integral_qb[i,2] = (np.multiply(Qb_z[i,1],B_Distance[i,2]))/(t_sk*G)
+                Line_Integral_qb_1 = Line_Integral_qb_1 + Line_Integral_qb[i,1] + Line_Integral_qb[i,2]  
+                
+            elif (ID_current == 2):
+                Line_Integral_qb[i,1] = (np.multiply(Qb_y[i,1],B_Distance[i,1]))/(t_sk*G)
+                Line_Integral_qb[i,2] = (np.multiply(Qb_z[i,1],B_Distance[i,2]))/(t_sk*G)
+                Line_Integral_qb_2 = Line_Integral_qb_2 + Line_Integral_qb[i,1] + Line_Integral_qb[i,2]  
+                
+            elif (ID_current == 3):
+                Line_Integral_qb[i,1] = (np.multiply(Qb_y[i,1],B_Distance[i,1]))/(t_sp*G)
+                Line_Integral_qb[i,2] = (np.multiply(Qb_z[i,1],B_Distance[i,2]))/(t_sp*G)
+                Line_Integral_qb_3 = Line_Integral_qb_3 + Line_Integral_qb[i,1] + Line_Integral_qb[i,2]
+            
             i=i+1
             qb_z = qb_z + (-(V_z)/I_yy)*B_array[i,2]*-B_array[i,1]
             qb_y = qb_y+ (-(V_y)/I_zz)*B_array[i,3]*-B_array[i,0]
             ID_new=B_array[i,4]
             
-        
+            
+            
         
         #Move on to next cell or spar
         ID_current+=1
         
-    return Qb_z, Qb_y
+        
+        
+        
+    return Qb_z, Qb_y,B_Distance,Line_Integral_qb,Line_Integral_qb_1,Line_Integral_qb_2,Line_Integral_qb_3
+
+
 
 Qb_z=baseShearFlows(23,528,30,20,B)[0]
 Qb_y=baseShearFlows(23,528,30,20,B)[1]
-print (Qb_y)
-
-#Check with a plot:
-
-#Line_Integral_qb_3 = (qb_3*)/(t_sp*G)
+B_Distance=baseShearFlows(23,528,30,20,B)[2]
+Line_Integral_qb=baseShearFlows(23,528,30,20,B)[3]
+Line_Integral_qb_1=baseShearFlows(23,528,30,20,B)[4]
+Line_Integral_qb_2=baseShearFlows(23,528,30,20,B)[5]
+Line_Integral_qb_3=baseShearFlows(23,528,30,20,B)[6]
