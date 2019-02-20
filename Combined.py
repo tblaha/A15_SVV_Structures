@@ -29,5 +29,7 @@ y_bar,z_bar=findCentroid()
 span_discretization=discretizeSpan(span_nodes_between,span_ec,span_offset)
 
 #Discretize cross-section
-cross_discretization=discretizeCrossSection(h_a, c_a, n_st, A_st, t_sk, t_sp, y_bar, z_bar, cross=booms_between)
+#cross_discretization=discretizeCrossSection(h_a, c_a, n_st, A_st, t_sk, t_sp, y_bar, z_bar, cross=booms_between)
 
+#Calculate Moment of Inertia
+MomentOfInertia()
