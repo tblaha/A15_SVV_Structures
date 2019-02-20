@@ -93,3 +93,4 @@ print (Qb_y)
 
 #Check with a plot:
 
+#Line_Integral_qb_3 = (qb_3*)/(t_sp*G)

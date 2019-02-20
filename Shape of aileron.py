@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 import UniversalConstants as UC
 from mpl_toolkits.mplot3d import Axes3D
 
-def shapeOfAileron(x_coords, displ_na, d_theta, theta, x_h2=UC.x_h2, d_a=UC.d_a, h_a=UC.h_a, c_a=UC.c_a, plot=False):
+def shapeOfAileron(x_coords, displ_na, d_theta, theta, Z_bar, x_h2=UC.x_h2, d_a=UC.d_a, h_a=UC.h_a, c_a=UC.c_a, plot=False):
 	'''
 	INPUTS:
 	- x_coords:
@@ -29,6 +29,10 @@ def shapeOfAileron(x_coords, displ_na, d_theta, theta, x_h2=UC.x_h2, d_a=UC.d_a,
 	The cross-section at which this angle holds will be referred to as the
 	fixed section. Note that angles are taken positive counter clockwise.
 	This variable is a given constant of the simulation.
+	
+	- Z_bar:
+	The z coordinate of the centroid of the cross-section as measured from the
+	hingeline.
 	
 	- x_h2:
 	The distance between the side of the aileron closest to the fuselage and
@@ -190,9 +194,8 @@ def shapeOfAileron(x_coords, displ_na, d_theta, theta, x_h2=UC.x_h2, d_a=UC.d_a,
 	section_thetas = section_thetas + correction_angle
 	
 	# For the displacements of the LE and TE we use the displacement of the NA and
-	# add/subtract the displacement of the LE/TE with respect to the hinge line as we'll
-	# assume that the aileron twists about the hinge line. For this, we'll also assume that
-	# that the displacement of the hinge line as the same as the displacement of the NA.
+	# add/subtract the displacement of the LE/TE with respect to the NA. For this, we'll also assume that
+	# the displacement of the hinge line is the same as the displacement of the NA.
 	# As the angles are taken with respect to the positive z axis, the displacements in the
 	# z direction are calculated with the cos of the angles times the distance between the
 	# LE/TE and the NA. The sin is used for the displacements in the y direction.
@@ -200,11 +203,11 @@ def shapeOfAileron(x_coords, displ_na, d_theta, theta, x_h2=UC.x_h2, d_a=UC.d_a,
 	# For a positive angle the LE of the aileron goes down in the y direction. Thus, the
 	# displacement of the LE in the y direction needs to be subtracted from the displacement
 	# of the NA in the y direction.
-	le_y_coords = displ_na[0] - np.sin(section_thetas)*(h_a/2.)
+	le_y_coords = displ_na[0] - np.sin(section_thetas)*((h_a/2.)-Z_bar)
 	
 	# As the LE is in fron of the hinge line, the displacement of the LE with respect to the hinge line
 	# in the z direction should be added to the displacement of the NA in the z direction.
-	le_z_coords = displ_na[1] + np.cos(section_thetas)*(h_a/2.)
+	le_z_coords = displ_na[1] + np.cos(section_thetas)*(h_a/2.-Z_bar)
 	
 	# The y and z coordinates are then put together in an array.
 	le_coords = np.array([le_y_coords, le_z_coords])
@@ -213,11 +216,11 @@ def shapeOfAileron(x_coords, displ_na, d_theta, theta, x_h2=UC.x_h2, d_a=UC.d_a,
 	# between the LE and hinge line.
 	# The TE will go up in the y direction for a positive angle so we need to add the displacement
 	# in the y direction.
-	te_y_coords = displ_na[0] + np.sin(section_thetas)*(c_a - (h_a/2.))
+	te_y_coords = displ_na[0] + np.sin(section_thetas)*(c_a - (h_a/2.) + Z_bar)
 	
 	# As the TE is behind the hinge line, the displacement of the TE with respect to the hinge line
 	# in the z direction should be subtracted from the displacement of the NA in the z direction.
-	te_z_coords = displ_na[1] - np.cos(section_thetas)*(c_a - (h_a/2.))
+	te_z_coords = displ_na[1] - np.cos(section_thetas)*(c_a - (h_a/2.) + Z_bar)
 	
 	# The y and z coordinates are then put together in an array.
 	te_coords = np.array([te_y_coords, te_z_coords])
@@ -316,10 +319,11 @@ def shapeOfAileronTest():
 	x_coords = np.array([0., 100., 200., 300., 400., 500.])*10.
 	displ_na = np.array([[0., 1., 2., 3., 4., 5.], [0., 3., 6., 9., 12., 15.]])
 	displ_na = np.array([[0., 0., 0., 0., 0., 0.], [0., 0., 0., 0., 0., 0.]])
-	#d_theta = np.array([-1, -0.5, -0.2, 0.3, 1.2])*0.0001
-	d_theta = np.ones(5)*0.0005
+	d_theta = np.array([-1, -0.5, -0.2, 0.3, 1.2])*0.0001
+	#d_theta = np.ones(5)*0.0005
 	#d_theta = np.zeros(5)
 	theta = 26.*(np.pi/180.)
+	Z_bar = -100.
 	#x_h2 = 250.
 	#d_a = 10.
 	#h_a = 12.5
@@ -327,9 +331,9 @@ def shapeOfAileronTest():
 	
 	# And here we run the shapeOfAileron() function and print its outputs.
 	#disp_le_y_max, disp_te_y_max, disp_le_max_x, disp_te_max_x = shapeOfAileron(x_coords, displ_na, d_theta, theta, x_h2, d_a, h_a, c_a, plot=True)
-	disp_le_y_max, disp_te_y_max, disp_le_max_x, disp_te_max_x = shapeOfAileron(x_coords, displ_na, d_theta, theta, plot=True)
-	print disp_le_y_max
-	print disp_te_y_max
-	print disp_le_max_x
-	print disp_te_max_x
+	disp_le_y_max, disp_te_y_max, disp_le_max_x, disp_te_max_x = shapeOfAileron(x_coords, displ_na, d_theta, theta, Z_bar, plot=True)
+	print(disp_le_y_max)
+	print(disp_te_y_max)
+	print(disp_le_max_x)
+	print(disp_te_max_x)
 shapeOfAileronTest()
