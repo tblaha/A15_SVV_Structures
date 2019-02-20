@@ -37,3 +37,10 @@ E=69e3      # Young's modulus Aluminium     69GPa
 #discretization.py
 #discretizeSpan(x_h1, x_h2, x_h3, d_a, l_a, nodes_between=50,ec=0.0001,offset=30)
 #discretizes the span with concentrations of nodes around points of interest
+
+#################Module 3#################
+#Moment of inertia defined as I_zz and I_yy
+location_Bz = 0
+location_By = 1
+location_z = 2
+location_y = 3

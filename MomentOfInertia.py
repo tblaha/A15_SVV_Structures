@@ -4,7 +4,7 @@ Created on Mon Feb 18 15:49:34 2019
 
 @author: Mathieu D'heer
 """
-
+#Import neccesary modules
 import UniversalConstants as UC
 from math import *
 import numpy as np
