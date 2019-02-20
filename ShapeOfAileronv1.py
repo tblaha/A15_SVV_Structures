@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 import UniversalConstants as UC
 from mpl_toolkits.mplot3d import Axes3D
 
-def shapeOfAileron(x_coords, displ_na, d_theta, theta, Z_bar, h_a=UC.h_a, c_a=UC.c_a, plot=False):
+def shapeOfAileron(x_coords, displ_na, d_theta, theta, Z_bar, x_h2=UC.x_h2, d_a=UC.d_a, h_a=UC.h_a, c_a=UC.c_a, plot=False):
 	'''
 	INPUTS:
 	- x_coords:
@@ -24,12 +24,20 @@ def shapeOfAileron(x_coords, displ_na, d_theta, theta, Z_bar, h_a=UC.h_a, c_a=UC
 	positive counter clockwise.
 	
 	- theta:
-	The angle of the maximum upward deflection of the aileron.
+	The angle the aileron was given to be at. The position of this twist is
+	assumed to be at actuator I as this actuator is given to be fixed (jammed).
+	The cross-section at which this angle holds will be referred to as the
+	fixed section. Note that angles are taken positive counter clockwise.
 	This variable is a given constant of the simulation.
 	
 	- Z_bar:
 	The z coordinate of the centroid of the cross-section as measured from the
 	hingeline.
+	
+	- x_h2:
+	The distance between the side of the aileron closest to the fuselage and
+	hinge 2.
+	This variable is a given constant of the simulation.
 	
 	- d_a:
 	The distance between the two actuators.
@@ -59,13 +67,19 @@ def shapeOfAileron(x_coords, displ_na, d_theta, theta, Z_bar, h_a=UC.h_a, c_a=UC
 	and all the consecutive cross-sections are twisted relative to this cross-section. The
 	advantage of doing this is that the coordinate system is the same for each cross-section
 	and the d_theta data has the correct sign. We will then save the twist angle at each cross-section.
-	As the maximum deflection of the aileron was given, we need to correct the twist angles (think of
-	it as rotating the entire aileron) such that the maximum calculated angle matches the given angle.
-	The difference between the angle we wanted and the angle we have is then added to the twist
-	angle at each cross-section. Now we can simply calculate the position of the LE and TE relative
-	to the NA by using basic trigonometry and add this to the displacement values of the NA to get
-	the displacement of the LE and TE. We then return the maximum (absolute) displacement of the
-	LE and TE in the y direction and the x coordinate of the corresponding cross-sections.
+	Now as some part of the aileron is given to be at a certain angle, we need to adjust these
+	angles (add a constant to all calculated angles like we are twisting the entire aileron) such that
+	that part, lets call it the 'fixed cross-section', is indeed at that given angle.
+	To do this, we will first find the section that this fixed cross-section is in. Then we will calculate
+	the twist of this cross-section by making an extra cut there and determining how much it
+	has twisted compared with the cross-section besides it. This is done by using the d_theta data
+	corresponding to that section and the distance between the fixed cross-section and
+	the cross-section besides it. The difference between the angle we wanted and the angle we
+	have is then added to the twist angle at each cross-section.
+	Now we can simply calculate the position of the LE and TE relative to the NA by using basic
+	trigonometry and add this to the displacement values of the NA to get the displacement of the
+	LE and TE. We then return the maximum (absolute) displacement of the LE and TE in the y
+	direction and the x coordinate of the corresponding cross-sections.
 	
 	OUTPUTS:
 	- The maximum (absolute) displacement of the ailerons LE.
@@ -116,16 +130,65 @@ def shapeOfAileron(x_coords, displ_na, d_theta, theta, Z_bar, h_a=UC.h_a, c_a=UC
 		# to be 0 and the array was initialized to be all zeros.
 		section_thetas[i+1] = section_theta
 	
-	# Now we need to know the maximum upward deflection (largest positive angle)
-	# that we currently have. This angle can then be used to determine how much we
-	# still need to rotate the aileron such that the maximum upward deflection angle
-	# matches the given one. Note that we want the maximum angle, and not maximum
-	# absolute angle, as the given deflection angle is the maximum upward deflection angle.
-	theta_max = max(section_thetas)
+	# As some part of the aileron, lets call it the 'fixed cross-section' is given to be at a given
+	# angle, we need to twist the entire aileron such that the angle of fixed cross-section is
+	# equal to the given angle. This is done by adding a correction factor 'correction_angle'.
+	# The correction_angle will be the difference between what the angle of the fixed cross-section
+	# needs to be and what it currently is. As the fixed cross-section of the aileron will probably not
+	# correspond with any of the other cross-sections (due to the fact that it might very well not be
+	# located at the position of a cross-section and even if it does it probably won't be exactly
+	# because of rounding errors), we need to first find the section that the part falls in.
+	# To do that, we'll look at the distances between the cross-sections and the fixed cross-section
+	# (negative when the cross-section is closer to the fuselage than the fixed cross-section and
+	# positive when the cross-section is further away from the fuselage than the fixed cross-section).
+	# We'll start at the first cross-section (the one closest to the aileron and with index 0) look at
+	# its distance to the fixed cross-section (for the first cross-section this value will be positive
+	# or zero as the first cross-section is the closest cross-section to the fuselage. Then we'll
+	# go to the next cross-section and look at its distance to the fixed cross-section. Ones this
+	# distance becomes negative, we've just passed the section that holds the fixed cross-section.
+	# So if the ith cross-section is the first (if we go over the cross-sections in the positive x direction),
+	# for which the distance to the fixed cross-section is smaller then 0, then we know that the
+	# fixed cross-section is in the i-1th section.
+	# The fixed cross-section is assumed to be at actuator I as that actuator is jammed.
+	# The two actuators are spaced equally from hinge two and at a distance d_a from one
+	# another. Also, actuator I is closer to the first cross-section than hinge 2 is. As a result, actuator I
+	# is at a distance of -d_a/2 from hinge 2. Hinge two is at x_h2 from the first cross-section.
+	fixed_section_x_coord = x_coords[0] + x_h2 - (d_a/2.)
 	
-	# The correction_angle is than the difference between the maximum angle we want
-	# and the maximum angle we actually have.
-	correction_angle = theta - theta_max
+	# The distance between the cross-sections and the fixed cross-section.
+	dist_section_fixed_section = fixed_section_x_coord - x_coords
+	
+	# This variable will indicate whether or not we have found the section that holds the
+	# fixed cross-section. As long as it is false, we need to keep evaluating the next sections.
+	section_found = False
+	
+	# We'll start by looking at the second cross-section (the cross-section with index 1) as
+	# we determine whether or not the fixed cross-section is in section i by looking at cross-section i+1
+	# as explained above. There is thus no point in starting by looking at the first cross-section.
+	search_index = 1
+	while not section_found:
+		# We check whether the distance between the currently evaluated cross-section and the
+		# fixed cross-section is smaller than zero. If so, we have found the section we were looking
+		# for.
+		if dist_section_fixed_section[search_index] < 0:
+			# Ones the section we were looking for is found, we can set section_found to True.
+			section_found = True
+			
+			# And the section index is that of the previous section.
+			fixed_section_index = search_index - 1
+		
+		# The search index is incremented to go to the next cross-section.
+		search_index += 1
+	
+	# The angle the fixed cross-section is at can then be determined the same way as the angles
+	# for the other cross-sections was calculated. We look at the angle the previous cross-section
+	# (in this case the first cross-section of that section which has the same index as that section)
+	# and add the amount the section twists.
+	fixed_cross_section_theta = section_thetas[fixed_section_index] + (fixed_section_x_coord - x_coords[fixed_section_index])*d_theta[fixed_section_index]
+	
+	# The correction_angle is than the difference between the ange we want and the angle
+	# we actually have.
+	correction_angle = theta - fixed_cross_section_theta
 	
 	# Now we correct the angles we previously calculated by adding the correction.
 	section_thetas = section_thetas + correction_angle
@@ -261,6 +324,8 @@ def shapeOfAileronTest():
 	#d_theta = np.zeros(5)
 	theta = 26.*(np.pi/180.)
 	Z_bar = -100.
+	#x_h2 = 250.
+	#d_a = 10.
 	#h_a = 12.5
 	#c_a = 50.
 	
