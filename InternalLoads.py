@@ -10,12 +10,23 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 
-def InternalShearForcey (A):
+def Macauly (xlocation, x1):
+    a = x1 - xlocation
+    if a < 0:
+        a = 0 
+        
+    else:
+        a = x1 - xlocation
+        
+    return a
+print(Macauly(2,6))
     
+def InternalShearForcey (xlocation):
+    SFy = xlocation * q * sin(radians(theta)) 
     
     return
 
-def InternalShearForcez (A):
+def InternalShearForcez (xlocation):
     
     
     return
