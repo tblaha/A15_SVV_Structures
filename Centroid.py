@@ -56,12 +56,12 @@ def findCentroid():
     #=========================
     Area_st=(UC.w_st+UC.h_st)*UC.t_st
     #Stiffeners distributed equally over straight part of skin. 
-    #N_st=17, 7 on skin part, 9 segments Stiffener spacing: 
-    d_st=w/9
+    #N_st=17, 7 on skin part, 8 segments Stiffener spacing (edges is half): 
+    d_st=w/8
     #iterate over stiffeners
     for i in range(7):
         #distance is Zfrom stiffener centre + distance to stiffener centre
-        d_z_st=-d_st*(i+1)
+        d_z_st=-d_st*(i+0.5)
         #add
         Area_Sum+=Area_st
         Area_Distance_Sum+=d_z_st*Area_st
