@@ -12,8 +12,16 @@ import matplotlib.pyplot as plt
 
 d_yz_vec, Fx2, Fy, Fz, P_1 = sampleBendingShape([0], x_h1, x_h2, x_h3, p, d_a, q, theta, c_a, h_a, l_a, d_1, d_3, E, 1e7, 5e8)
 
+F_y_1 = Fy[0]
+F_y_2 = Fy[1]
+F_y_3 = Fy[2]
+
+F_z_1 = Fy[0]
+F_z_2 = Fy[1]
+F_z_3 = Fy[2]
+
+P_2 = p
 #Define a macauly function
-    
 def Macauly (x1, x2):
     a = x1 - x2
     if a < 0:
@@ -60,8 +68,37 @@ def InternalMomentz (xlocation):
 def PlotDiagrams():
     import matplotlib.pyplot as plt
     x = np.arange(0,2771,1)
+    y1 = []
+    y2 = []
+    y3 = []
+    y4 = []
+    y5 = []
+    y6 = []
     
-    
+    for i in range(len(x)): 
+        y1.append(InternalShearForcex(x[i]))
+        i = +i 
+        
+    for i in range(len(x)): 
+        y2.append(InternalShearForcey(x[i]))
+        i = +i 
+        
+    for i in range(len(x)): 
+        y3.append(InternalShearForcez(x[i]))
+        i = +i 
+        
+    for i in range(len(x)): 
+        y4.append(InternalMomentx(x[i]))
+        i = +i 
+        
+    for i in range(len(x)): 
+        y5.append(InternalMomenty(x[i]))
+        i = +i 
+        
+    for i in range(len(x)): 
+        y6.append(InternalMomentz(x[i]))
+        i = +i 
+
     #First row: plot 1-3
     plt.subplot(231)
     plt.plot(x,y1)
