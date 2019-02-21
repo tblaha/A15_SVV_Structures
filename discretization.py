@@ -5,6 +5,7 @@ Date  : 2019-02-18
 """
 
 from UniversalConstants import *
+from Stiffeners import *
 import numpy as np
 
 def discretizeCrossSection(h_a, c_a, n_st, A_st, t_sk, t_sp, y_c, z_c, booms_between):
@@ -31,6 +32,7 @@ def discretizeCrossSection(h_a, c_a, n_st, A_st, t_sk, t_sp, y_c, z_c, booms_bet
     # | 0     | 0     | 1                 | 2                 | 1       |
     # | ...
     #
+    # y and z locations are from the centroid of the section
     # cell id: 1 (exclusively left cell, counter clockwise sorted)
     #          2 (exclusively right cell, counter clockwise sorted)
     #          3 (exclusively spar, downwards sorted)
@@ -70,17 +72,16 @@ def discretizeCrossSection(h_a, c_a, n_st, A_st, t_sk, t_sp, y_c, z_c, booms_bet
     total_length = sc_arc_length + straight_length
     
     # length per segment in between stiffeners
-    length_per_stiff_seg = total_length/(len(S))
+    length_per_stiff_seg = total_length/(len(S)-0.5)
     
     # length per boom segment (here, the booms in the spar need to be
     # subtracted since we want to know the length intervals in the skin, not
     # the spar as the spar is handled later)
-    length_per_boom_seg  = total_length/(len(B)-booms_between*spar_upscaling) # works better without the -2
+    length_per_boom_seg  = length_per_stiff_seg/(1+booms_between) # works better without the -2
     
     # number of stiffeners and booms in the circular segment
     stiffs_quarter_circular = np.floor(sc_arc_length/2/length_per_stiff_seg)
     booms_quarter_circular  = np.floor(sc_arc_length/2/length_per_boom_seg)
-
 
     
     
@@ -148,7 +149,6 @@ def discretizeCrossSection(h_a, c_a, n_st, A_st, t_sk, t_sp, y_c, z_c, booms_bet
             # to the top end of the spar
             B[i,2]  += t_sk/6 * (np.pi/2 + angle) * h_a/2 * (2 + (0-z_c)/(B[i,1]-z_c))
             B[i,3]  += t_sk/6 * (np.pi/2 + angle) * h_a/2 * (2 + (-h_a/2-y_c)/(B[i,0]-y_c))
-
 
     
     
@@ -276,6 +276,7 @@ def discretizeCrossSection(h_a, c_a, n_st, A_st, t_sk, t_sp, y_c, z_c, booms_bet
     return  B
        
 
+
  
 def plotCrossSection(B):
     # plots the 2 cross sectional discretization for verification
@@ -291,9 +292,16 @@ def plotCrossSection(B):
     # two subplots (first for bending around y, second for z)
     fig, axs = plt.subplots(2, 1)
     
-    # put down the scatter with the area as the size argument
-    axs[0].scatter(B[:,1], B[:,0], B[:,2])
-    axs[1].scatter(B[:,1], B[:,0], B[:,3])
+    # size
+    si = B.shape;
+    if si[1] == 5:
+        # put down the scatter with the area as the size argument
+        axs[0].scatter(B[:,1], B[:,0], B[:,2])
+        axs[1].scatter(B[:,1], B[:,0], B[:,3])
+    else:
+        axs[0].scatter(B[:,1], B[:,0])
+        axs[1].scatter(B[:,1], B[:,0])
+        
     
     # format: axis equal and invert the z axis (x-axis in the plot referece frame)
     axs[0].axis('equal')
@@ -397,6 +405,13 @@ def discretizeSpan(x_h1, x_h2, x_h3, d_a, l_a, nodes_between=50,ec=0.0001,offset
 # debugging
 
 #B=discretizeCrossSection(h_a, c_a, n_st, 1, t_sk, t_sp, 0, -98, 3)
-#for i in range(10,-1,-1):
-#     B = discretizeCrossSection(h_a, c_a, n_st, t_st*(w_st+h_st-t_st), t_sk, t_sp, 0, -98, i)
-#     plotCrossSection(B)
+for i in range(10,-1,-1):
+     #B = generateStiffeners(h_a, c_a, n_st, t_st*(w_st+h_st-t_st), t_sk, t_sp)
+     B=discretizeCrossSection(h_a, c_a, n_st, t_st*(w_st+h_st-t_st), t_sk, t_sp, 0, -98, i)
+     plotCrossSection(B)
+     
+     
+     
+     
+     
+     
