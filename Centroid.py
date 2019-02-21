@@ -9,6 +9,7 @@ Created on Mon Feb 18 14:18:19 2019
 import UniversalConstants as UC
 import math as m
 import numpy as np
+
 def findCentroid(stiffeners):
     #Returns Y_bar,Z_bar,Z_bar_tip
     #Calculated for the hinge
@@ -30,7 +31,7 @@ def findCentroid(stiffeners):
     #Seperate parts
     #Add spar 
     Z_sp=0
-    A_sp=UC.h_a*UC.t_sp*0.5
+    A_sp=UC.h_a*UC.t_sp
     
     Area_Sum+=A_sp
     Area_Distance_Sum+=A_sp*Z_sp
@@ -48,16 +49,16 @@ def findCentroid(stiffeners):
     #Skin Curved section
     #Find Length of section
     #Circumference is 2pi*r
-    l_Skin_Curved=2*m.pi*h/2
+    l_Skin_Curved=m.pi*h
     skin_Curved_Area=l_Skin_Curved*UC.t_sk
     
     #Semi-circular area centroid is 4r/3pi
-    skin_Curved_Z=(4*h/(m.pi*3))
+    skin_Curved_Z=(4*h)/(m.pi*3)
     
-    #Add
-    Area_Sum+=skin_Curved_Area
-    Area_Distance_Sum+=skin_Area*skin_Curved_Z
-    
+    #    Add
+    Area_Sum+=(skin_Curved_Area)
+    Area_Distance_Sum+=(skin_Curved_Area*skin_Curved_Z)
+
     #=========================
     #Stiffeners
     #=========================
@@ -71,4 +72,3 @@ def findCentroid(stiffeners):
     
     #output
     return Y_bar,Z_bar
-
