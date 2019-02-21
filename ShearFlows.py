@@ -8,12 +8,14 @@ Created on Tue Feb 19 14:57:40 2019
 import numpy as np
 from UniversalConstants import *
 from Discretization import *
+from Centroid import *
 
 import matplotlib.pyplot as plt
 
+B=discretizeCrossSection(h_a, c_a, n_st, 1, t_sk, t_sp, 0, -98, 3)
+l_Skin_Curved=findCentroid()[2]
 
-
-def baseShearFlows(I_zz,I_yy,V_z,V_y,B_array):
+def baseShearFlows(I_zz,I_yy,V_z,V_y,B_array,l_Skin_Curved):
     #This function takes in the MOI parmeters as well as internal shear forces and 
     #cross sectional boom discretization.
     #The output is a 2D array with all the base shear flows in each segment
@@ -69,7 +71,7 @@ def baseShearFlows(I_zz,I_yy,V_z,V_y,B_array):
 
         
         while ID_current==ID_new:
-            if i==len(B[:,0]):
+            if i==len(B[:,0])-1:
                 break
             #Update Qb_z
             Qb_z[i,0]=i+1
@@ -125,17 +127,31 @@ def baseShearFlows(I_zz,I_yy,V_z,V_y,B_array):
         #Move on to next cell or spar
         ID_current+=1
         
+    
+    #Constant shear flow in cell 1 (eq. 5.7)
+    qs0_1_Cell_1 = (1./(2.*Cell_Area1))*(((l_Skin_Curved)/(t_sk*G))+((h_a/(t_sp*G))))
+    qs0_2_Cell_1 = -(1./(2.*Cell_Area1))*((h_a)/(t_sp*G)) 
+    
+    #Constant shear flow in cell 2 (eq.5.7)    
+    qs0_1_Cell_2 = -(1./(2.*Cell_Area1))*((h_a)/(t_sp*G))
+    qs0_2_Cell_2 = (1./(2.*Cell_Area1))*(((l_Skin_Curved)/(t_sk*G))+((h_a/(t_sp*G))))
+    
+    #Moment Equation (eq. 5.8)
         
-        
-        
-    return Qb_z, Qb_y,B_Distance,Line_Integral_qb,Line_Integral_qb_1,Line_Integral_qb_2,Line_Integral_qb_3
+    
+    
+    return Qb_z, Qb_y,B_Distance,Line_Integral_qb,Line_Integral_qb_1,Line_Integral_qb_2,Line_Integral_qb_3,qs0_1_Cell_1,qs0_2_Cell_1,qs0_1_Cell_2,qs0_2_Cell_2
 
 
 
-Qb_z=baseShearFlows(23,528,30,20,B)[0]
-Qb_y=baseShearFlows(23,528,30,20,B)[1]
-B_Distance=baseShearFlows(23,528,30,20,B)[2]
-Line_Integral_qb=baseShearFlows(23,528,30,20,B)[3]
-Line_Integral_qb_1=baseShearFlows(23,528,30,20,B)[4]
-Line_Integral_qb_2=baseShearFlows(23,528,30,20,B)[5]
-Line_Integral_qb_3=baseShearFlows(23,528,30,20,B)[6]
+Qb_z=baseShearFlows(23,528,30,20,B,l_Skin_Curved)[0]
+Qb_y=baseShearFlows(23,528,30,20,B,l_Skin_Curved)[1]
+B_Distance=baseShearFlows(23,528,30,20,B,l_Skin_Curved)[2]
+Line_Integral_qb=baseShearFlows(23,528,30,20,B,l_Skin_Curved)[3]
+Line_Integral_qb_1=baseShearFlows(23,528,30,20,B,l_Skin_Curved)[4]
+Line_Integral_qb_2=baseShearFlows(23,528,30,20,B,l_Skin_Curved)[5]
+Line_Integral_qb_3=baseShearFlows(23,528,30,20,B,l_Skin_Curved)[6]
+qs0_1_Cell_1=baseShearFlows(23,528,30,20,B,l_Skin_Curved)[7]
+qs0_2_Cell_1=baseShearFlows(23,528,30,20,B,l_Skin_Curved)[8]
+qs0_1_Cell_2=baseShearFlows(23,528,30,20,B,l_Skin_Curved)[9]
+qs0_2_Cell_2=baseShearFlows(23,528,30,20,B,l_Skin_Curved)[10]
