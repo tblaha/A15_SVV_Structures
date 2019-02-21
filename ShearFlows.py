@@ -182,6 +182,8 @@ def baseShearFlows(I_zz,I_yy,SFIz,SFIy,B_array,l_Skin_Curved,MIx,Z_Hingeline,Z_b
     A_21 = -(1./(2.*Cell_Area2))*((h_a)/(t_sp*G))
     A_22 = (1./(2.*Cell_Area2))*(((l_Skin_Curved)/(t_sk*G))+((h_a/(t_sp*G))))
     
+    B_1 = (Line_Integral_qb_1+Line_Integral_qb_3)*(1./(2.*Cell_Area_1))
+    B_2 = (Line_Integral_qb_2+Line_Integral_qb_3)*(1./(2.*Cell_Area_2))
     #Moment Equation (eq. 5.8)
     #Contributions for the base shears are given by the values outputed within the second while loop
     
