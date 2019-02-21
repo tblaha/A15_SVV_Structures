@@ -7,7 +7,7 @@ Created on Tue Feb 19 14:57:40 2019
 
 import numpy as np
 from UniversalConstants import *
-from Discretization import *
+from discretization import *
 from Centroid import *
 
 import matplotlib.pyplot as plt
@@ -142,8 +142,8 @@ def baseShearFlows(I_zz,I_yy,V_z,V_y,B_array,l_Skin_Curved):
     qs0_2_Cell_1 = -(1./(2.*Cell_Area1))*((h_a)/(t_sp*G)) 
     
     #Constant shear flow in cell 2 (eq.5.7)    
-    qs0_1_Cell_2 = -(1./(2.*Cell_Area1))*((h_a)/(t_sp*G))
-    qs0_2_Cell_2 = (1./(2.*Cell_Area1))*(((l_Skin_Curved)/(t_sk*G))+((h_a/(t_sp*G))))
+    qs0_1_Cell_2 = -(1./(2.*Cell_Area2))*((h_a)/(t_sp*G))
+    qs0_2_Cell_2 = (1./(2.*Cell_Area2))*(((l_Skin_Curved)/(t_sk*G))+((h_a/(t_sp*G))))
     
     #Moment Equation (eq. 5.8)
         
