@@ -51,10 +51,10 @@ Cell_Area2=(c_a-(h_a/2))*(h_a/2)
 #Moment of inertia is defined as I_zz and I_yy
 #Output is given as a (I_zz, I_yy)
 #The variables underneath give the placement of the boom area and the distance of that boom area in the discretization matrix
-location_Bz = 0
-location_By = 1
-location_z = 2
-location_y = 3
+location_Bz = 3
+location_By = 2
+location_z = 1
+location_y = 0
 
 
 #################Module 4#################
