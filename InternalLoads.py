@@ -9,9 +9,10 @@ from UniversalConstants import *
 from ReactionForces import *
 import numpy as np
 import matplotlib.pyplot as plt
+#Getting the values for the reaction forces
+d_yz_vec, Fx2, Fy, Fz, P_1 = sampleBendingShape([0], x_h1, x_h2, x_h3, p, d_a, q, theta, c_a, h_a, l_a, d_1, d_3, E, 13850069.95, 95733446.4887)
 
-d_yz_vec, Fx2, Fy, Fz, P_1 = sampleBendingShape([0], x_h1, x_h2, x_h3, p, d_a, q, theta, c_a, h_a, l_a, d_1, d_3, E, 1e7, 5e8)
-
+#Adapting the names of the reaction forces to this program
 F_y_1 = Fy[0]
 F_y_2 = Fy[1]
 F_y_3 = Fy[2]
@@ -21,7 +22,8 @@ F_z_2 = Fy[1]
 F_z_3 = Fy[2]
 
 P_2 = p
-#Define a macauly function
+
+#Define a macauly function when 
 def Macauly (x1, x2):
     a = x1 - x2
     if a < 0:
@@ -30,11 +32,12 @@ def Macauly (x1, x2):
         a = 1
     return a 
 
+
 def Macaulyyy (x1, x2):
     a = x1 - x2
     if a < 0:
         a = 0
-    return a
+    return a 
 
 def InternalShearForcex (xlocation):
     SFIx = 0
@@ -77,7 +80,7 @@ def InternalMomentz (xlocation):
 
 def PlotDiagrams():
     import matplotlib.pyplot as plt
-    x = np.arange(0,2771,1)
+    x = np.arange(0,2771,0.1)
     y1 = []
     y2 = []
     y3 = []
