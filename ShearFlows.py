@@ -174,29 +174,27 @@ def baseShearFlows(I_zz,I_yy,SFIz,SFIy,B_array,l_Skin_Curved,MIx,Z_Hingeline,Z_b
         ID_current+=1
         
     
-    #Constant shear flow in cell 1 (eq. 5.7, simulation plan)
-    A_11 = (1./(2.*Cell_Area1))*(((l_Skin_Curved)/(t_sk*G))+((h_a/(t_sp*G))))
-    A_12 = -(1./(2.*Cell_Area1))*((h_a)/(t_sp*G)) 
-    
-    #Constant shear flow in cell 2 (eq.5.7, simulation plan)    
-    A_21 = -(1./(2.*Cell_Area2))*((h_a)/(t_sp*G))
-    A_22 = (1./(2.*Cell_Area2))*(((l_Skin_Curved)/(t_sk*G))+((h_a/(t_sp*G))))
-    
-    B_1 = (Line_Integral_qb_1+Line_Integral_qb_3)*(1./(2.*Cell_Area_1))
-    B_2 = (Line_Integral_qb_2+Line_Integral_qb_3)*(1./(2.*Cell_Area_2))
-    #Moment Equation (eq. 5.8)
-    #Contributions for the base shears are given by the values outputed within the second while loop
-    
-    #Contributions for the base shear flows can be given as a function of the areas:
-    
+   
+
+    #Moment contribution from the constant shears:
     Moment_Cont_qs0_1=2*Cell_Area1*qs0_1
     Moment_Cont_qs0_2=2*Cell_Area_2*qs0_2
     
+    #Total moment contribution including base shear
     RHS_Moment_eq=Moment_Cont_qs0_1 + Moment_Cont_qs0_2 + Moment_Cont_qb_1_z +  Moment_Cont_qb_1_y + Moment_Cont_qb_2_z + Moment_Cont_qb_2_y + Moment_Cont_qb_3 
     
     
-        
     External_Loads = MIx - SFIy*(abs(Z_Hingeline-Z_bar))
+    
+    #Matrix Solving coefficients 
+    A_11 = (1./(2.*Cell_Area1))*(((l_Skin_Curved)/(t_sk*G))+((h_a/(t_sp*G))))
+    A_12 = -(1./(2.*Cell_Area1))*((h_a)/(t_sp*G))    
+    A_21 = -(1./(2.*Cell_Area2))*((h_a)/(t_sp*G))
+    A_22 = (1./(2.*Cell_Area2))*(((l_Skin_Curved)/(t_sk*G))+((h_a/(t_sp*G))))
+    A_31=2*Cell_Area1
+    A_32=2*Cell_area2
+    
+    B_3=External_Loads-RHS_Moment_eq
     
     
     return Qb_z, Qb_y,B_Distance,Line_Integral_qb,Line_Integral_qb_1,Line_Integral_qb_2,Line_Integral_qb_3,qs0_1_Cell_1,qs0_2_Cell_1,qs0_1_Cell_2,qs0_2_Cell_2
