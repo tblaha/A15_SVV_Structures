@@ -92,4 +92,4 @@ def findCentroid():
     Z_bar=Area_Distance_Sum/Area_Sum
     
     #output
-    return Y_bar,Z_bar,l_Skin_Curved
+    return Y_bar,Z_bar,l_Skin_Curved,w
