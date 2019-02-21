@@ -142,12 +142,12 @@ def baseShearFlows(I_zz,I_yy,SFIz,SFIy,B_array,l_Skin_Curved,MIx,Z_Hingeline,Z_b
         
     
     #Constant shear flow in cell 1 (eq. 5.7, simulation plan)
-    qs0_1_Cell_1 = (1./(2.*Cell_Area1))*(((l_Skin_Curved)/(t_sk*G))+((h_a/(t_sp*G))))
-    qs0_2_Cell_1 = -(1./(2.*Cell_Area1))*((h_a)/(t_sp*G)) 
+    A_11 = (1./(2.*Cell_Area1))*(((l_Skin_Curved)/(t_sk*G))+((h_a/(t_sp*G))))
+    A_12 = -(1./(2.*Cell_Area1))*((h_a)/(t_sp*G)) 
     
     #Constant shear flow in cell 2 (eq.5.7, simulation plan)    
-    qs0_1_Cell_2 = -(1./(2.*Cell_Area2))*((h_a)/(t_sp*G))
-    qs0_2_Cell_2 = (1./(2.*Cell_Area2))*(((l_Skin_Curved)/(t_sk*G))+((h_a/(t_sp*G))))
+    A_21 = -(1./(2.*Cell_Area2))*((h_a)/(t_sp*G))
+    A_22 = (1./(2.*Cell_Area2))*(((l_Skin_Curved)/(t_sk*G))+((h_a/(t_sp*G))))
     
     #Moment Equation (eq. 5.8, simulation plan)
         
