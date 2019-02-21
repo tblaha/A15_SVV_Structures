@@ -6,8 +6,11 @@ Created on Wed Feb 20 10:00:45 2019
 """
 
 from UniversalConstants import *
+from ReactionForces import *
 import numpy as np
 import matplotlib.pyplot as plt
+
+d_yz_vec, Fx2, Fy, Fz, P_1 = sampleBendingShape([0], x_h1, x_h2, x_h3, p, d_a, q, theta, c_a, h_a, l_a, d_1, d_3, E, 1e7, 5e8)
 
 #Define a macauly function
     
