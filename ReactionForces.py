@@ -346,7 +346,7 @@ def plotBendingShape(x_vec, d_yz_vec):
         
 d, Fx, Fy, Fz, P1 = sampleBendingShape([0, 153, 1281-280/2, 1281, 2681, 2771], x_h1, x_h2, x_h3, p, d_a, q, theta, c_a, h_a, l_a, d_1, d_3, E, 1e7, 5e8)
 
-print(np.arctan(d[1,2] / d[0,2]) * 180/np.pi)
+#print(np.arctan(d[1,2] / d[0,2]) * 180/np.pi)
         
     
 
