@@ -55,21 +55,24 @@ def baseShearFlows(I_zz,I_yy,V_z,V_y,B_array):
     i=0
     
     #Do this for all 3 cells based on their IDs
+    
+    Line_Integral_qb_1=0.
+    Line_Integral_qb_2=0.
+    Line_Integral_qb_3=0.
+        
     while ID_current<=3:
         
         #Initialize base shear at 0 in each cell as this will start from the
         #point of the cut
         qb_z=0
         qb_y=0
-        Line_Integral_qb_1=0.
-        Line_Integral_qb_2=0.
-        Line_Integral_qb_3=0.
+        
     
         #Do this until new cell/spar
 
         
         while ID_current==ID_new:
-            if i==len(B[:,0]):
+            if i==len(B_array[:,0])-1:
                 break
             #Update Qb_z
             Qb_z[i,0]=i+1
@@ -91,8 +94,12 @@ def baseShearFlows(I_zz,I_yy,V_z,V_y,B_array):
             
             #Distance between each boom. 
             #FORMAT: / i number / y-direction / z-direction / ID /
-            B_Distance[i,1]=B[i+1,0]-B[i,0]
-            B_Distance[i,2]=B[i+1,1]-B[i,1]
+            
+            if i==len(B_array[:,0]):
+                break
+            
+            B_Distance[i,1]=abs(B_array[i+1,0]-B_array[i,0])
+            B_Distance[i,2]=abs(B_array[i+1,1]-B_array[i,1])
             
             #Line Integral q_b in cell 1.
             #Formula used: (q_b*Length)/(t_skin*G)
@@ -103,11 +110,13 @@ def baseShearFlows(I_zz,I_yy,V_z,V_y,B_array):
                 Line_Integral_qb[i,1] = (np.multiply(Qb_y[i,1],B_Distance[i,1]))/(t_sk*G)
                 Line_Integral_qb[i,2] = (np.multiply(Qb_z[i,1],B_Distance[i,2]))/(t_sk*G)
                 Line_Integral_qb_1 = Line_Integral_qb_1 + Line_Integral_qb[i,1] + Line_Integral_qb[i,2]  
+            
                 
             elif (ID_current == 2):
                 Line_Integral_qb[i,1] = (np.multiply(Qb_y[i,1],B_Distance[i,1]))/(t_sk*G)
                 Line_Integral_qb[i,2] = (np.multiply(Qb_z[i,1],B_Distance[i,2]))/(t_sk*G)
                 Line_Integral_qb_2 = Line_Integral_qb_2 + Line_Integral_qb[i,1] + Line_Integral_qb[i,2]  
+                print (Line_Integral_qb_2)
                 
             elif (ID_current == 3):
                 Line_Integral_qb[i,1] = (np.multiply(Qb_y[i,1],B_Distance[i,1]))/(t_sp*G)
@@ -128,9 +137,15 @@ def baseShearFlows(I_zz,I_yy,V_z,V_y,B_array):
         
         
         
+        
+        
     return Qb_z, Qb_y,B_Distance,Line_Integral_qb,Line_Integral_qb_1,Line_Integral_qb_2,Line_Integral_qb_3
 
 
+    #Takes in light integral of base shear and solves for angle of twist as well
+    #as final total shear
+    
+    
 
 Qb_z=baseShearFlows(23,528,30,20,B)[0]
 Qb_y=baseShearFlows(23,528,30,20,B)[1]
