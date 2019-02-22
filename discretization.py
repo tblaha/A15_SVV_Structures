@@ -4,9 +4,11 @@ Author: tblaha & dverkooij
 Date  : 2019-02-18
 """
 
+
 from UniversalConstants import *
 from Stiffeners import *
 import numpy as np
+
 
 def discretizeCrossSection(h_a, c_a, n_st, A_st, t_sk, t_sp, y_c, z_c, booms_between):
     # Takes the geometry, the number of stiffeners and the number of booms in
@@ -53,7 +55,7 @@ def discretizeCrossSection(h_a, c_a, n_st, A_st, t_sk, t_sp, y_c, z_c, booms_bet
     # booms_between*(n_st+1) +       # in each of the (n_st+1) segments there are booms_between booms
     # booms_between*spar_upscaling + # upscaling for the spar
     # 2                              # two additional booms at the ends of the spar
-    B = np.zeros((n_st + booms_between*(n_st+1+spar_upscaling), 5)) # works better without the +2
+    B = np.zeros((n_st + booms_between*(n_st+1+spar_upscaling) - floor(booms_between/2)*2, 5)) # works better without the +2
     
     
     
@@ -104,6 +106,7 @@ def discretizeCrossSection(h_a, c_a, n_st, A_st, t_sk, t_sp, y_c, z_c, booms_bet
         # so only the angle needs to be calculated: 0 angle means on the z-axis
         # and positive angle means below the z-axis
         angle = (booms_quarter_circular - i) * length_per_boom_seg/(2*sc_arc_length) * 2*np.pi
+        print(angle)
         
         # using the angle, get the location using the radial distance h_a/2
         B[i,0]     = np.sin(angle)*h_a/2
@@ -190,10 +193,10 @@ def discretizeCrossSection(h_a, c_a, n_st, A_st, t_sk, t_sp, y_c, z_c, booms_bet
         
         # skin contributions (exactly like above)
         if j:
-            B[i,2]   += t_sk/6 * length_per_boom_seg * (2 + (B[i-1,1]-z_c)/(B[i,1]-z_c))
-            B[i-1,2] += t_sk/6 * length_per_boom_seg * (2 + (B[i,1]-z_c)  /(B[i-1,1]-z_c))
-            B[i,3]   += t_sk/6 * length_per_boom_seg * (2 + (B[i-1,0]-y_c)/(B[i,0]-y_c))
-            B[i-1,3] += t_sk/6 * length_per_boom_seg * (2 + (B[i,0]-y_c)  /(B[i-1,0]-y_c))
+            B[i,2]   += t_sk/6 * length_per_boom_seg * (2 + (B[i-1,1]-z_c) / (B[i,1]-z_c))
+            B[i-1,2] += t_sk/6 * length_per_boom_seg * (2 + (B[i,1]-z_c)   / (B[i-1,1]-z_c))
+            B[i,3]   += t_sk/6 * length_per_boom_seg * (2 + (B[i-1,0]-y_c) / (B[i,0]-y_c))
+            B[i-1,3] += t_sk/6 * length_per_boom_seg * (2 + (B[i,0]-y_c)   / (B[i-1,0]-y_c))
         
         # add the stiffener area where there is a stiffener
         if not (i-booms_to_first_stiff)%(booms_between+1):
@@ -404,10 +407,10 @@ def discretizeSpan(x_h1, x_h2, x_h3, d_a, l_a, nodes_between=50,ec=0.0001,offset
 # debugging
 
 #B=discretizeCrossSection(h_a, c_a, n_st, 1, t_sk, t_sp, 0, -98, 3)
-#for i in range(10,2,-1):
-#     B = generateStiffeners(h_a, c_a, n_st, t_st*(w_st+h_st-t_st), t_sk, t_sp)
-#     #B=discretizeCrossSection(h_a, c_a, n_st, t_st*(w_st+h_st-t_st), t_sk, t_sp, 0, -98, i)
-#     plotCrossSection(B)
+for i in range(4,3,-1):
+     # = generateStiffeners(h_a, c_a, n_st, t_st*(w_st+h_st-t_st), t_sk, t_sp)
+     B=discretizeCrossSection(h_a, c_a, n_st, t_st*(w_st+h_st-t_st), t_sk, t_sp, 0, -98, i)
+     #plotCrossSection(B)
      
      
      
