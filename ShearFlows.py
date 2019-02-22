@@ -10,17 +10,20 @@ from UniversalConstants import *
 from discretization import *
 from Centroid import *
 from InternalLoads import *
+from Stiffeners import *
 
 import matplotlib.pyplot as plt
 
-B=discretizeCrossSection(h_a, c_a, n_st, 1, t_sk, t_sp, 0, -98, 3)
-Z_bar=findCentroid()[1]
-MIx=InternalMomentx(0)[0]
+MIx=InternalMomentx(0)
+stiffeners = generateStiffeners(h_a, c_a, n_st, A_st, t_sk, t_sp)
+Y_bar,Z_bar=findCentroid(stiffeners)
+B=discretizeCrossSection(h_a, c_a, n_st, A_st, t_sk, t_sp, Y_bar, Z_bar, 3)
 
 #First find some additional geom properties
 h=UC.h_a / 2 #also r
 l_Skin_Curved=m.pi*h
 Z_Hingeline=UC.c_a-h
+Z_bar = 400 #change this later to the actual value!!
 
 def baseShearFlows(I_zz,I_yy,SFIz,SFIy,B_array,l_Skin_Curved,MIx,Z_Hingeline,Z_bar):
     #This function takes in the MOI parmeters as well as internal shear forces and 
@@ -56,7 +59,7 @@ def baseShearFlows(I_zz,I_yy,SFIz,SFIy,B_array,l_Skin_Curved,MIx,Z_Hingeline,Z_b
     
     Line_Integral_qb = np.zeros((len(B_array[:,0]),4))
     
-    Moment_Integral_qb = np.zeros((len(B_array[:,0])),4)
+    Moment_Integral_qb = np.zeros((len(B_array[:,0]),4))
     
     #Initialize first cell
     ID_current=1
@@ -132,8 +135,12 @@ def baseShearFlows(I_zz,I_yy,SFIz,SFIy,B_array,l_Skin_Curved,MIx,Z_Hingeline,Z_b
             if (ID_current == 1):
                 Line_Integral_qb[i,1] = (np.multiply(Qb_y[i,1],B_Distance[i,1]))/(t_sk*G)
                 Line_Integral_qb[i,2] = (np.multiply(Qb_z[i,1],B_Distance[i,2]))/(t_sk*G)
-                Moment_Integral_qb[i,1]=(np.multiply(Qb_y[i,1],B_Distance[i,1],B_Distance[i,2]))
-                Moment_Integral_qb[i,2]=(np.multiply(Qb_z[i,1],B_Distance[i,2],B_Distance[i,1]))
+                
+                Moment_Integral_qb[i,1]=(np.multiply(Qb_y[i,1],B_Distance[i,1]))
+                Moment_Integral_qb[i,1]=(np.multiply(Moment_Integral_qb[i,1],B_Distance[i,2]))
+                
+                Moment_Integral_qb[i,2]=(np.multiply(Qb_z[i,1],B_Distance[i,2]))
+                Moment_Integral_qb[i,2]=(np.multiply(Moment_Integral_qb[i,2],B_Distance[i,1]))
                 
                 #Moment contribution will be negative for first skin
                 Moment_Cont_qb_1_z= -(Moment_Cont_qb_1_z+ Moment_Integral_qb[i,2])
@@ -146,8 +153,12 @@ def baseShearFlows(I_zz,I_yy,SFIz,SFIy,B_array,l_Skin_Curved,MIx,Z_Hingeline,Z_b
             elif (ID_current == 2):
                 Line_Integral_qb[i,1] = (np.multiply(Qb_y[i,1],B_Distance[i,1]))/(t_sk*G)
                 Line_Integral_qb[i,2] = (np.multiply(Qb_z[i,1],B_Distance[i,2]))/(t_sk*G)
-                Moment_Integral_qb[i,1]=(np.multiply(Qb_y[i,1],B_Distance[i,1],B_Distance[i,2]))
-                Moment_Integral_qb[i,2]=(np.multiply(Qb_z[i,1],B_Distance[i,2],B_Distance[i,1]))
+                
+                Moment_Integral_qb[i,1]=(np.multiply(Qb_y[i,1],B_Distance[i,1]))
+                Moment_Integral_qb[i,1]=(np.multiply(Moment_Integral_qb[i,1],B_Distance[i,2]))
+                
+                Moment_Integral_qb[i,2]=(np.multiply(Qb_z[i,1],B_Distance[i,2]))
+                Moment_Integral_qb[i,2]=(np.multiply(Moment_Integral_qb[i,2],B_Distance[i,1]))
                 
                 #Moment contribution is positive for the second skin
                 Moment_Cont_qb_2_z= Moment_Cont_qb_2_z+ Moment_Integral_qb[i,2]
@@ -159,7 +170,9 @@ def baseShearFlows(I_zz,I_yy,SFIz,SFIy,B_array,l_Skin_Curved,MIx,Z_Hingeline,Z_b
             elif (ID_current == 3):
                 Line_Integral_qb[i,1] = (np.multiply(Qb_y[i,1],B_Distance[i,1]))/(t_sp*G)
                 Line_Integral_qb[i,2] = (np.multiply(Qb_z[i,1],B_Distance[i,2]))/(t_sp*G)
-                Moment_Integral_qb[i,1]=(np.multiply(Qb_y[i,1],B_Distance[i,1],B_Distance[i,2]))
+                
+                Moment_Integral_qb[i,1]=(np.multiply(Qb_y[i,1],B_Distance[i,1]))
+                Moment_Integral_qb[i,1]=(np.multiply(Moment_Integral_qb[i,1],B_Distance[i,2]))
                 
                 #Moment contribution is negative for spar 
                 Moment_Cont_qb_3 =  -(Moment_Cont_qb_3+Moment_Integral_qb[i,1])
@@ -180,12 +193,11 @@ def baseShearFlows(I_zz,I_yy,SFIz,SFIy,B_array,l_Skin_Curved,MIx,Z_Hingeline,Z_b
     
 
     #Moment contribution from the constant shears:
-    Moment_Cont_qs0_1=2*Cell_Area1*qs0_1
-    Moment_Cont_qs0_2=2*Cell_Area_2*qs0_2
+    #Moment_Cont_qs0_1=2*Cell_Area1*qs0_1
+    #Moment_Cont_qs0_2=2*Cell_Area_2*qs0_2
     
     #Total moment contribution including base shear
-    RHS_Moment_eq=Moment_Cont_qs0_1 + Moment_Cont_qs0_2 + Moment_Cont_qb_1_z +  Moment_Cont_qb_1_y + Moment_Cont_qb_2_z + Moment_Cont_qb_2_y + Moment_Cont_qb_3 
-    
+    RHS_Moment_eq=Moment_Cont_qb_1_z +  Moment_Cont_qb_1_y + Moment_Cont_qb_2_z + Moment_Cont_qb_2_y + Moment_Cont_qb_3 
     
     External_Loads = MIx - SFIy*(abs(Z_Hingeline-Z_bar))
     
@@ -195,16 +207,17 @@ def baseShearFlows(I_zz,I_yy,SFIz,SFIy,B_array,l_Skin_Curved,MIx,Z_Hingeline,Z_b
     A_21 = -(1./(2.*Cell_Area2))*((h_a)/(t_sp*G))
     A_22 = (1./(2.*Cell_Area2))*(((l_Skin_Curved)/(t_sk*G))+((h_a/(t_sp*G))))
     A_31=2*Cell_Area1
-    A_32=2*Cell_area2
+    A_32=2*Cell_Area2
     
     B_1=-(1./(2.*Cell_Area1))*(Line_Integral_qb_1+Line_Integral_qb_3)
     B_2=-(1./(2.*Cell_Area2))*(Line_Integral_qb_2+Line_Integral_qb_3)
     B_3=External_Loads-RHS_Moment_eq
     
+    A = np.array([[A_11, A_12, -1],[A_21,A_22,-1],[A_31,A_32,0]])
+    b = np.array([[B_1],[B_2],[B_3]])
     
-    A = np.matrix([A_11,A_12,-1],[A_21,A_22,-1],[A_31,A_32,0])
-    b = np.matrix([B_1],[B_2],[B_3])
-    return Qb_z, Qb_y,B_Distance,Line_Integral_qb,Line_Integral_qb_1,Line_Integral_qb_2,Line_Integral_qb_3,qs0_1_Cell_1,qs0_2_Cell_1,qs0_1_Cell_2,qs0_2_Cell_2
+    x = np.linalg.solve(A,b)
+    return Qb_z, Qb_y,B_Distance,Line_Integral_qb,Line_Integral_qb_1,Line_Integral_qb_2,Line_Integral_qb_3,A,b,x
 
 
     #Takes in light integral of base shear and solves for angle of twist as well
@@ -219,7 +232,6 @@ Line_Integral_qb=baseShearFlows(23,528,30,20,B,l_Skin_Curved,MIx,Z_Hingeline,Z_b
 Line_Integral_qb_1=baseShearFlows(23,528,30,20,B,l_Skin_Curved,MIx,Z_Hingeline,Z_bar)[4]
 Line_Integral_qb_2=baseShearFlows(23,528,30,20,B,l_Skin_Curved,MIx,Z_Hingeline,Z_bar)[5]
 Line_Integral_qb_3=baseShearFlows(23,528,30,20,B,l_Skin_Curved,MIx,Z_Hingeline,Z_bar)[6]
-qs0_1_Cell_1=baseShearFlows(23,528,30,20,B,l_Skin_Curved,MIx,Z_Hingeline,Z_bar)[7]
-qs0_2_Cell_1=baseShearFlows(23,528,30,20,B,l_Skin_Curved,MIx,Z_Hingeline,Z_bar)[8]
-qs0_1_Cell_2=baseShearFlows(23,528,30,20,B,l_Skin_Curved,MIx,Z_Hingeline,Z_bar)[9]
-qs0_2_Cell_2=baseShearFlows(23,528,30,20,B,l_Skin_Curved,MIx,Z_Hingeline,Z_bar)[10]
+A=baseShearFlows(23,528,30,20,B,l_Skin_Curved,MIx,Z_Hingeline,Z_bar)[7]
+b=baseShearFlows(23,528,30,20,B,l_Skin_Curved,MIx,Z_Hingeline,Z_bar)[8]
+x=baseShearFlows(23,528,30,20,B,l_Skin_Curved,MIx,Z_Hingeline,Z_bar)[9]
