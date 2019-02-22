@@ -10,18 +10,22 @@ from ReactionForces import *
 import numpy as np
 import matplotlib.pyplot as plt
 #Getting the values for the reaction forces
-d_yz_vec, Fx2, Fy, Fz, P_1 = sampleBendingShape([0], x_h1, x_h2, x_h3, p, d_a, q, theta, c_a, h_a, l_a, d_1, d_3, E, 13850069.95, 95733446.4887)
+#d_yz_vec, Fx2, Fy, Fz, P_1 = sampleBendingShape([0], x_h1, x_h2, x_h3, p, d_a, q, theta, c_a, h_a, l_a, d_1, d_3, E, 13850069.95, 95733446.4887)
 
 #Adapting the names of the reaction forces to this program
-F_y_1 = Fy[0]
-F_y_2 = Fy[1]
-F_y_3 = Fy[2]
+def GetVariables (Bendingforces):
+    yz_vec, Fx2, Fy, Fz, P_1 = Bendingforces
+    F_y_1 = Fy[0]
+    F_y_2 = Fy[1]
+    F_y_3 = Fy[2]
+    
+    F_z_1 = Fz[0]
+    F_z_2 = Fz[1]
+    F_z_3 = Fz[2]
+    
+    P_2 = p
+    return F_y_1, F_y_2, F_y_3, F_y_1, F_z_2, F_z_3, P_2 
 
-F_z_1 = Fy[0]
-F_z_2 = Fy[1]
-F_z_3 = Fy[2]
-
-P_2 = p
 
 #Define a macauly function when 
 def Macauly (x1, x2):
@@ -40,10 +44,12 @@ def Macaulyyy (x1, x2):
     return a 
 
 def InternalShearForcex (xlocation):
+    GetVariables(sampleBendingShape([0], x_h1, x_h2, x_h3, p, d_a, q, theta, c_a, h_a, l_a, d_1, d_3, E, 13850069.95, 95733446.4887))
     SFIx = 0
     return SFIx
 
 def InternalShearForcey (xlocation):
+    GetVariables(sampleBendingShape([0], x_h1, x_h2, x_h3, p, d_a, q, theta, c_a, h_a, l_a, d_1, d_3, E, 13850069.95, 95733446.4887))
     SFIy = (Macauly(xlocation,0)* xlocation * -q * cos(radians(theta)))\
             + (Macauly(xlocation,x_h1) * -F_z_1) + (Macauly(xlocation,x_h2) * -F_z_2)\
             + (Macauly(xlocation,x_h3) * -F_z_3) + (P_1 * Macauly(xlocation, x_h2 - d_a/2) * cos(radians(theta))) \
@@ -51,6 +57,7 @@ def InternalShearForcey (xlocation):
     return SFIy
 
 def InternalShearForcez (xlocation):
+    GetVariables(sampleBendingShape([0], x_h1, x_h2, x_h3, p, d_a, q, theta, c_a, h_a, l_a, d_1, d_3, E, 13850069.95, 95733446.4887))
     SFIz = (Macauly(xlocation,0)* xlocation * q * sin(radians(theta))) + (Macauly(xlocation,x_h1) * -F_z_1)\
             + (Macauly(xlocation,x_h2) * -F_z_2) + (Macauly(xlocation,x_h3) * -F_z_3) \
             + (P_1 * Macauly(xlocation, x_h2 - d_a/2) * sin(radians(theta))) - (P_2 * Macauly(xlocation, x_h2 + d_a/2) * sin(radians(theta)))
@@ -59,6 +66,7 @@ def InternalShearForcez (xlocation):
 
 
 def InternalMomentx (xlocation):
+    GetVariables(sampleBendingShape([0], x_h1, x_h2, x_h3, p, d_a, q, theta, c_a, h_a, l_a, d_1, d_3, E, 13850069.95, 95733446.4887))
     MIx = - (cos(radians(theta)) * q * (0.25*c_a - h_a/2) * xlocation/2) \
           - (P_1 * cos(radians(theta)) * -h_a/2 * Macauly(xlocation, x_h2 - d_a/2))\
           + (P_1 * sin(radians(theta)) * Macauly(xlocation, x_h2 - d_a/2) * h_a/2) \
@@ -67,25 +75,27 @@ def InternalMomentx (xlocation):
     return MIx
 
 def InternalMomenty (xlocation):
+    GetVariables(sampleBendingShape([0], x_h1, x_h2, x_h3, p, d_a, q, theta, c_a, h_a, l_a, d_1, d_3, E, 13850069.95, 95733446.4887))
     MIy = (F_z_1 * Macaulyyy(xlocation,x_h1))  + (Macaulyyy(xlocation,x_h2) * F_z_2) \
           + (Macaulyyy(xlocation,x_h3) * F_z_3) + (q * Macaulyyy(xlocation/2,0) * xlocation * cos(radians(theta)))\
           - (P_1* Macauly(xlocation, x_h2 - d_a/2) * cos(radians(theta)))  + (P_2 * Macauly(xlocation, x_h2 - d_a/2) * cos(radians(theta)))
     return MIy
 
 def InternalMomentz (xlocation): 
+    GetVariables(sampleBendingShape([0], x_h1, x_h2, x_h3, p, d_a, q, theta, c_a, h_a, l_a, d_1, d_3, E, 13850069.95, 95733446.4887))
     MIz = (F_y_1 * Macaulyyy(xlocation,x_h1)) + (Macaulyyy(xlocation,x_h2) * F_y_2) + \
           (Macaulyyy(xlocation,x_h3) * F_y_3) + (q * Macaulyyy(xlocation/2,0) * xlocation * sin(radians(theta)))\
           + (P_1* Macauly(xlocation, x_h2 - d_a/2) * sin(radians(theta)))  - (P_2 * Macauly(xlocation, x_h2 - d_a/2) * sin(radians(theta)))
     return MIz
 
-def GetInternalLoads(xvec):
-    InternalShearForcex(xvec)
-    InternalShearForcey(xvec)
-    InternalShearForcez(xvec)
-    InternalMomentx(xvec)
-    InternalMomenty(xvec)
-    InternalMomentz(xvec)
-    return SFIx, SFIy, SFIz, MIx, MIy, MIz
+#def GetInternalLoads(xvec):
+#    InternalShearForcex(xvec)
+#    InternalShearForcey(xvec)
+#    InternalShearForcez(xvec)
+#    InternalMomentx(xvec)
+#    InternalMomenty(xvec)
+#    InternalMomentz(xvec)
+#    return SFIx, SFIy, SFIz, MIx, MIy, MIz
 
     
 def PlotDiagrams():

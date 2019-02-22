@@ -59,9 +59,9 @@ F_y_1 = Fy[0]
 F_y_2 = Fy[1]
 F_y_3 = Fy[2]
 
-F_z_1 = Fy[0]
-F_z_2 = Fy[1]
-F_z_3 = Fy[2]
+F_z_1 = Fz[0]
+F_z_2 = Fz[1]
+F_z_3 = Fz[2]
 
 InternalShearForcey(Span_disc)
 
