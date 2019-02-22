@@ -14,10 +14,13 @@ from InternalLoads import *
 import matplotlib.pyplot as plt
 
 B=discretizeCrossSection(h_a, c_a, n_st, 1, t_sk, t_sp, 0, -98, 3)
-l_Skin_Curved=findCentroid()[2]
-Z_Hingeline=findCentroid()[3]
 Z_bar=findCentroid()[1]
 MIx=InternalMomentx(0)[0]
+
+#First find some additional geom properties
+h=UC.h_a / 2 #also r
+l_Skin_Curved=m.pi*h
+Z_Hingeline=UC.c_a-h
 
 def baseShearFlows(I_zz,I_yy,SFIz,SFIy,B_array,l_Skin_Curved,MIx,Z_Hingeline,Z_bar):
     #This function takes in the MOI parmeters as well as internal shear forces and 
@@ -174,7 +177,7 @@ def baseShearFlows(I_zz,I_yy,SFIz,SFIy,B_array,l_Skin_Curved,MIx,Z_Hingeline,Z_b
         ID_current+=1
         
     
-   
+    
 
     #Moment contribution from the constant shears:
     Moment_Cont_qs0_1=2*Cell_Area1*qs0_1
@@ -199,7 +202,8 @@ def baseShearFlows(I_zz,I_yy,SFIz,SFIy,B_array,l_Skin_Curved,MIx,Z_Hingeline,Z_b
     B_3=External_Loads-RHS_Moment_eq
     
     
-    
+    A = np.matrix([A_11,A_12,-1],[A_21,A_22,-1],[A_31,A_32,0])
+    b = np.matrix([B_1],[B_2],[B_3])
     return Qb_z, Qb_y,B_Distance,Line_Integral_qb,Line_Integral_qb_1,Line_Integral_qb_2,Line_Integral_qb_3,qs0_1_Cell_1,qs0_2_Cell_1,qs0_1_Cell_2,qs0_2_Cell_2
 
 
