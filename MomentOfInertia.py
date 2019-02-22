@@ -24,4 +24,13 @@ def MomentOfInertia(BoomDiscretization):
 #
 ##Used to verificate the program
 #A = np.array([[1,4,3,5] ,[1, 3, 5,2],[1, 6, 9,9] ,[1, 21, 9,1] ,[1, 6, 43, 6]])
+#print(MomentOfInertia(A)) y z by bz
+location_Bz = 3
+location_By = 2
+location_z = 1
+location_y = 0
+#A=np.array([[30,30,60,50],
+#[-30,30,60,70],
+#[50,90,80,30],
+#[-50,-40,80,80]])
 #print(MomentOfInertia(A))

@@ -4,9 +4,11 @@ Author: tblaha & dverkooij
 Date  : 2019-02-18
 """
 
+
 from UniversalConstants import *
 from Stiffeners import *
 import numpy as np
+
 
 def discretizeCrossSection(h_a, c_a, n_st, A_st, t_sk, t_sp, y_c, z_c, booms_between):
     # Takes the geometry, the number of stiffeners and the number of booms in
@@ -53,7 +55,7 @@ def discretizeCrossSection(h_a, c_a, n_st, A_st, t_sk, t_sp, y_c, z_c, booms_bet
     # booms_between*(n_st+1) +       # in each of the (n_st+1) segments there are booms_between booms
     # booms_between*spar_upscaling + # upscaling for the spar
     # 2                              # two additional booms at the ends of the spar
-    B = np.zeros((n_st + booms_between*(n_st+1+spar_upscaling), 5)) # works better without the +2
+    B = np.zeros((n_st + booms_between*(n_st+1+spar_upscaling) - floor(booms_between/2)*2, 5)) # works better without the +2
     
     
     
@@ -104,6 +106,7 @@ def discretizeCrossSection(h_a, c_a, n_st, A_st, t_sk, t_sp, y_c, z_c, booms_bet
         # so only the angle needs to be calculated: 0 angle means on the z-axis
         # and positive angle means below the z-axis
         angle = (booms_quarter_circular - i) * length_per_boom_seg/(2*sc_arc_length) * 2*np.pi
+#        print(angle)
         
         # using the angle, get the location using the radial distance h_a/2
         B[i,0]     = np.sin(angle)*h_a/2
@@ -190,10 +193,10 @@ def discretizeCrossSection(h_a, c_a, n_st, A_st, t_sk, t_sp, y_c, z_c, booms_bet
         
         # skin contributions (exactly like above)
         if j:
-            B[i,2]   += t_sk/6 * length_per_boom_seg * (2 + (B[i-1,1]-z_c)/(B[i,1]-z_c))
-            B[i-1,2] += t_sk/6 * length_per_boom_seg * (2 + (B[i,1]-z_c)  /(B[i-1,1]-z_c))
-            B[i,3]   += t_sk/6 * length_per_boom_seg * (2 + (B[i-1,0]-y_c)/(B[i,0]-y_c))
-            B[i-1,3] += t_sk/6 * length_per_boom_seg * (2 + (B[i,0]-y_c)  /(B[i-1,0]-y_c))
+            B[i,2]   += t_sk/6 * length_per_boom_seg * (2 + (B[i-1,1]-z_c) / (B[i,1]-z_c))
+            B[i-1,2] += t_sk/6 * length_per_boom_seg * (2 + (B[i,1]-z_c)   / (B[i-1,1]-z_c))
+            B[i,3]   += t_sk/6 * length_per_boom_seg * (2 + (B[i-1,0]-y_c) / (B[i,0]-y_c))
+            B[i-1,3] += t_sk/6 * length_per_boom_seg * (2 + (B[i,0]-y_c)   / (B[i-1,0]-y_c))
         
         # add the stiffener area where there is a stiffener
         if not (i-booms_to_first_stiff)%(booms_between+1):
@@ -351,16 +354,18 @@ def discretizeSpan(x_h1, x_h2, x_h3, d_a, l_a, nodes_between=50,ec=0.0001,offset
         return "Nodes_between not divisable by two"
     nodes_between=int(nodes_between)
     nodes_per_part=int(nodes_between/2)
-        
+    
     #Also need to find the centre points of each segment
-    location_list=[0,x_h1,x_h2-d_a,x_h2,x_h2+d_a,l_a]
-    location_list_new=[]
-    for i in range(len(location_list)-1):
+    #Points of interest
+    location_list=[x_h1,x_h2-(d_a/2),x_h2,x_h2+(d_a/2),x_h3,l_a]
+    location_list_new=[0]
+    for i in range(len(location_list)-2):
+        location_list_new.append(location_list[i])
         a=location_list[i]
         b=location_list[i+1]
-        location_list_new.append(a)
-        location_list_new.append(a+(b-a)/2)
-    location_list_new.append(location_list[-1])
+        location_list_new.append(a+((b-a)/2))
+    location_list_new.append(x_h3)
+    location_list_new.append(l_a)
     total_nodes=nodes_per_part*(len(location_list_new)-1)   
     
     #initialize array for final nodes.
@@ -375,40 +380,52 @@ def discretizeSpan(x_h1, x_h2, x_h3, d_a, l_a, nodes_between=50,ec=0.0001,offset
         #initialize section start, end and range variables
         sec_start=location_list_new[i]
         sec_end=location_list_new[i+1]
-        sec_range=sec_end-sec_start
+        sec_length=sec_end-sec_start
         #np.geomspace() is used to find the distribution over the desired range
-        sec_pos=np.geomspace(ec+offset,sec_range-ec+offset,num=nodes_per_part)
+        distr=np.geomspace(ec+offset,sec_length+offset-ec,num=nodes_per_part)
         #the inserted offset is removed to have the range start at ec again
-        sec_pos=sec_pos-offset
-        start_index=i*nodes_per_part
-        
+        sec_distr=distr-offset 
+
         #Check wether inversion is necessary, if inversion is necessary invert
         #the distribution over the range. 
         #Next add the starting value of the range so the range starts at the
         #segment's starting point instead of at the ec
         #Finally append to nodes list
         if invert==True:
-            sec_pos_inv=sec_range-sec_pos[::-1]
-            sec_pos_inv=sec_pos_inv[::-1]+sec_start
-            sec_pos=sec_pos_inv
+            sec_distr_inv=sec_length-sec_distr[::-1]
+            sec_pos=sec_distr_inv+sec_start
             invert=False
         else:
-            sec_pos=sec_pos+sec_start
+            sec_pos=sec_distr+sec_start
             invert=True
+            
+#       Debugging code:
+#        print('sec properties: Sec_start:',sec_start,'Sec_end:',sec_end,\
+#        'sec_pos[1] and [-1]:',sec_pos[1],',',sec_pos[-1],'invert=',invert)
+    
+        #add section to nodes list
+        start_index=i*nodes_per_part
         for o in range(len(sec_pos)):
-            nodes[start_index+o]=sec_pos[o]    
+            nodes[start_index+o]=sec_pos[o]
     return nodes
 
+#Verification spanwise discretization
+    
+#span_disc=discretizeSpan(x_h1, x_h2, x_h3, d_a, l_a, nodes_between=50,ec=0.0001,offset=30)
+#for i in range(len(span_disc)-1):
+#    if span_disc[i]>span_disc[i+1]:
+#        print('ERROR: Value smaller than previous value, less not increaing linearly')
+    
 
 
 
 # debugging
 
 #B=discretizeCrossSection(h_a, c_a, n_st, 1, t_sk, t_sp, 0, -98, 3)
-for i in range(10,-1,-1):
-     #B = generateStiffeners(h_a, c_a, n_st, t_st*(w_st+h_st-t_st), t_sk, t_sp)
-     B=discretizeCrossSection(h_a, c_a, n_st, t_st*(w_st+h_st-t_st), t_sk, t_sp, 0, -98, i)
-     plotCrossSection(B)
+#for i in range(4,3,-1):
+     # = generateStiffeners(h_a, c_a, n_st, t_st*(w_st+h_st-t_st), t_sk, t_sp)
+#     B=discretizeCrossSection(h_a, c_a, n_st, t_st*(w_st+h_st-t_st), t_sk, t_sp, 0, -98, i)
+     #plotCrossSection(B)
      
      
      
