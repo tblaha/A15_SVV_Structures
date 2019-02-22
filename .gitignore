@@ -3,3 +3,5 @@ __pycache__/*
 __pycache__/UniversalConstants.cpython-37.pyc
 
 __pycache__/
+
+test\.py
