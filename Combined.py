@@ -12,7 +12,7 @@ from Centroid import *
 from discretization import *
 #from InternalLoads import *
 from MomentOfInertia import *
-#from ReactionForces import *
+from ReactionForces import *
 #from ShapeOfAileron import *
 #from ShearFlows import *
 from Stiffeners import *
@@ -41,4 +41,34 @@ cross_disc=discretizeCrossSection(h_a, c_a, n_st, A_st, t_sk, t_sp, y_bar, z_bar
 ##Calc MOI
 I_zz,I_yy = MomentOfInertia(cross_disc)
 
-print(I_zz,I_yy)
+##Get bending and reaction forces
+d_yz_vec, Fx, Fy, Fz, P = sampleBendingShape(span_disc, x_h1, x_h2, x_h3, p, d_a, q, theta, c_a, h_a, l_a, d_1, d_3, E, I_zz, I_yy)
+PlotBending=0
+if PlotBending==1:
+    fig, axs = plt.subplots(2, 1)
+    axs[0].plot(span_disc, d_yz_vec[0,:])
+    axs[1].plot(span_disc, d_yz_vec[1,:])
+    
+    axs[0].invert_xaxis()
+    axs[1].invert_xaxis()
+    fig.tight_layout()
+    plt.show()
+    
+##Get Internal Loads
+F_y_1 = Fy[0]
+F_y_2 = Fy[1]
+F_y_3 = Fy[2]
+
+F_z_1 = Fy[0]
+F_z_2 = Fy[1]
+F_z_3 = Fy[2]
+
+
+
+##Compute 
+
+
+
+
+##    
+
