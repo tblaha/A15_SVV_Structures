@@ -26,7 +26,7 @@ p=91700     #Force of actuator 2,           91.7kN
 q=4.530     #Distributed aerodynamic load,  4.53kN/m
 E=69e3      # Young's modulus Aluminium     69GPa
 G=28e3      # Shear modulus Aluminium     28GPa
-A_st=(h_st+w_st)*t_st
+A_st=(h_st+w_st-t_st)*t_st
 
 #Rounded cell
 Cell_Area1=0.5*pi*(h_a/2)**2
