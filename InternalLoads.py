@@ -15,8 +15,8 @@ import matplotlib.pyplot as plt
 #Adapting the names of the reaction forces to this program
 def GetVariables (Bendingforces):
     yz_vec, Fx2, Fy, Fz, P_1 = Bendingforces
-    F_y_1 = Fy[0]
-    F_y_2 = Fy[1]
+    F_y_1 = 0
+    F_y_2 = 0
     F_y_3 = Fy[2]
     
     F_z_1 = Fz[0]
