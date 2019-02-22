@@ -10,7 +10,7 @@ import matplotlib.pyplot as plt
 
 from Centroid import *
 from discretization import *
-#from InternalLoads import *
+from InternalLoads import *
 from MomentOfInertia import *
 from ReactionForces import *
 #from ShapeOfAileron import *
@@ -63,7 +63,7 @@ F_z_1 = Fy[0]
 F_z_2 = Fy[1]
 F_z_3 = Fy[2]
 
-
+InternalShearForcey(Span_disc)
 
 ##Compute 
 
