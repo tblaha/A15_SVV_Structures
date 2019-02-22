@@ -13,15 +13,16 @@ import matplotlib.pyplot as plt
 d_yz_vec, Fx2, Fy, Fz, P_1 = sampleBendingShape([0], x_h1, x_h2, x_h3, p, d_a, q, theta, c_a, h_a, l_a, d_1, d_3, E, 13850069.95, 95733446.4887)
 
 #Adapting the names of the reaction forces to this program
-F_y_1 = Fy[0]
-F_y_2 = Fy[1]
-F_y_3 = Fy[2]
-
-F_z_1 = Fy[0]
-F_z_2 = Fy[1]
-F_z_3 = Fy[2]
-
-P_2 = p
+def Getvariables ():
+    F_y_1 = Fy[0]
+    F_y_2 = Fy[1]
+    F_y_3 = Fy[2]
+    
+    F_z_1 = Fy[0]
+    F_z_2 = Fy[1]
+    F_z_3 = Fy[2]
+    P_2 = p
+    return F_z_1, F_z_2, F_z_3, F_y_1, F_y_2, F_y_3, P_2
 
 #Define a macauly function when 
 def Macauly (x1, x2):
@@ -44,6 +45,7 @@ def InternalShearForcex (xlocation):
     return SFIx
 
 def InternalShearForcey (xlocation):
+    Getvariables()
     SFIy = (Macauly(xlocation,0)* xlocation * -q * cos(radians(theta)))\
             + (Macauly(xlocation,x_h1) * -F_z_1) + (Macauly(xlocation,x_h2) * -F_z_2)\
             + (Macauly(xlocation,x_h3) * -F_z_3) + (P_1 * Macauly(xlocation, x_h2 - d_a/2) * cos(radians(theta))) \
@@ -51,6 +53,7 @@ def InternalShearForcey (xlocation):
     return SFIy
 
 def InternalShearForcez (xlocation):
+    Getvariables()
     SFIz = (Macauly(xlocation,0)* xlocation * q * sin(radians(theta))) + (Macauly(xlocation,x_h1) * -F_z_1)\
             + (Macauly(xlocation,x_h2) * -F_z_2) + (Macauly(xlocation,x_h3) * -F_z_3) \
             + (P_1 * Macauly(xlocation, x_h2 - d_a/2) * sin(radians(theta))) - (P_2 * Macauly(xlocation, x_h2 + d_a/2) * sin(radians(theta)))
@@ -59,6 +62,7 @@ def InternalShearForcez (xlocation):
 
 
 def InternalMomentx (xlocation):
+    Getvariables()
     MIx = - (cos(radians(theta)) * q * (0.25*c_a - h_a/2) * xlocation/2) \
           - (P_1 * cos(radians(theta)) * -h_a/2 * Macauly(xlocation, x_h2 - d_a/2))\
           + (P_1 * sin(radians(theta)) * Macauly(xlocation, x_h2 - d_a/2) * h_a/2) \
@@ -67,12 +71,14 @@ def InternalMomentx (xlocation):
     return MIx
 
 def InternalMomenty (xlocation):
+    Getvariables()
     MIy = (F_z_1 * Macaulyyy(xlocation,x_h1))  + (Macaulyyy(xlocation,x_h2) * F_z_2) \
           + (Macaulyyy(xlocation,x_h3) * F_z_3) + (q * Macaulyyy(xlocation/2,0) * xlocation * cos(radians(theta)))\
           - (P_1* Macauly(xlocation, x_h2 - d_a/2) * cos(radians(theta)))  + (P_2 * Macauly(xlocation, x_h2 - d_a/2) * cos(radians(theta)))
     return MIy
 
 def InternalMomentz (xlocation): 
+    Getvariables()
     MIz = (F_y_1 * Macaulyyy(xlocation,x_h1)) + (Macaulyyy(xlocation,x_h2) * F_y_2) + \
           (Macaulyyy(xlocation,x_h3) * F_y_3) + (q * Macaulyyy(xlocation/2,0) * xlocation * sin(radians(theta)))\
           + (P_1* Macauly(xlocation, x_h2 - d_a/2) * sin(radians(theta)))  - (P_2 * Macauly(xlocation, x_h2 - d_a/2) * sin(radians(theta)))

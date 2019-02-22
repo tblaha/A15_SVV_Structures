@@ -10,7 +10,7 @@ import matplotlib.pyplot as plt
 
 from Centroid import *
 from discretization import *
-#from InternalLoads import *
+from InternalLoads import *
 from MomentOfInertia import *
 from ReactionForces import *
 #from ShapeOfAileron import *
