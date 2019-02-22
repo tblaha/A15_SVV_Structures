@@ -23,7 +23,6 @@ B=discretizeCrossSection(h_a, c_a, n_st, A_st, t_sk, t_sp, Y_bar, Z_bar, 3)
 h=UC.h_a / 2 #also r
 l_Skin_Curved=m.pi*h
 Z_Hingeline=UC.c_a-h
-Z_bar = 400 #change this later to the actual value!!
 
 def baseShearFlows(I_zz,I_yy,SFIz,SFIy,B_array,l_Skin_Curved,MIx,Z_Hingeline,Z_bar):
     #This function takes in the MOI parmeters as well as internal shear forces and 
@@ -70,18 +69,20 @@ def baseShearFlows(I_zz,I_yy,SFIz,SFIy,B_array,l_Skin_Curved,MIx,Z_Hingeline,Z_b
     
     #Do this for all 3 cells based on their IDs
     
-    Line_Integral_qb_1=0.
-    Line_Integral_qb_2=0.
-    Line_Integral_qb_3=0.
+
     
-    #Initialise all the moment contributions to zero. Note moments are taken about the centroid
+    #Initialise all the moment contributions and line integrals to zero. Note moments are taken about the centroid
     #of the cross-section
     Moment_Cont_qb_1_z=0.
     Moment_Cont_qb_1_y=0.
     Moment_Cont_qb_2_z=0.
     Moment_Cont_qb_2_y=0.
     Moment_Cont_qb_3=0.
-        
+    
+    Line_Integral_qb_1=0.
+    Line_Integral_qb_2=0.
+    Line_Integral_qb_3=0.    
+    
     while ID_current<=3:
         
         #Initialize base shear at 0 in each cell as this will start from the
@@ -234,4 +235,8 @@ Line_Integral_qb_2=baseShearFlows(23,528,30,20,B,l_Skin_Curved,MIx,Z_Hingeline,Z
 Line_Integral_qb_3=baseShearFlows(23,528,30,20,B,l_Skin_Curved,MIx,Z_Hingeline,Z_bar)[6]
 A=baseShearFlows(23,528,30,20,B,l_Skin_Curved,MIx,Z_Hingeline,Z_bar)[7]
 b=baseShearFlows(23,528,30,20,B,l_Skin_Curved,MIx,Z_Hingeline,Z_bar)[8]
-x=baseShearFlows(23,528,30,20,B,l_Skin_Curved,MIx,Z_Hingeline,Z_bar)[9]
+
+
+#Input: I_zz[mm^4],I_yy[],SFIz,SFIy,B_array,l_Skin_Curved,MIx,Z_Hingeline,Z_bar
+#Output:Constant / shear flow in cell 1 / Constant shear flow in cell 2 / dtheta/dz /
+x=baseShearFlows(13850069.95,95733446.48,3425*10**3,2000*10**3,B,l_Skin_Curved,MIx,Z_Hingeline,Z_bar)[9] 
