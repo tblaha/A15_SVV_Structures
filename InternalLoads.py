@@ -37,27 +37,28 @@ def InternalShearForcex (xlocation,F_y_1,F_y_2,F_y_3,F_z_1,F_z_2,F_z_3,Fx2,P_1):
 def InternalShearForcey (xlocation,F_y_1,F_y_2,F_y_3,F_z_1,F_z_2,F_z_3,Fx2,P_1):
     P_2 = p
     SFIy = (Macauly(xlocation,0)* xlocation * -q * cos(radians(theta)))\
-            + (Macauly(xlocation,x_h1) * -F_z_1) + (Macauly(xlocation,x_h2) * -F_z_2)\
-            + (Macauly(xlocation,x_h3) * -F_z_3) + (P_1 * Macauly(xlocation, x_h2 - d_a/2) * cos(radians(theta))) \
-            - (P_2 * Macauly(xlocation, x_h2 + d_a/2) * cos(radians(theta)))
+            + (Macauly(xlocation,x_h1) * F_y_1) + (Macauly(xlocation,x_h2) * F_y_2)\
+            + (Macauly(xlocation,x_h3) * F_y_3) + (P_1 * Macauly(xlocation, x_h2 - d_a/2) * sin(radians(theta))) \
+            + (P_2 * Macauly(xlocation, x_h2 + d_a/2) * sin(radians(theta)))
     return SFIy
 
 def InternalShearForcez (xlocation,F_y_1,F_y_2,F_y_3,F_z_1,F_z_2,F_z_3,Fx2,P_1):
     P_2 = p
-    SFIz = (Macauly(xlocation,0)* xlocation * q * sin(radians(theta))) + (Macauly(xlocation,x_h1) * -F_z_1)\
-            + (Macauly(xlocation,x_h2) * -F_z_2) + (Macauly(xlocation,x_h3) * -F_z_3) \
-            + (P_1 * Macauly(xlocation, x_h2 - d_a/2) * sin(radians(theta))) - (P_2 * Macauly(xlocation, x_h2 + d_a/2) * sin(radians(theta)))
+    SFIz = (Macauly(xlocation,0)* xlocation * q * sin(radians(theta))) + (Macauly(xlocation,x_h1) * F_z_1)\
+            + (Macauly(xlocation,x_h2) * F_z_2) + (Macauly(xlocation,x_h3) * F_z_3) \
+            - (P_1 * Macauly(xlocation, x_h2 - d_a/2) * cos(radians(theta))) - (P_2 * Macauly(xlocation, x_h2 + d_a/2) * cos(radians(theta)))
     return SFIz
 
 
 
 def InternalMomentx (xlocation,F_y_1,F_y_2,F_y_3,F_z_1,F_z_2,F_z_3,Fx2,P_1):
     P_2 = p
-    MIx = - (cos(radians(theta)) * q * (0.25*c_a - h_a/2) * xlocation/2) \
-          - (P_1 * cos(radians(theta)) * -h_a/2 * Macauly(xlocation, x_h2 - d_a/2))\
+    MIx = - (cos(radians(theta)) * q * (0.25*c_a - h_a/2) * xlocation) \
+          - (P_1 * cos(radians(theta)) * -h_a/2 * Macauly(xlocation, (x_h2 - d_a/2)))\
           + (P_1 * sin(radians(theta)) * Macauly(xlocation, x_h2 - d_a/2) * h_a/2) \
           + (P_2 * cos(radians(theta)) * -h_a/2 * Macauly(xlocation, x_h2 - d_a/2)) - \
-          (P_2 * sin(radians(theta)) * Macauly(xlocation, x_h2 - d_a/2) * h_a/2) + F_z_1 * d_1 + F_z_3 * d_3   
+          (P_2 * sin(radians(theta)) * Macauly(xlocation, x_h2 - d_a/2) * h_a/2) \
+          + (F_z_1 * d_1 * Macauly(xlocation,x_h1)) + (F_z_3 * d_3 * Macauly(xlocation,x_h3))  
     return MIx
 
 def InternalMomenty (xlocation,F_y_1,F_y_2,F_y_3,F_z_1,F_z_2,F_z_3,Fx2,P_1):
@@ -79,6 +80,10 @@ def getInternalLoads(xvec,Fx, Fy, Fz, P_1 ):
     F_y_1 = Fy[0]
     F_y_2 = Fy[1]
     F_y_3 = Fy[2]
+    
+#    F_y_1 = 5
+#    F_y_2 = -2
+#    F_y_3 = -3
     
     F_z_1 = Fz[0]
     F_z_2 = Fz[1]
