@@ -9,7 +9,7 @@ import numpy as np
 
 def local2global(theta, Fx, Fy, Fz):
     
-    theta_rad = theta * 180/np.pi
+    theta_rad = theta * np.pi/180
     
     FX = Fx
     FY = np.cos(theta_rad) * Fy - np.sin(theta_rad) * Fz
@@ -20,7 +20,7 @@ def local2global(theta, Fx, Fy, Fz):
 
 def global2local(theta, FX, FY, FZ):
     
-    theta_rad = theta * 180/np.pi
+    theta_rad = theta * np.pi/180
     
     Fx = FX
     Fy = np.cos(theta_rad) * FY + np.sin(theta) * FZ
