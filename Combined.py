@@ -48,7 +48,7 @@ I_zz,I_yy = MomentOfInertia(cross_disc)
 
 ## Get bending and reaction forces
 ## don't worry about the magic numbers at the end. I tried including Timoshenko shear deformations, but it doesnt make much of a difference
-d_yz_vec, F_2x, Fy, Fz, P_1 = sampleBendingShape(xvec, x_h1, x_h2, x_h3, p, d_a, q, theta, c_a, h_a, l_a, d_1, d_3,  E,  I_yy, I_zz, 1, 1200e10, 27e3)
+d_yz_vec, F_2x, Fy, Fz, P_1 = sampleBendingShape(span_disc, x_h1, x_h2, x_h3, p, d_a, q, theta, c_a, h_a, l_a, d_1, d_3,  E,  I_yy, I_zz, 1, 1200e10, 27e3)
 
 
 if plotBending==0:
@@ -72,7 +72,7 @@ if plotInternal==1:
     
     plt.subplot(232)
     plt.plot(span_disc,SFIy)
-    plt.title('Internal shear foce y')
+    plt.title('Internal shear force y')
     
     plt.subplot(233)
     plt.plot(span_disc,SFIz)
@@ -94,6 +94,9 @@ if plotInternal==1:
 
 ##Compute 
 
+for x in span_disc:
+    
+    baseShearFlows(I_zz,I_yy,SFIz[x],SFIy[x],cross_disc,(pi*h_a/2),MIx[x],z_bar):
 
 
 
