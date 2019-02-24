@@ -31,17 +31,17 @@ def getDispCoefficients_y(x, x_h1, x_h2, x_h3, P_2, d_a, q, theta):
     # const      : the const vector in the equation above
     
     # constant parts of the maccaulay equation in the report, integrated 3 times
-    const =            q*np.cosd(theta)*1/(4*3*2)*x**4 \
-                      -int((x > (x_h2 + d_a/2))) * P_2*np.sind(theta)*1/(3*2)*(x - (x_h2 + d_a/2))**3
+    const =           -q*np.cosd(theta)*1/(4*3*2)*x**4 \
+                      +int((x > (x_h2 + d_a/2))) * P_2*np.sind(theta)*1/(3*2)*(x - (x_h2 + d_a/2))**3
             
     # linear constants of the solution vector  [F_1y F_2y F_3y P_1 c_1 c_2]
     # (the a vector above)
     # this is also found by integrating 3 times and remembering to use the
     # macaulay functions
-    avec  = np.array([-int((x > x_h1)) * 1/(3*2) * (x - x_h1)**3, \
-                      -int((x > x_h2)) * 1/(3*2) * (x - x_h2)**3, \
-                      -int((x > x_h3)) * 1/(3*2) * (x - x_h3)**3, \
-                       int((x > (x_h2-d_a/2))) * np.sind(theta) * 1/(3*2) * (x - (x_h2-d_a/2))**3, \
+    avec  = np.array([int((x > x_h1)) * 1/(3*2) * (x - x_h1)**3, \
+                      int((x > x_h2)) * 1/(3*2) * (x - x_h2)**3, \
+                      int((x > x_h3)) * 1/(3*2) * (x - x_h3)**3, \
+                      -int((x > (x_h2-d_a/2))) * np.sind(theta) * 1/(3*2) * (x - (x_h2-d_a/2))**3, \
                       x, \
                       1])
     
@@ -67,12 +67,12 @@ def getDispCoefficients_z(x, x_h1, x_h2, x_h3, P_2, d_a, q, theta):
     # const      : the const vector in the equation above
     
     # same method as getDispCoefficients_z
-    const =           -q*np.sind(theta)*1/(4*3*2)*x**4 \
-                      -int((x > (x_h2 + d_a/2))) * P_2*np.cosd(theta)*1/(3*2)*(x - (x_h2 + d_a/2))**3
-    avec  = np.array([-int((x > x_h1)) * 1/(3*2) * (x - x_h1)**3, \
-                      -int((x > x_h2)) * 1/(3*2) * (x - x_h2)**3, \
-                      -int((x > x_h3)) * 1/(3*2) * (x - x_h3)**3, \
-                      -int((x > (x_h2-d_a/2))) * np.cosd(theta) * 1/(3*2) * (x - (x_h2-d_a/2))**3, \
+    const =           +q*np.sind(theta)*1/(4*3*2)*x**4 \
+                      +int((x > (x_h2 + d_a/2))) * P_2*np.cosd(theta)*1/(3*2)*(x - (x_h2 + d_a/2))**3
+    avec  = np.array([int((x > x_h1)) * 1/(3*2) * (x - x_h1)**3, \
+                      int((x > x_h2)) * 1/(3*2) * (x - x_h2)**3, \
+                      int((x > x_h3)) * 1/(3*2) * (x - x_h3)**3, \
+                      int((x > (x_h2-d_a/2))) * np.cosd(theta) * 1/(3*2) * (x - (x_h2-d_a/2))**3, \
                       x, \
                       1])
     
@@ -134,14 +134,15 @@ def BendingSolver(x_h1, x_h2, x_h3, P_2, d_a, q, theta, c_a, h_a, l_a, d_1, d_3,
     
     # Third statics (Forces in z)
     a_mat[2,6:9] = np.array([1, 1, 1])
-    a_mat[2,3]   = np.array([-np.cos(theta)])
-    bvec[2]      = - ( - P_2*np.cos(theta) + q*l_a*np.sind(theta))
+    a_mat[2,3]   = np.array([-np.cosd(theta)])
+    bvec[2]      = - ( - P_2*np.cosd(theta) + q*l_a*np.sind(theta))
     
     # Forth statics (Moments around x)
     st_4 = np.zeros((dim))
-    st_4[6:9] = np.array([d_1, 0, d_3])
+    #st_4[6:9] = np.array([d_1, 0, d_3])
+    st_4[6:9] = np.array([0, 0, 0])
     st_4[3]   = np.array([-h_a * np.sqrt(2)/2 * np.cosd(theta+45)])
-    st_4_b    = - ( -q*np.cos(theta)*(c_a/4 - h_a/2) - P_2 * h_a * np.sqrt(2)/2 * np.cosd(theta+45) )
+    st_4_b    = - ( -q * l_a * np.cosd(theta)*(c_a/4 - h_a/2) - P_2 * h_a * np.sqrt(2)/2 * np.cosd(theta+45) )
     
     # Fifth statics (Moments around y)
     a_mat[4,6:9] = np.array([-x_h1, -x_h2, -x_h3])
@@ -234,8 +235,8 @@ def BendingSolver(x_h1, x_h2, x_h3, P_2, d_a, q, theta, c_a, h_a, l_a, d_1, d_3,
     bvec[3]     += - (const / I_yy)
     
     # or: last statics eq
-    #a_mat[3,:] = st_4
-    #bvec[3]    = st_4_b
+    a_mat[3,:] = st_4
+    bvec[3]    = st_4_b
     
     # solve the linear system
     sol = np.linalg.solve(a_mat, bvec)
@@ -338,13 +339,32 @@ def plotBendingShape(x_vec, d_yz_vec):
     return 0
 
 
+
 #for k in range(32,36,4):
 #    test_x_vec = np.linspace(0,2770,k)
 #    d_yz_vec, Fx, Fy, Fz, P = sampleBendingShape(test_x_vec, x_h1, x_h2, x_h3, p, d_a, q, theta, c_a, h_a, l_a, d_1, d_3, E, 1e7, 5e8)
 #    plotBendingShape(test_x_vec, d_yz_vec)
 
-        
-d, Fx, Fy, Fz, P1 = sampleBendingShape([0, 153, 1281-280/2, 1281, 2681, 2771], x_h1, x_h2, x_h3, p, d_a, q, theta, c_a, h_a, l_a, d_1, d_3, E, 1e7, 5e8)
+#xvec =         [0, 153, 1281-280/2, 1281, 2681, 2771]
+xvec = np.linspace(0,2771,1001)
+d, Fx, Fy, Fz, P1 = sampleBendingShape(xvec, x_h1, x_h2, x_h3, p, d_a, q, 0, c_a, h_a, l_a, d_1, d_3,  E,  1e7, 1e8)
+#d, Fx, Fy, Fz, P1 = sampleBendingShape(xvec,  0,    500, 1000, 1e5, 100, 0,    0, 500, 100, 1000, 0,  0, 69e3, 1e7, 1e7)
+plotBendingShape(xvec, d)
+
+print(Fx)
+print(Fy)
+print(Fz)
+print(P1)
+
+
+#from FEM
+#2.29e4 Fy 1 and 3
+#-2.975e4 Fy 2
+
+#9.678e4 Fz2 or P
+
+
+
 
 #print(np.arctan(d[1,2] / d[0,2]) * 180/np.pi)
         
