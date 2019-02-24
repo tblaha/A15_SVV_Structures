@@ -51,7 +51,7 @@ I_zz,I_yy = MomentOfInertia(cross_disc)
 d_yz_vec, F_2x, Fy, Fz, P_1 = sampleBendingShape(xvec, x_h1, x_h2, x_h3, p, d_a, q, theta, c_a, h_a, l_a, d_1, d_3,  E,  I_yy, I_zz, 1, 1200e10, 27e3)
 
 
-if plotBending==1:
+if plotBending==0:
     fig, axs = plt.subplots(2, 1)
     axs[0].plot(span_disc, d_yz_vec[0,:])
     axs[1].plot(span_disc, d_yz_vec[1,:])
