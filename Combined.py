@@ -12,7 +12,7 @@ from Centroid import *
 from discretization import *
 from InternalLoads import *
 from MomentOfInertia import *
-from ReactionForces import *
+from ReactionForcesV2 import *
 #from ShapeOfAileron import *
 #from ShearFlows import *
 from Stiffeners import *
@@ -41,8 +41,9 @@ cross_disc=discretizeCrossSection(h_a, c_a, n_st, A_st, t_sk, t_sp, y_bar, z_bar
 ##Calc MOI
 I_zz,I_yy = MomentOfInertia(cross_disc)
 
-##Get bending and reaction forces
-d_yz_vec, Fx, Fy, Fz, P_1 = sampleBendingShape(span_disc, x_h1, x_h2, x_h3, p, d_a, q, theta, c_a, h_a, l_a, d_1, d_3, E, I_zz, I_yy)
+## Get bending and reaction forces
+## don't worry about the magic numbers at the end. I tried including Timoshenko shear deformations, but it doesnt make much of a difference
+d_yz_vec, Fx, Fy, Fz, P_1 = sampleBendingShape(xvec, x_h1, x_h2, x_h3, p, d_a, q, theta, c_a, h_a, l_a, d_1, d_3,  E,  I_yy, I_zz, 1, 1200e10, 27e3)
 
 if plotBending==1:
     fig, axs = plt.subplots(2, 1)
@@ -56,12 +57,12 @@ if plotBending==1:
     
 ##Get Internal Loads
 
-SFIx, SFIy, SFIz, MIx, MIy, MIz = getInternalLoads(span_disc,Fx, Fy, Fz, P_1)
+SFIx, SFIy, SFIz, MIx, MIy, MIz = getInternalLoads(span_disc, Fx, Fy, Fz, P_1)
 
 if plotInternal==1:
     plt.subplot(231)
     plt.plot(span_disc,SFIx)
-    plt.title('Internal shear force x')
+    plt.title('Internal normal force x')
     
     plt.subplot(232)
     plt.plot(span_disc,SFIy)
@@ -76,12 +77,13 @@ if plotInternal==1:
     plt.title('Internal moment x')
     
     plt.subplot(235)
+    plt.plot(span_disc,MIz)
+    plt.title('Internal moment z')
+    
+    plt.subplot(236)
     plt.plot(span_disc,MIy)
     plt.title('Internal moment y')
     
-    plt.subplot(236)
-    plt.plot(span_disc,MIz)
-    plt.title('Internal moment z')
     plt.show ()
 ##Compute 
 
