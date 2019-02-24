@@ -19,7 +19,16 @@ stiffeners = generateStiffeners(h_a, c_a, n_st, A_st, t_sk, t_sp)
 Y_bar,Z_bar=findCentroid(stiffeners)
 B=discretizeCrossSection(h_a, c_a, n_st, A_st, t_sk, t_sp, Y_bar, Z_bar, 3)
 
-def baseShearFlows(I_zz,I_yy,SFIz,SFIy,B_array,l_Skin_Curved,MIx,Z_bar):
+#Test B for validation 
+
+B_test=[[127.,0.,0.,1290.,1.],[-127.,0.,0.,1290.,1.],[-203.,0.,0.,1936.,1.],[-101.,0.,0.,645.,2.],[101.,0.,0.,645.,2.],[203.,0.,0.,1936.,1.],[0.,0.,0.,0.,3.]]
+
+#First find some additional geom properties
+h=UC.h_a / 2 #also r
+l_Skin_Curved=m.pi*h
+Z_Hingeline=UC.c_a-h
+
+def baseShearFlows(I_zz,I_yy,SFIz,SFIy,B_array,l_Skin_Curved,MIx,Z_Hingeline,Z_bar):
     #This function takes in the MOI parmeters as well as internal shear forces and 
     #cross sectional boom discretization.
     #The output is a 2D array with all the base shear flows in each segment
@@ -224,4 +233,6 @@ b=baseShearFlows(23,528,30,20,B,l_Skin_Curved,MIx,Z_bar)[8]
 
 #Input: I_zz[mm^4],I_yy[],SFIz,SFIy,B_array,l_Skin_Curved,MIx,Z_Hingeline,Z_bar
 #Output:Constant / shear flow in cell 1 / Constant shear flow in cell 2 / dtheta/dz /
-x=baseShearFlows(13850069.95,95733446.48,34250,20000,B,l_Skin_Curved,MIx,Z_bar)[9] 
+x=baseShearFlows(214.3*10**6,95733446.48,0,44500,B_test,1524,MIx,Z_Hingeline,Z_bar)[9]
+
+ 
