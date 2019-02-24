@@ -24,7 +24,8 @@ d_3=16.42   #Vertical displacement hinge 3, 1.642cm
 theta=26    #Degrees max deflection,        26
 p=91700     #Force of actuator 2,           91.7kN
 q=4.530     #Distributed aerodynamic load,  4.53kN/m
-E=69e3      # Young's modulus Aluminium     69GPa
+#E=69e3      # Young's modulus Aluminium     69GPa
+E=73.1e3      # Young's modulus Aluminium 2024T3
 G=28e3      # Shear modulus Aluminium     28GPa
 A_st=(h_st+w_st-t_st)*t_st
 

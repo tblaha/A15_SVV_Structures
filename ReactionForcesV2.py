@@ -160,7 +160,7 @@ def BendingSolver(x_h1, x_h2, x_h3, P_2, d_a, q, theta, c_a, h_a, l_a, d_1, d_3,
     
     # Second statics (Forces in y)
     a_mat[1,0:3] = np.array([1, 1, 1])
-    a_mat[1,3]   = np.array([-np.sind(theta)])
+    a_mat[1,-1]   = np.array([-np.sind(theta)])
     b_vec[1]     = - ( - P_2*np.sind(theta) - q*l_a*np.cosd(theta) )
     
     # Third statics (Forces in z)
@@ -169,10 +169,12 @@ def BendingSolver(x_h1, x_h2, x_h3, P_2, d_a, q, theta, c_a, h_a, l_a, d_1, d_3,
     b_vec[2]     = - ( - P_2*np.cosd(theta) + q*l_a*np.sind(theta))
     
     # Forth statics (Moments around x)
-    a_mat[3,3:6] = np.array([d_1, 0, d_3])
+    #a_mat[3,3:6] = np.array([d_1, 0, d_3])
     a_mat[3,3:6] = np.array([0, 0, 0])
     a_mat[3,-1]   = np.array([-h_a * np.sqrt(2)/2 * np.cosd(theta+45)])
+    #a_mat[3,-1]   = np.array([-h_a / 2 * np.cosd(theta)])
     b_vec[3]     = - ( -q * l_a * np.cosd(theta)*(c_a/4 - h_a/2) - P_2 * h_a * np.sqrt(2)/2 * np.cosd(theta+45) )
+    #b_vec[3]     = - ( -q * l_a * np.cosd(theta)*(c_a/4 - h_a/2) - P_2 * h_a /2 * np.cosd(theta) )
     
     # Fifth statics (Moments around y)
     a_mat[4,3:6] = np.array([-x_h1, -x_h2, -x_h3])
@@ -194,17 +196,19 @@ def BendingSolver(x_h1, x_h2, x_h3, P_2, d_a, q, theta, c_a, h_a, l_a, d_1, d_3,
     
     # hinge 1 conditions
     ayb,cyb,azb,czb  = getBendingTerms(x_h1, x_h1, x_h2, x_h3, P_2, d_a, q, theta, E, I_yy, I_zz)
-    ays,cys,azs,czs  = getShearTerms(x_h1, x_h1, x_h2, x_h3, P_2, d_a, q, theta, k, A, G)
+    ays,cys,azs,czs  = getShearTerms  (x_h1, x_h1, x_h2, x_h3, P_2, d_a, q, theta, k, A, G)
     
     a_mat[6] = np.transpose(ayb + ays)
     a_mat[7] = np.transpose(azb + azs)
+    #a_mat[7] = np.transpose(azb)
     
     # integration constants
     a_mat[6,8]  = 1
     a_mat[7,10] = 1
     
     b_vec[6] = - (cyb + cys) + d_1 * np.cosd(theta)
-    b_vec[7] = - (czb + czs) + d_1 * np.sind(theta)
+    b_vec[7] = - (czb + czs) - d_1 * np.sind(theta)
+    #b_vec[7] = - (czb) - d_1 * np.sind(theta)
     
     
     
@@ -214,6 +218,7 @@ def BendingSolver(x_h1, x_h2, x_h3, P_2, d_a, q, theta, c_a, h_a, l_a, d_1, d_3,
     
     a_mat[8] = np.transpose(ayb + ays)
     a_mat[9] = np.transpose(azb + azs)
+    #a_mat[9] = np.transpose(azb)
     
     # integration constants
     a_mat[8,8]  = 1
@@ -221,6 +226,7 @@ def BendingSolver(x_h1, x_h2, x_h3, P_2, d_a, q, theta, c_a, h_a, l_a, d_1, d_3,
     
     b_vec[8] = - (cyb + cys) + 0 * np.cosd(theta)
     b_vec[9] = - (czb + czs) + 0 * np.sind(theta)
+    #b_vec[9] = - (czb) + 0 * np.sind(theta)
     
     
     
@@ -236,7 +242,8 @@ def BendingSolver(x_h1, x_h2, x_h3, P_2, d_a, q, theta, c_a, h_a, l_a, d_1, d_3,
     a_mat[11,10] = 1
     
     b_vec[10] = - (cyb + cys) + d_3 * np.cosd(theta)
-    b_vec[11] = - (czb + czs) + d_3 * np.sind(theta)
+    b_vec[11] = - (czb + czs) - d_3 * np.sind(theta)
+    #b_vec[11] = - (czb) - d_3 * np.sind(theta)
     
     
        
@@ -293,37 +300,12 @@ def plotBendingShape(x_vec, d_yz_vec):
 
 
 
-#for k in range(32,36,4):
-#    test_x_vec = np.linspace(0,2770,k)
-#    d_yz_vec, Fx, Fy, Fz, P = sampleBendingShape(test_x_vec, x_h1, x_h2, x_h3, p, d_a, q, theta, c_a, h_a, l_a, d_1, d_3, E, 5e8, 1e7)
-#    plotBendingShape(test_x_vec, d_yz_vec)
-
-#xvec =         [0, 153, 1281-280/2, 1281, 2681, 2771]
-#xvec = np.linspace(0,2771,1001)
 xvec = np.linspace(0,2771,1001)
-t = 0
-d, Fx, Fy, Fz, P1 = sampleBendingShape(xvec, x_h1, x_h2, x_h3, p, d_a, q, t, c_a, h_a, l_a, d_1, d_3,  E,  9.93e7, 1.252e7, 1, 1200e10, 27e3)
-#d, Fx, Fy, Fz, P1 = sampleBendingShape(xvec,  0,    500, 1000, 1e5, 100, 0, 0,   500, 100, 1000, 0,  0,  69e3, 1e8, 1e7, 1, 1200e10, 27e3)
-plotBendingShape(xvec, d)
-
-print(Fx)
-print(Fy)
-print(Fz)
-print(P1)
+d, Fx, Fy, Fz, P1 = sampleBendingShape(xvec, x_h1, x_h2, x_h3, p, d_a, q, theta, c_a, h_a, l_a, d_1, d_3,  E,  9.93e7, 1.252e7, 1, 1200e10, 27e3)
+#plotBendingShape(xvec, d)
 
 print(local2global(t, Fx, Fy, Fz))
 
 
-#from FEM
-#2.29e4 Fy 1 and 3
-#-2.975e4 Fy 2
-
-#9.678e4 Fz2 or P
-
-
-
-
-#print(np.arctan(d[1,2] / d[0,2]) * 180/np.pi)
-        
     
 
