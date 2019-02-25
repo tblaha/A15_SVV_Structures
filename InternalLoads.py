@@ -49,30 +49,31 @@ def InternalShearForcez (xlocation,F_y_1,F_y_2,F_y_3,F_z_1,F_z_2,F_z_3,Fx2,P_1):
             + (P_1 * Macauly(xlocation, x_h2 - d_a/2) * cos(radians(theta))) - (P_2 * Macauly(xlocation, x_h2 + d_a/2) * cos(radians(theta)))
     return SFIz
 
-
-
 def InternalMomentx (xlocation,F_y_1,F_y_2,F_y_3,F_z_1,F_z_2,F_z_3,Fx2,P_1):
     P_2 = p
     MIx = - (cos(radians(theta)) * q * (0.25*c_a - h_a/2) * xlocation) \
-          - (P_1 * cos(radians(theta)) * h_a/2 * Macauly(xlocation, (x_h2 - d_a/2)))\
+          + (P_1 * cos(radians(theta)) * Macauly(xlocation, x_h2 - d_a/2) * h_a/2) \
           - (P_1 * sin(radians(theta)) * Macauly(xlocation, x_h2 - d_a/2) * h_a/2) \
-          - (P_2 * cos(radians(theta)) * Macauly(xlocation, x_h2 - d_a/2) * h_a/2) \
-          - (P_2 * sin(radians(theta)) * Macauly(xlocation, x_h2 - d_a/2) * h_a/2) \
-          + (F_z_1 * d_1 * Macauly(xlocation,x_h1)) + (F_z_3 * d_3 * Macauly(xlocation,x_h3))  
+          - (P_2 * cos(radians(theta)) * Macauly(xlocation, x_h2 + d_a/2) * h_a/2) \
+          + (P_2 * sin(radians(theta)) * Macauly(xlocation, x_h2 + d_a/2) * h_a/2)
+          # let's assume no x moments by Fz forces for now; they are not included
+          # in the FEM or the analytical model, so to compare them, lets comment
+          # this out; for now at least
+          #+ (F_z_1 * d_1 * Macauly(xlocation,x_h1)) + (F_z_3 * d_3 * Macauly(xlocation,x_h3))  
     return MIx
 
 def InternalMomenty (xlocation,F_y_1,F_y_2,F_y_3,F_z_1,F_z_2,F_z_3,Fx2,P_1):
     P_2 = p
-    MIy = (F_z_1 * Macaulyyy(xlocation,x_h1))  + (Macaulyyy(xlocation,x_h2) * F_z_2) \
-          + (Macaulyyy(xlocation,x_h3) * F_z_3) + (q * Macaulyyy(xlocation/2,0) * xlocation * cos(radians(theta)))\
-          - (P_1* Macauly(xlocation, x_h2 - d_a/2) * cos(radians(theta)))  + (P_2 * Macauly(xlocation, x_h2 - d_a/2) * cos(radians(theta)))
+    MIy = - (F_z_1 * Macaulyyy(xlocation, x_h1)) - (Macaulyyy(xlocation, x_h2)   * F_z_2) \
+          - (Macaulyyy(xlocation,x_h3) * F_z_3)  - (q * Macaulyyy(xlocation/2,0) * xlocation * sin(radians(theta))) \
+          - (P_1* Macaulyyy(xlocation, x_h2 - d_a/2) * cos(radians(theta)))  + (P_2 * Macaulyyy(xlocation, x_h2 + d_a/2) * cos(radians(theta)))
     return MIy
 
 def InternalMomentz (xlocation,F_y_1,F_y_2,F_y_3,F_z_1,F_z_2,F_z_3,Fx2,P_1): 
     P_2 = p
-    MIz = (F_y_1 * Macaulyyy(xlocation,x_h1)) + (Macaulyyy(xlocation,x_h2) * F_y_2) + \
-          (Macaulyyy(xlocation,x_h3) * F_y_3) + (q * Macaulyyy(xlocation/2,0) * xlocation * sin(radians(theta)))\
-          + (P_1* Macauly(xlocation, x_h2 - d_a/2) * sin(radians(theta)))  - (P_2 * Macauly(xlocation, x_h2 - d_a/2) * sin(radians(theta)))
+    MIz = (F_y_1 * Macaulyyy(xlocation,x_h1)) + (Macaulyyy(xlocation,x_h2) * F_y_2) \
+          + (Macaulyyy(xlocation,x_h3) * F_y_3) - (q * Macaulyyy(xlocation/2,0) * xlocation * cos(radians(theta)))\
+          + (P_1* Macaulyyy(xlocation, x_h2 - d_a/2) * sin(radians(theta)))  - (P_2 * Macaulyyy(xlocation, x_h2 + d_a/2) * sin(radians(theta)))
     return MIz
 
 def getInternalLoads(xvec,Fx, Fy, Fz, P_1 ):

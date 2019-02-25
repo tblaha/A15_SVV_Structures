@@ -169,7 +169,7 @@ def BendingSolver(x_h1, x_h2, x_h3, P_2, d_a, q, theta, c_a, h_a, l_a, d_1, d_3,
     b_vec[2]     = - ( - P_2*np.cosd(theta) + q*l_a*np.sind(theta))
     
     # Forth statics (Moments around x)
-    #a_mat[3,3:6] = np.array([d_1, 0, d_3])
+    #a_mat[3,3:6] = np.array([d_1*np.cosd(theta), 0, d_3*np.cosd(theta)])
     a_mat[3,3:6] = np.array([0, 0, 0])
     a_mat[3,-1]   = np.array([-h_a * np.sqrt(2)/2 * np.cosd(theta+45)])
     #a_mat[3,-1]   = np.array([-h_a / 2 * np.cosd(theta)])
@@ -279,7 +279,7 @@ def sampleBendingShape(x_vec, x_h1, x_h2, x_h3, P_2, d_a, q, theta, c_a, h_a, l_
         i = i + 1
     
     
-    return d_yz_vec, sol[6], sol[0:3], sol[3:6], sol[-1]
+    return d_yz_vec, sol[6], sol[0:3], sol[3:6], -sol[-1]
     
     
     
@@ -297,14 +297,6 @@ def plotBendingShape(x_vec, d_yz_vec):
     plt.show()
     
     return 0
-
-
-
-xvec = np.linspace(0,2771,1001)
-d, Fx, Fy, Fz, P1 = sampleBendingShape(xvec, x_h1, x_h2, x_h3, p, d_a, q, theta, c_a, h_a, l_a, d_1, d_3,  E,  9.93e7, 1.252e7, 1, 1200e10, 27e3)
-#plotBendingShape(xvec, d)
-
-print(local2global(t, Fx, Fy, Fz))
 
 
     
