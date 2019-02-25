@@ -13,7 +13,7 @@ import numpy as np
 def findCentroid(stiffeners):
     #Returns Y_bar,Z_bar,Z_bar_tip
     #Calculated for the hinge
-    #Input is 2D numpy array having [y [mm], z[mm], area[mm2],rotation[rad]] 
+    #Input is 2D numpy array having [y [mm], z[mm], area[mm2]] 
     #Area being 1 for being to the left of the spar, 2 for being to the right
     #Stiffeners coordinates are origins of the centroids.
     Y_bar=0
