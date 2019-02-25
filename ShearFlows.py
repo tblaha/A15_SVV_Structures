@@ -111,8 +111,7 @@ def baseShearFlows(I_zz,I_yy,SFIz,SFIy,B_array,l_Skin_Curved,MIx,Z_bar):
             Qb_y[i,2]=ID_current
             
             #Update B_Distance
-            if i==len(B_array[:,0])-1:
-                break
+            
             B_Distance[i,0]=i+1
             B_Distance[i,3]=ID_current
             
@@ -127,6 +126,8 @@ def baseShearFlows(I_zz,I_yy,SFIz,SFIy,B_array,l_Skin_Curved,MIx,Z_bar):
             
             #Distance between each boom. 
             #FORMAT: / i number / y-direction / z-direction / ID /
+            if i==len(B_array[:,0])-1:
+                break
             B_Distance[i,1]=abs(B_array[i+1,0]-B_array[i,0])
             B_Distance[i,2]=abs(B_array[i+1,1]-B_array[i,1])
             
@@ -140,14 +141,18 @@ def baseShearFlows(I_zz,I_yy,SFIz,SFIy,B_array,l_Skin_Curved,MIx,Z_bar):
                 Line_Integral_qb[i,2] = (np.multiply(Qb_z[i,1],B_Distance[i,2]))/(t_sk*G)
                 
                 Moment_Integral_qb[i,1]=(np.multiply(Qb_y[i,1],B_Distance[i,1]))
-                Moment_Integral_qb[i,1]=(np.multiply(Moment_Integral_qb[i,1],B_Distance[i,2]))
-                
+                Moment_Integral_qb[i,1]=(np.multiply(Moment_Integral_qb[i,1],abs(B_array[i,1])))
+    
                 Moment_Integral_qb[i,2]=(np.multiply(Qb_z[i,1],B_Distance[i,2]))
-                Moment_Integral_qb[i,2]=(np.multiply(Moment_Integral_qb[i,2],B_Distance[i,1]))
+                Moment_Integral_qb[i,2]=(np.multiply(Moment_Integral_qb[i,2],abs(B_array[i,0])))
+               
                 
                 #Moment contribution will be positive for first skin
                 Moment_Cont_qb_1_z= (Moment_Cont_qb_1_z+ Moment_Integral_qb[i,2])
                 Moment_Cont_qb_1_y= (Moment_Cont_qb_1_y + Moment_Integral_qb[i,1])
+                
+                print (Moment_Cont_qb_1_z)
+                print (Moment_Cont_qb_1_y)
                 
                 Line_Integral_qb_1 = Line_Integral_qb_1 + Line_Integral_qb[i,1] + Line_Integral_qb[i,2]  
                 
@@ -158,10 +163,10 @@ def baseShearFlows(I_zz,I_yy,SFIz,SFIy,B_array,l_Skin_Curved,MIx,Z_bar):
                 Line_Integral_qb[i,2] = (np.multiply(Qb_z[i,1],B_Distance[i,2]))/(t_sk*G)
                 
                 Moment_Integral_qb[i,1]=(np.multiply(Qb_y[i,1],B_Distance[i,1]))
-                Moment_Integral_qb[i,1]=(np.multiply(Moment_Integral_qb[i,1],B_Distance[i,2]))
+                Moment_Integral_qb[i,1]=(np.multiply(Moment_Integral_qb[i,1],abs(B_array[i,1])))
                 
                 Moment_Integral_qb[i,2]=(np.multiply(Qb_z[i,1],B_Distance[i,2]))
-                Moment_Integral_qb[i,2]=(np.multiply(Moment_Integral_qb[i,2],B_Distance[i,1]))
+                Moment_Integral_qb[i,2]=(np.multiply(Moment_Integral_qb[i,2],abs(B_array[i,0])))
                 
                 #Moment contribution is positive for the second skin
                 Moment_Cont_qb_2_z= Moment_Cont_qb_2_z+ Moment_Integral_qb[i,2]
@@ -175,7 +180,7 @@ def baseShearFlows(I_zz,I_yy,SFIz,SFIy,B_array,l_Skin_Curved,MIx,Z_bar):
                 Line_Integral_qb[i,2] = (np.multiply(Qb_z[i,1],B_Distance[i,2]))/(t_sp*G)
                 
                 Moment_Integral_qb[i,1]=(np.multiply(Qb_y[i,1],B_Distance[i,1]))
-                Moment_Integral_qb[i,1]=(np.multiply(Moment_Integral_qb[i,1],B_Distance[i,2]))
+                Moment_Integral_qb[i,1]=(np.multiply(Moment_Integral_qb[i,1],abs(B_array[i,0])))
                 
                 #Moment contribution is positive for spar 
                 Moment_Cont_qb_3 =  (Moment_Cont_qb_3+Moment_Integral_qb[i,1])
@@ -191,6 +196,8 @@ def baseShearFlows(I_zz,I_yy,SFIz,SFIy,B_array,l_Skin_Curved,MIx,Z_bar):
         
         #Move on to next cell or spar
         ID_current+=1
+    print (B_Distance)
+        
         
     #Moment contribution from the constant shears:
     #Moment_Cont_qs0_1=2*Cell_Area1*qs0_1
@@ -200,7 +207,7 @@ def baseShearFlows(I_zz,I_yy,SFIz,SFIy,B_array,l_Skin_Curved,MIx,Z_bar):
     RHS_Moment_eq=Moment_Cont_qb_1_z +  Moment_Cont_qb_1_y + Moment_Cont_qb_2_z + Moment_Cont_qb_2_y + Moment_Cont_qb_3 
     
     #Note: No moment caused by SFIz
-    External_Loads = MIx - SFIy*(abs(Z_bar))
+    External_Loads = MIx + SFIy*(abs(Z_bar))
     
     #Matrix Solving coefficients 
     A_11 = (1./(2.*Cell_Area1))*(((l_Skin_Curved)/(t_sk*G))+((h_a/(t_sp*G))))
