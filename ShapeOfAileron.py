@@ -271,4 +271,4 @@ def shapeOfAileronTest():
 	print(disp_te_y_max)
 	print(disp_le_max_x)
 	print(disp_te_max_x)
-shapeOfAileronTest()
+#shapeOfAileronTest()
