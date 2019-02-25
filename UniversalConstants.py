@@ -27,12 +27,28 @@ q=4.530     #Distributed aerodynamic load,  4.53kN/m
 #E=69e3      # Young's modulus Aluminium     69GPa
 E=73.1e3      # Young's modulus Aluminium 2024T3
 G=28e3      # Shear modulus Aluminium     28GPa
-A_st=(h_st+w_st-t_st)*t_st
 
-#Rounded cell
+#Stiffener properties
+st_acc=0 #Change this to 1 to increase accuracy, is to be
+         #closer to analytical module
+         
+#A_st=(h_st+w_st-t_st*st_acc)*t_st 
+w_st_a=w_st*t_st
+h_st_a=h_st*t_st
+w_st_d=t_st*0.5*st_acc
+h_st_d=h_st*0.5
+Area_sum_st=h_st_a+w_st_a
+A_st=Area_sum_st
+AreaDistance_sum_st=h_st_a*h_st_d+w_st_a*w_st_d
+Ybar_st=AreaDistance_sum_st/Area_sum_st
+
+#Rounded cell area
 Cell_Area1=0.5*pi*(h_a/2)**2
 #Cell with two diagonal parts
 Cell_Area2=(c_a-(h_a/2))*(h_a/2)
+
+
+
 
 #Module specific: 
 

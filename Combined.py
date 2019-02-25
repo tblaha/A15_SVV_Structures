@@ -19,10 +19,10 @@ from Stiffeners import *
 from UniversalConstants import *
 
 #Variables to be chosen:
-span_nodes_between=500 #How many nodes between two points of interest
+span_nodes_between=50 #How many nodes between two points of interest
 span_ec=0.0001 #How close should the first point be to the point of interest
 span_offset=30 #How concentrated should the points be (Lower is higher concentration)
-booms_between=50 #The amount of booms between each centre
+booms_between=0 #The amount of booms between each centre
 
 #Extra outputs
 plotBending=False #Plots the bending shape
