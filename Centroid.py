@@ -15,10 +15,9 @@ def findCentroid(stiffeners):
     #Calculated for the hinge
     #Input is 2D numpy array having [y [mm], z[mm], area[mm2],rotation[rad]] 
     #Area being 1 for being to the left of the spar, 2 for being to the right
-    #Stiffeners are point areas since adding the stiffeners'centroid would only
-    #make a difference of less than 0.001mm
+    #Stiffeners coordinates are origins of the centroids.
     Y_bar=0
-    
+
     #Equation to be used for z_bar is 
     #(Sum of Area*Distance)/(Sum of Area)
     Area_Sum=0 #Area
