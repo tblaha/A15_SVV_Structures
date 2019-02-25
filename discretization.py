@@ -421,14 +421,10 @@ def discretizeSpan(x_h1, x_h2, x_h3, d_a, l_a, nodes_between=50,ec=0.0001,offset
 
 # debugging
 
-B=discretizeCrossSection(h_a, c_a, n_st, 1, t_sk, t_sp, 0, -98, 3)
+#B=discretizeCrossSection(h_a, c_a, n_st, 1, t_sk, t_sp, 0, -98, 3)
 #for i in range(4,3,-1):
      # = generateStiffeners(h_a, c_a, n_st, t_st*(w_st+h_st-t_st), t_sk, t_sp)
-<<<<<<< Updated upstream
 #     B=discretizeCrossSection(254,1398, n_st, t_st*(w_st+h_st-t_st), t_sk, t_sp, 0, -98, i)
-=======
-     #B=discretizeCrossSection(254,1398, n_st, t_st*(w_st+h_st-t_st), t_sk, t_sp, 0, -98, i)
->>>>>>> Stashed changes
      #plotCrossSection(B)
      
      
