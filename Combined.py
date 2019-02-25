@@ -19,13 +19,18 @@ from Stiffeners import *
 from UniversalConstants import *
 
 #Variables to be chosen:
-span_nodes_between=50 #How many nodes between two points of interest
+span_nodes_between=500 #How many nodes between two points of interest
 span_ec=0.0001 #How close should the first point be to the point of interest
 span_offset=30 #How concentrated should the points be (Lower is higher concentration)
-booms_between=20 #The amount of booms between each centre
-plotBending=0 #Plots the bending shape
-plotSpan=0 #Plots the distribution of the points in which forces are calculated
-plotInternal=0 #Plots the internal shear and moment diagrams
+booms_between=50 #The amount of booms between each centre
+
+#Extra outputs
+plotBending=False #Plots the bending shape
+plotSpan=False #Plots the distribution of the points in which forces are calculated
+plotInternal=False #Plots the internal shear and moment diagrams
+plotDisplacements=False #Plot the displacements of the aileron
+printInfo=False #Prints all chosen variables
+printInputs=False #Prints actual input values for booms_between,span_nodes_between
 
 #Generate stiffener locations
 Stiffeners = generateStiffeners(h_a, c_a, n_st, A_st, t_sk, t_sp)
@@ -36,7 +41,8 @@ y_bar,z_bar=findCentroid(Stiffeners)
 ##Discretize spanwise
 span_disc=discretizeSpan(x_h1, x_h2, x_h3, d_a, l_a, span_nodes_between,span_ec,span_offset)
 
-if plotSpan==1:
+#Plot spanwise distribution of nodes if enabled
+if plotSpan==True:
     plt.plot(span_disc,len(span_disc)*[1],'x')
     plt.show()
 
@@ -51,7 +57,8 @@ I_zz,I_yy = MomentOfInertia(cross_disc)
 d_yz_vec, F_2x, Fy, Fz, P_1 = sampleBendingShape(span_disc, x_h1, x_h2, x_h3, p, d_a, q, theta, c_a, h_a, l_a, d_1, d_3,  E,  I_yy, I_zz, 1, 1200e10, 27e3)
 
 
-if plotBending==1:
+#Plot bending shape if enabled
+if plotBending==True:
     fig, axs = plt.subplots(2, 1)
     axs[0].plot(span_disc, d_yz_vec[0,:])
     axs[1].plot(span_disc, d_yz_vec[1,:])
@@ -65,7 +72,8 @@ if plotBending==1:
 
 SFIx, SFIy, SFIz, MIx, MIy, MIz = getInternalLoads(span_disc,F_2x, Fy, Fz, P_1)
 
-if plotInternal==1:
+#Plot internal loads if enabled
+if plotInternal==True:
     plt.subplot(231)
     plt.plot(span_disc,SFIx)
     plt.title('Internal normal force x')
@@ -101,5 +109,23 @@ for i in range(len(span_disc)):
     dtdz[i]=dtdz_x
 
 ##Compute shape of aileron    
-shapeOfAileron(x_coords, displ_na, d_theta, theta, z_bar)
+disp_le_y_max, disp_te_y_max, disp_le_max_x, disp_te_max_x=shapeOfAileron(span_disc, d_yz_vec, dtdz, theta, z_bar, plot=plotDisplacements)
 
+
+#Print info if enabled
+if printInfo==True:
+    print('The following run had a total of', len(span_disc),\
+          'spanwise nodes, with a distance of', span_ec,\
+          '[mm] with a distribution coefficient of', span_offset)
+    print('For the boom discretization a total of', len(cross_disc), 'booms were used')
+
+#Print inputs if enabled
+if printInputs==True:
+    print('span_nodes_between=',span_nodes_between)
+    print('span_ec=',span_ec)
+    print('span_offset=',span_offset)
+    print('booms_between=',booms_between)
+    
+#Print output
+print('Maximum displacement in Y of the leading edge: ', disp_le_y_max, '[mm] at X coordinate: ', disp_le_max_x, '[mm]')
+print('Maximum displacement in Y of the trailing edge: ', disp_te_y_max, '[mm] at X coordinate: ', disp_te_max_x, '[mm]')
