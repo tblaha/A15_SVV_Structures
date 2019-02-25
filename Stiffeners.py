@@ -7,7 +7,7 @@ Created on Thu Feb 21 14:59:15 2019
 
 import numpy as np
 
-def generateStiffeners(h_a, c_a, n_st, A_st, t_sk, t_sp):
+def generateStiffeners(h_a, c_a, n_st, A_st, t_sk, t_sp, Ybar_st):
     # Takes the geometry, the number of stiffeners and the number of booms in
     # between each 2 stiffeners and computes boom locations and corresponding 
     # areas
@@ -35,7 +35,7 @@ def generateStiffeners(h_a, c_a, n_st, A_st, t_sk, t_sp):
     
     # ----- preallocation ----- #
     # in total there will be n_st stiffeners, so prealloc that
-    S = np.zeros((n_st, 3))
+    S = np.zeros((n_st, 4))
     
     
     
@@ -74,12 +74,24 @@ def generateStiffeners(h_a, c_a, n_st, A_st, t_sk, t_sp):
         # and positive angle means below the z-axis
         angle = (stiffs_quarter_circular - i) * length_per_stiff_seg/(2*sc_arc_length) * 2*np.pi
         
+        # stiffener angle
+        S[i,3]     = -np.pi/2 + angle
+        
         # using the angle, get the location using the radial distance h_a/2
         S[i,0]     = np.sin(angle)*h_a/2
         S[i,1]     = np.cos(angle)*h_a/2
         
+        # centroid location
+        u_vec = np.array([np.sin(angle), np.cos(angle)])
+        S[i,0:2]   = S[i,0:2] - u_vec * Ybar_st
+        
         # all the stiffeners computed in this for-loop are in beam section 1
         S[i,2]     = 1
+        
+        # corrected stiffener area
+        
+
+        
 
     
     
@@ -115,8 +127,16 @@ def generateStiffeners(h_a, c_a, n_st, A_st, t_sk, t_sp):
         # and add the result to the bottom point
         S[i,0:2]   = np.transpose(bottom_pnt + unit_vec * (straight_sec_start + j * length_per_stiff_seg))
         
+        # angle
+        S[i,3]     = np.arctan2(h_a/2 , c_a-h_a/2)
+        
+        # actual location
+        u_vec = np.array([np.cos(S[i,3]), np.sin(S[i,3])])
+        S[i,0:2]   = S[i,0:2] - S[i,3] * u_vec * Ybar_st
+        
         # we are in section 2
         S[i,2]     = 2
+        
         
         
     # second (top) straight segment by mirroring the booms
@@ -126,6 +146,9 @@ def generateStiffeners(h_a, c_a, n_st, A_st, t_sk, t_sp):
         
         # mirroring about the z-axis
         S[i,0:2] = S[k, 0:2] * np.array([[-1, 1]])
+        
+        # angle
+        S[i,3]   = np.arctan2(h_a/2 , -c_a+h_a/2)
         
         # still section 2
         S[i,2]   = 2
