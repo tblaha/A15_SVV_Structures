@@ -55,7 +55,7 @@ def discretizeCrossSection(h_a, c_a, n_st, A_st, t_sk, t_sp, y_c, z_c, booms_bet
     # booms_between*(n_st+1) +       # in each of the (n_st+1) segments there are booms_between booms
     # booms_between*spar_upscaling + # upscaling for the spar
     # 2                              # two additional booms at the ends of the spar
-    B = np.zeros((n_st + booms_between*(n_st+1+spar_upscaling) - floor(booms_between/2)*2, 5)) # works better without the +2
+    B = np.zeros((n_st + booms_between*(n_st+spar_upscaling), 5)) # works better without the +2
     
     
     
@@ -273,7 +273,10 @@ def discretizeCrossSection(h_a, c_a, n_st, A_st, t_sk, t_sp, y_c, z_c, booms_bet
             B[i,2]   += t_sp/6 * length_per_boom_seg * (2 + (0-z_c)/(B[i,1]-z_c))
             B[i,3]   += t_sp/6 * length_per_boom_seg * (2 + (-h_a/2-y_c)/(B[i,0]-y_c))
         
-        
+    
+    # shitty postfix
+    emtpy_lines = int(np.floor(len(B[np.where(B[:,3:5] == 0)])/2))
+    B = np.delete(B, [np.arange(len(B)-emtpy_lines,len(B))],0)
         
     # finally, return the booms
     return  B
@@ -426,7 +429,10 @@ def discretizeSpan(x_h1, x_h2, x_h3, d_a, l_a, nodes_between=50,ec=0.0001,offset
      # = generateStiffeners(h_a, c_a, n_st, t_st*(w_st+h_st-t_st), t_sk, t_sp)
 #     B=discretizeCrossSection(254,1398, n_st, t_st*(w_st+h_st-t_st), t_sk, t_sp, 0, -98, i)
      #plotCrossSection(B)
-     
+
+#cross_disc=discretizeCrossSection(h_a, c_a, n_st, A_st, t_sk, t_sp, y_bar, z_bar, 27)
+
+#print(cross_disc)
      
      
      
