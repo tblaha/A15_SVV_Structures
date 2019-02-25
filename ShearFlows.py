@@ -213,7 +213,7 @@ def baseShearFlows(I_zz,I_yy,SFIz,SFIy,B_array,l_Skin_Curved,MIx,Z_bar):
     B_2=-(1./(2.*Cell_Area2))*(Line_Integral_qb_2+Line_Integral_qb_3)
     B_3=External_Loads-RHS_Moment_eq
     
-    A = np.array([[A_11, A_12, -1],[A_21,A_22,-1],[A_31,A_32,0]])
+    A = np.array([[A_11, A_12, -1.],[A_21,A_22,-1.],[A_31,A_32,0.]])
     b = np.array([[B_1],[B_2],[B_3]])
     
     #Solve and output 
