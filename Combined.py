@@ -13,7 +13,7 @@ from discretization import *
 from InternalLoads import *
 from MomentOfInertia import *
 from ReactionForcesV2 import *
-#from ShapeOfAileron import *
+from ShapeOfAileron import *
 from ShearFlows import *
 from Stiffeners import *
 from UniversalConstants import *
@@ -25,7 +25,7 @@ span_offset=30 #How concentrated should the points be (Lower is higher concentra
 booms_between=20 #The amount of booms between each centre
 plotBending=0 #Plots the bending shape
 plotSpan=0 #Plots the distribution of the points in which forces are calculated
-plotInternal=1 #Plots the internal shear and moment diagrams
+plotInternal=0 #Plots the internal shear and moment diagrams
 
 #Generate stiffener locations
 Stiffeners = generateStiffeners(h_a, c_a, n_st, A_st, t_sk, t_sp)
@@ -51,7 +51,7 @@ I_zz,I_yy = MomentOfInertia(cross_disc)
 d_yz_vec, F_2x, Fy, Fz, P_1 = sampleBendingShape(span_disc, x_h1, x_h2, x_h3, p, d_a, q, theta, c_a, h_a, l_a, d_1, d_3,  E,  I_yy, I_zz, 1, 1200e10, 27e3)
 
 
-if plotBending==0:
+if plotBending==1:
     fig, axs = plt.subplots(2, 1)
     axs[0].plot(span_disc, d_yz_vec[0,:])
     axs[1].plot(span_disc, d_yz_vec[1,:])
@@ -92,13 +92,14 @@ if plotInternal==1:
     
     plt.show ()
 
-##Compute 
+##Compute dtheta dz
+dtdz=np.zeros(len(span_disc))
+for i in range(len(span_disc)):
+    x=span_disc[i]
+    Qb_z, Qb_y,B_Distance,Line_Integral_qb,Line_Integral_qb_1,Line_Integral_qb_2,Line_Integral_qb_3,A,b,shear_vec=baseShearFlows(I_zz,I_yy,SFIz[i],SFIy[i],cross_disc,MIx[i],z_bar)
+    dtdz_x=shear_vec[2]
+    dtdz[i]=dtdz_x
 
-for x in span_disc:
-    
-    baseShearFlows(I_zz,I_yy,SFIz[x],SFIy[x],cross_disc,(pi*h_a/2),MIx[x],z_bar):
-
-
-
-##    
+##Compute shape of aileron    
+shapeOfAileron(x_coords, displ_na, d_theta, theta, z_bar)
 
