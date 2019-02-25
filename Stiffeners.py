@@ -7,7 +7,7 @@ Created on Thu Feb 21 14:59:15 2019
 
 import numpy as np
 
-def generateStiffeners(h_a, c_a, n_st, A_st, t_sk, t_sp, Ybar_st):
+def generateStiffeners(h_a, c_a, n_st, A_st, t_sk, t_sp, Ybar_st, cg_correction):
     # Takes the geometry, the number of stiffeners and the number of booms in
     # between each 2 stiffeners and computes boom locations and corresponding 
     # areas
@@ -27,7 +27,7 @@ def generateStiffeners(h_a, c_a, n_st, A_st, t_sk, t_sp, Ybar_st):
     # | 0     | 0     | 1                 | 2                 | 1       |
     # | ...
     #
-    # y and z locations are from the centroid of the section
+    # y and z locations are from the hinge-line of the section
     # cell id: 1 (exclusively left cell, counter clockwise sorted)
     #          2 (exclusively right cell, counter clockwise sorted)
     #          3 (exclusively spar, downwards sorted)
@@ -75,15 +75,17 @@ def generateStiffeners(h_a, c_a, n_st, A_st, t_sk, t_sp, Ybar_st):
         angle = (stiffs_quarter_circular - i) * length_per_stiff_seg/(2*sc_arc_length) * 2*np.pi
         
         # stiffener angle
-        S[i,3]     = -np.pi/2 + angle
+        S[i,3]     = -np.pi/2 - angle
         
         # using the angle, get the location using the radial distance h_a/2
         S[i,0]     = np.sin(angle)*h_a/2
         S[i,1]     = np.cos(angle)*h_a/2
         
         # centroid location
-        u_vec = np.array([np.sin(angle), np.cos(angle)])
-        S[i,0:2]   = S[i,0:2] - u_vec * Ybar_st
+        u_vec = np.array([np.cos(S[i,3]), np.sin(S[i,3])])
+        if cg_correction:
+            S[i,0:2]  = S[i,0:2] + u_vec * Ybar_st
+            
         
         # all the stiffeners computed in this for-loop are in beam section 1
         S[i,2]     = 1
@@ -132,7 +134,8 @@ def generateStiffeners(h_a, c_a, n_st, A_st, t_sk, t_sp, Ybar_st):
         
         # actual location
         u_vec = np.array([np.cos(S[i,3]), np.sin(S[i,3])])
-        S[i,0:2]   = S[i,0:2] - S[i,3] * u_vec * Ybar_st
+        if cg_correction:
+            S[i,0:2]   = S[i,0:2] + u_vec * Ybar_st
         
         # we are in section 2
         S[i,2]     = 2
@@ -158,3 +161,6 @@ def generateStiffeners(h_a, c_a, n_st, A_st, t_sk, t_sp, Ybar_st):
         
     # finally, return the booms
     return  S
+
+#plotCrossSection(generateStiffeners(h_a, c_a, n_st, A_st, t_sk, t_sp, Ybar_st, 1))
+
