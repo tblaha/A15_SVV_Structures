@@ -25,7 +25,7 @@ B_test=np.array([[127.,551.,0.,1290.,1.],[-127.,551.,0.,1290.,1.],[-101.,-847,0.
 
 #First find some additional geom properties
 h=UC.h_a / 2 #also r
-l_Skin_Curved=m.pi*h
+#l_Skin_Curved=m.pi*h
 Z_Hingeline=UC.c_a-h
 
 def baseShearFlows(I_zz,I_yy,SFIz,SFIy,B_array,l_Skin_Curved,MIx,Z_bar):
@@ -123,8 +123,6 @@ def baseShearFlows(I_zz,I_yy,SFIz,SFIy,B_array,l_Skin_Curved,MIx,Z_bar):
             Moment_Integral_qb[i,0]=i+1
             Moment_Integral_qb[i,3]=ID_current
             
-            if i==len(B_array[:,0]):
-                break
             
             #Distance between each boom. 
             #FORMAT: / i number / y-direction / z-direction / ID /
