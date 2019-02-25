@@ -14,7 +14,7 @@ from InternalLoads import *
 from MomentOfInertia import *
 from ReactionForcesV2 import *
 #from ShapeOfAileron import *
-#from ShearFlows import *
+from ShearFlows import *
 from Stiffeners import *
 from UniversalConstants import *
 
