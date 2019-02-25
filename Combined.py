@@ -33,7 +33,7 @@ printInfo=False #Prints all chosen variables
 printInputs=False #Prints actual input values for booms_between,span_nodes_between
 
 #Generate stiffener locations
-Stiffeners = generateStiffeners(h_a, c_a, n_st, A_st, t_sk, t_sp, Ybar_st)
+Stiffeners = generateStiffeners(h_a, c_a, n_st, A_st, t_sk, t_sp, Ybar_st, 0)
 
 #Finding the centroid (small letter due to reference system)
 y_bar,z_bar=findCentroid(Stiffeners)
@@ -47,7 +47,7 @@ if plotSpan==True:
     plt.show()
 
 ##Discretize cross-section
-cross_disc=discretizeCrossSection(h_a, c_a, n_st, A_st, t_sk, t_sp, y_bar, z_bar, booms_between)
+cross_disc=discretizeCrossSection(h_a, c_a, n_st, A_st, t_sk, t_sp, y_bar, z_bar, booms_between, 0)
 
 ##Calc MOI
 I_zz,I_yy = MomentOfInertia(cross_disc)
