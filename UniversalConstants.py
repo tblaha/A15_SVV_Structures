@@ -5,6 +5,7 @@ Created on Mon Feb 18 14:04:53 2019
 @author: daanv
 """
 from math import *
+
 #All in mm, N, N/mm, N/mm^2, Deg
 c_a=547     #Chord Length Aileron,          0.547m
 l_a=2771    #Length of the aileron,         2.771m
@@ -25,23 +26,23 @@ theta=26    #Degrees max deflection,        26
 p=91700     #Force of actuator 2,           91.7kN
 q=4.530     #Distributed aerodynamic load,  4.53kN/m
 #E=69e3      # Young's modulus Aluminium     69GPa
-E=73.1e3      # Young's modulus Aluminium 2024T3
-G=28e3      # Shear modulus Aluminium     28GPa
+E=73.1e3    #Young's modulus Aluminium 2024T3 73.1GPa
+G=28e3      #Shear modulus Aluminium        28GPa
 
 #Stiffener properties
-st_acc=0 #Change this to 1 to increase accuracy, is to be
-         #closer to analytical module
+st_acc=0 #Change this to 1 to increase accuracy, 0 is to be
+         #closer to analytical model
          
 #A_st=(h_st+w_st-t_st*st_acc)*t_st 
-w_st_a=w_st*t_st
-h_st_a=h_st*t_st
-w_st_d=t_st*0.5*st_acc
-h_st_d=h_st*0.5
-Area_sum_st=h_st_a+w_st_a
-A_st=Area_sum_st
+w_st_a=w_st*t_st #Area of the wide piece of the stringer
+h_st_a=h_st*t_st #Area of the wide piece of the stringer
+w_st_d=t_st*0.5*st_acc #Centroid of the wide piece of the stringer
+h_st_d=h_st*0.5 #Centroid of the tall piece of the stringer
+A_st=h_st_a+w_st_a #Area of the stringer
 AreaDistance_sum_st=h_st_a*h_st_d+w_st_a*w_st_d
-Ybar_st=AreaDistance_sum_st/Area_sum_st
+Ybar_st=AreaDistance_sum_st/A_st
 
+#Areas for shear flow calculations
 #Rounded cell area
 Cell_Area1=0.5*pi*(h_a/2)**2
 #Cell with two diagonal parts
@@ -50,45 +51,3 @@ Cell_Area2=(c_a-(h_a/2))*(h_a/2)
 
 
 
-#Module specific: 
-
-#################Module 1#################
-#Centroid.py
-#centroid defined as Z_bar, Y_bar=0
-#Z_bar is from hinge line
-#findCentroid() #Returns Y_bar,Z_bar
-
-#################Module 2#################
-#discretization.py
-#discretizeSpan(x_h1, x_h2, x_h3, d_a, l_a, nodes_between=50,ec=0.0001,offset=30)
-#discretizes the span with concentrations of nodes around points of interest
-
-#################Module 3#################
-#MomentOfInertia.py
-#Moment of inertia is defined as I_zz and I_yy
-#Output is given as a (I_zz, I_yy)
-#The variables underneath give the placement of the boom area and the distance of that boom area in the discretization matrix
-location_Bz = 3
-location_By = 2
-location_z = 1
-location_y = 0
-
-
-#################Module 4#################
-
-
-
-
-#################Module 5#################
-
-
-
-#################Module 6#################
-
-
-
-#################Module 7#################
-
-
-
-#################Module 8#################
