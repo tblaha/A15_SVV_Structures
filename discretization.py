@@ -10,7 +10,7 @@ from Stiffeners import *
 import numpy as np
 
 
-def discretizeCrossSection(h_a, c_a, n_st, A_st, t_sk, t_sp, y_c, z_c, booms_between, cg_correction):
+def discretizeCrossSection(h_a, c_a, n_st, A_st, t_sk, t_sp, y_c, z_c, booms_between, Ybar_st, cg_correction):
     # Takes the geometry, the number of stiffeners and the number of booms in
     # between each 2 stiffeners and computes boom locations and corresponding 
     # areas
@@ -470,7 +470,7 @@ def discretizeSpan(x_h1, x_h2, x_h3, d_a, l_a, nodes_between=50,ec=0.0001,offset
 
 #print(cross_disc)
      
-B = discretizeCrossSection(h_a, c_a, n_st, t_st*(w_st+h_st-t_st), t_sk, t_sp, 0, -98, 5, 0)
+#B = discretizeCrossSection(h_a, c_a, n_st, t_st*(w_st+h_st-t_st), t_sk, t_sp, 0, -98, 5, 0)
 
      
      
