@@ -28,7 +28,7 @@ h=UC.h_a / 2 #also r
 #l_Skin_Curved=m.pi*h
 Z_Hingeline=UC.c_a-h
 
-def baseShearFlows(I_zz,I_yy,SFIz,SFIy,B_array,l_Skin_Curved,MIx,Z_bar):
+def baseShearFlows(I_zz,I_yy,SFIz,SFIy,B_array,MIx,Z_bar):
     #This function takes in the MOI parmeters as well as internal shear forces and 
     #cross sectional boom discretization.
     #The output is a 2D array with all the base shear flows in each segment
@@ -57,7 +57,8 @@ def baseShearFlows(I_zz,I_yy,SFIz,SFIy,B_array,l_Skin_Curved,MIx,Z_bar):
     #Create output arrays which will have the same number of rows as input boom area array
     Qb_z = np.zeros((len(B_array[:,0]),3))
     Qb_y = np.zeros((len(B_array[:,0]),3))
-    
+    h=UC.h_a / 2 #also r
+    l_Skin_Curved=m.pi*h
     B_Distance = np.zeros((len(B_array[:,0]),4))
     
     Line_Integral_qb = np.zeros((len(B_array[:,0]),4))
