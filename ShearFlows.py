@@ -28,7 +28,7 @@ h=UC.h_a / 2 #also r
 l_Skin_Curved=m.pi*h
 Z_Hingeline=UC.c_a-h
 
-def baseShearFlows(I_zz,I_yy,SFIz,SFIy,B_array,l_Skin_Curved,MIx,Z_Hingeline,Z_bar):
+def baseShearFlows(I_zz,I_yy,SFIz,SFIy,B_array,l_Skin_Curved,MIx,Z_bar):
     #This function takes in the MOI parmeters as well as internal shear forces and 
     #cross sectional boom discretization.
     #The output is a 2D array with all the base shear flows in each segment
@@ -222,8 +222,8 @@ def baseShearFlows(I_zz,I_yy,SFIz,SFIy,B_array,l_Skin_Curved,MIx,Z_Hingeline,Z_b
     x = np.linalg.solve(A,b)
     return Qb_z, Qb_y,B_Distance,Line_Integral_qb,Line_Integral_qb_1,Line_Integral_qb_2,Line_Integral_qb_3,A,b,x
 
-Qb_z=baseShearFlows(214.3*10**6,0.1,0.,44500.,B_test,1524.,0.,Z_Hingeline,-20.)[0]
-Qb_y=baseShearFlows(214.3*10**6,0.1,0.,44500.,B_test,1524.,0.,Z_Hingeline,-20.)[1]
+#Qb_z=baseShearFlows(214.3*10**6,0.1,0.,44500.,B_test,1524.,0.,-20.)[0]
+#Qb_y=baseShearFlows(214.3*10**6,0.1,0.,44500.,B_test,1524.,0.,-20.)[1]
 #B_Distance=baseShearFlows(23,528,30,20,B,l_Skin_Curved,MIx,Z_bar)[2]
 #Line_Integral_qb=baseShearFlows(23,528,30,20,B,l_Skin_Curved,MIx,Z_bar)[3]
 #Line_Integral_qb_1=baseShearFlows(23,528,30,20,B,l_Skin_Curved,MIx,Z_bar)[4]
@@ -234,21 +234,21 @@ Qb_y=baseShearFlows(214.3*10**6,0.1,0.,44500.,B_test,1524.,0.,Z_Hingeline,-20.)[
 
 #Input: I_zz[mm^4],I_yy[],SFIz,SFIy,B_array,l_Skin_Curved,MIx,Z_Hingeline,Z_bar
 #Output:Constant / shear flow in cell 1 / Constant shear flow in cell 2 / dtheta/dz /
-x=baseShearFlows(214.3*10**6,0.1,0.,44500.,B_test,1524.,0.,Z_Hingeline,-20.)[9]
+x=baseShearFlows(214.3*10**6,0.1,0.,44500.,B_test,1524.,0.,-20.)[9]
 
 
-def integrateTwistRate(twist_Rate, start_x,end_x):
-    theta=0
-    x=0
-    dx=0.001
-    
-    while x<end_x:
-        theta=theta+twist_Rate*dx
-        x=x+dx
-        
-    return theta
-
-    
+#def integrateTwistRate(twist_Rate, start_x,end_x):
+#    theta=0
+#    x=0
+#    dx=0.001
+#    
+#    while x<end_x:
+#        theta=theta+twist_Rate*dx
+#        x=x+dx
+#        
+#    return theta
+#
+#    
     
     
     
