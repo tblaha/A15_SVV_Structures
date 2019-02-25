@@ -99,8 +99,7 @@ def baseShearFlows(I_zz,I_yy,SFIz,SFIy,B_array,l_Skin_Curved,MIx,Z_bar):
 
         
         while ID_current==ID_new:
-            if i==len(B_array[:,0])-1:
-                break
+           
             #Update Qb_z
             Qb_z[i,0]=i+1
             Qb_z[i,1]=qb_z
@@ -112,6 +111,8 @@ def baseShearFlows(I_zz,I_yy,SFIz,SFIy,B_array,l_Skin_Curved,MIx,Z_bar):
             Qb_y[i,2]=ID_current
             
             #Update B_Distance
+            if i==len(B_array[:,0])-1:
+                break
             B_Distance[i,0]=i+1
             B_Distance[i,3]=ID_current
             
