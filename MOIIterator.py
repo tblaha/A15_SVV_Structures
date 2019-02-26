@@ -21,10 +21,16 @@ from UniversalConstants import *
 Izzactual=1.252E+07
 Iyyactual=9.934E+07
 
+Iyy= 96213672.46566828
+Izz= 12603720.561167922
+
+print(Izzactual/Izz)
+print(Iyyactual/Iyy)
 
 Izzlist=[]
 Iyylist=[]
 max_booms = 100
+
 for i in range(max_booms):
     
     booms_between=i #The amount of booms between each centre

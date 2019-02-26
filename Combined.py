@@ -9,7 +9,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 from Centroid import *
-from discretization import *
+from DiscretizationV2 import *
+from DiscretizationMOI import *
 from InternalLoads import *
 from MomentOfInertia import *
 from ReactionForcesV2 import *
@@ -18,11 +19,13 @@ from ShearFlows import *
 from Stiffeners import *
 from UniversalConstants import *
 
+
 #Variables to be chosen:
 span_nodes_between=50 #How many nodes between two points of interest
 span_ec=0.0001 #How close should the first point be to the point of interest
 span_offset=30 #How concentrated should the points be (Lower is higher concentration)
 booms_between=25 #The amount of booms between each centre
+cg_cor_stiffeners=1 #Correct for the stiffeners centroid or not
 
 #Extra outputs
 plotBending=False #Plots the bending shape
@@ -33,7 +36,13 @@ printInfo=False #Prints all chosen variables
 printInputs=False #Prints actual input values for booms_between,span_nodes_between
 
 #Generate stiffener locations
-Stiffeners = generateStiffeners(h_a, c_a, n_st, A_st, t_sk, t_sp, Ybar_st, 0)
+S_uncor = generateStiffeners(h_a, c_a, n_st, A_st, t_sk, t_sp, Ybar_st, 0)
+S_cor = generateStiffeners(h_a, c_a, n_st, A_st, t_sk, t_sp, Ybar_st, 1)
+if cg_cor_stiffeners==1:
+    Stiffeners=S_cor
+else:
+    Stiffeners=S_uncor
+
 
 #Finding the centroid (small letter due to reference system)
 y_bar,z_bar=findCentroid(Stiffeners)
@@ -46,11 +55,12 @@ if plotSpan==True:
     plt.plot(span_disc,len(span_disc)*[1],'x')
     plt.show()
 
-##Discretize cross-section
-cross_disc=discretizeCrossSection(h_a, c_a, n_st, A_st, t_sk, t_sp, y_bar, z_bar, booms_between, Ybar_st, 0)
+##Discretize cross-section and separately for MOI
+cross_disc=discretizeCrossSection(h_a, c_a, n_st, A_st, t_sk, t_sp, y_bar, z_bar, booms_between, Ybar_st, cg_cor_stiffeners)
+cross_discMOI=discretizeCrossSectionMOI(S_cor,S_uncor,h_a, c_a, n_st, A_st, t_sk, t_sp, y_bar, z_bar, booms_between, Ybar_st, cg_cor_stiffeners)
 
 ##Calc MOI
-I_zz,I_yy = MomentOfInertia(cross_disc)
+I_zz,I_yy = MomentOfInertia(cross_discMOI)
 
 ## Get bending and reaction forces
 ## don't worry about the magic numbers at the end. I tried including Timoshenko shear deformations, but it doesnt make much of a difference
