@@ -22,10 +22,10 @@ from UniversalConstants import *
 
 
 #Variables to be chosen:
-span_nodes_between=50 #How many nodes between two points of interest
+span_nodes_between=76 #How many nodes between two points of interest
 span_ec=0.0001 #How close should the first point be to the point of interest
 span_offset=30 #How concentrated should the points be (Lower is higher concentration)
-booms_between=25 #The amount of booms between each centre
+booms_between=100 #The amount of booms between each centre
 cg_cor_stiffeners=1 #Correct for the stiffeners centroid or not
 
 #Extra outputs
@@ -114,17 +114,16 @@ if plotInternal==True:
     
     plt.show ()
 
-##Compute dtheta dz
-dtdz=np.zeros(len(span_disc))
+##Compute dtheta dx
+dtdx=np.zeros(len(span_disc))
 for i in range(len(span_disc)):
     x=span_disc[i]
     Qb_z, Qb_y,B_Distance,Line_Integral_qb_3,A,b,shear_vec,Shear_Final=baseShearFlows(I_zz,I_yy,SFIz[i],SFIy[i],cross_disc,MIx[i],z_bar)
-    dtdz_x=shear_vec[2]
-    dtdz[i]=dtdz_x
-Qb_z, Qb_y,B_Distance,Line_Integral_qb_3,A,b,x,Shear_Final
+    dtdx[i]=shear_vec[2]
+    
 
 ##Compute shape of aileron    
-disp_le_y_max, disp_te_y_max, disp_le_max_x, disp_te_max_x=shapeOfAileron(span_disc, d_yz_vec, dtdz, theta, z_bar, plot=plotDisplacements)
+disp_le_y_max, disp_te_y_max, disp_le_max_x, disp_te_max_x=shapeOfAileron(span_disc, d_yz_vec, dtdx, theta, z_bar, plot=plotDisplacements)
 
 ##Compute the shear flow in the ribs
 #Rib A, Fy1,Fz1
