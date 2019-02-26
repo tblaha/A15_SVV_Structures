@@ -218,7 +218,7 @@ def baseShearFlows(I_zz,I_yy,SFIz,SFIy,B_array,MIx,Z_bar):
     A_31=2*Cell_Area1
     A_32=2*Cell_Area2
     
-    B_1=-(1./(2.*Cell_Area1))*(Line_Integral_qb_1+Line_Integral_qb_3)
+    B_1=-(1./(2.*Cell_Area1))*(Line_Integral_qb_1-Line_Integral_qb_3)
     B_2=-(1./(2.*Cell_Area2))*(Line_Integral_qb_2+Line_Integral_qb_3)
     B_3=External_Loads-RHS_Moment_eq
     
