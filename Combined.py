@@ -8,15 +8,16 @@ Created on Wed Feb 20 09:49:58 2019
 import numpy as np
 import matplotlib.pyplot as plt
 
-from Centroid import *
-from DiscretizationV2 import *
-from DiscretizationMOI import *
-from InternalLoads import *
-from MomentOfInertia import *
-from ReactionForcesV2 import *
-from ShapeOfAileron import *
-from ShearFlows import *
-from Stiffeners import *
+from Centroid import findCentroid
+from DiscretizationV2 import discretizeCrossSection, discretizeSpan
+from DiscretizationMOI import discretizeCrossSectionMOI
+from InternalLoads import getInternalLoads
+from MomentOfInertia import momentOfInertia
+from ReactionForcesV2 import sampleBendingShape
+from ShapeOfAileron import shapeOfAileron
+from ShearFlowsFinal import baseShearFlows
+from ShearFlowRibs import shearFlowRib
+from Stiffeners import generateStiffeners
 from UniversalConstants import *
 
 
@@ -34,6 +35,7 @@ plotInternal=False #Plots the internal shear and moment diagrams
 plotDisplacements=False #Plot the displacements of the aileron
 printInfo=False #Prints all chosen variables
 printInputs=False #Prints actual input values for booms_between,span_nodes_between
+printOutputs=True #Prints the actual output of the program
 
 #Generate stiffener locations
 S_uncor = generateStiffeners(h_a, c_a, n_st, A_st, t_sk, t_sp, Ybar_st, 0)
@@ -56,11 +58,13 @@ if plotSpan==True:
     plt.show()
 
 ##Discretize cross-section and separately for MOI
-cross_disc=discretizeCrossSection(h_a, c_a, n_st, A_st, t_sk, t_sp, y_bar, z_bar, booms_between, Ybar_st, cg_cor_stiffeners)
+cross_disc=discretizeCrossSection(S_cor,S_uncor,h_a, c_a, n_st, A_st, t_sk, t_sp, y_bar, z_bar, booms_between, Ybar_st, cg_cor_stiffeners)
 cross_discMOI=discretizeCrossSectionMOI(S_cor,S_uncor,h_a, c_a, n_st, A_st, t_sk, t_sp, y_bar, z_bar, booms_between, Ybar_st, cg_cor_stiffeners)
 
 ##Calc MOI
-I_zz,I_yy = MomentOfInertia(cross_discMOI)
+I_zz,I_yy = momentOfInertia(cross_discMOI)
+print('Iyy=', I_yy)
+print('Izz=', I_zz)
 
 ## Get bending and reaction forces
 ## don't worry about the magic numbers at the end. I tried including Timoshenko shear deformations, but it doesnt make much of a difference
@@ -114,13 +118,31 @@ if plotInternal==True:
 dtdz=np.zeros(len(span_disc))
 for i in range(len(span_disc)):
     x=span_disc[i]
-    Qb_z, Qb_y,B_Distance,Line_Integral_qb,Line_Integral_qb_1,Line_Integral_qb_2,Line_Integral_qb_3,A,b,shear_vec=baseShearFlows(I_zz,I_yy,SFIz[i],SFIy[i],cross_disc,MIx[i],z_bar)
+    Qb_z, Qb_y,B_Distance,Line_Integral_qb_3,A,b,shear_vec,Shear_Final=baseShearFlows(I_zz,I_yy,SFIz[i],SFIy[i],cross_disc,MIx[i],z_bar)
     dtdz_x=shear_vec[2]
     dtdz[i]=dtdz_x
+Qb_z, Qb_y,B_Distance,Line_Integral_qb_3,A,b,x,Shear_Final
 
 ##Compute shape of aileron    
 disp_le_y_max, disp_te_y_max, disp_le_max_x, disp_te_max_x=shapeOfAileron(span_disc, d_yz_vec, dtdz, theta, z_bar, plot=plotDisplacements)
 
+##Compute the shear flow in the ribs
+#Rib A, Fy1,Fz1
+q_1_A,q_2_A=shearFlowRib(cross_disc, P_1=None, P_2=None, F_z=Fz[0], F_y=Fy[0])
+#Rib B
+q_1_B,q_2_B=shearFlowRib(cross_disc, P_1=P_1, P_2=None, F_z=Fz[1], F_y=Fy[1])
+#Rib C
+q_1_C,q_2_C=shearFlowRib(cross_disc, P_1=None, P_2=p, F_z=Fz[1], F_y=Fy[1])
+#Rib D
+q_1_D,q_2_D=shearFlowRib(cross_disc, P_1=None, P_2=None, F_z=Fz[2], F_y=Fy[2])
+
+
+
+
+#	q_1 - The shearflow in the web of the nose of the aileron.
+#	Defined positive counter-clockwise.
+#	q_2 - The shearflow in the web of the back of the aileron.
+#	Defined positive counter-clockwise.
 
 #Print info if enabled
 if printInfo==True:
@@ -136,9 +158,18 @@ if printInputs==True:
     print('span_offset=',span_offset)
     print('booms_between=',booms_between)
     
-##Print output
-#print('Maximum displacement in Y of the leading edge: ', disp_le_y_max, '[mm] at X coordinate: ', disp_le_max_x, '[mm]')
-#print('Maximum displacement in Y of the trailing edge: ', disp_te_y_max, '[mm] at X coordinate: ', disp_te_max_x, '[mm]')
+#Print output
+if printOutputs==True:
+    print('Maximum displacement in Y of the leading edge: ', disp_le_y_max, '[mm] at X coordinate: ', disp_le_max_x, '[mm]')
+    print('Maximum displacement in Y of the trailing edge: ', disp_te_y_max, '[mm] at X coordinate: ', disp_te_max_x, '[mm]')
+    print('Shear flow in the web at the nose of the aileron rib A: ', q_1_A, '[N/mm]')
+    print('Shear flow in the web at the back of the aileron rib A: ', q_2_A, '[N/mm]')
+    print('Shear flow in the web at the nose of the aileron rib B: ', q_1_B, '[N/mm]')
+    print('Shear flow in the web at the back of the aileron rib B: ', q_2_B, '[N/mm]')
+    print('Shear flow in the web at the nose of the aileron rib C: ', q_1_C, '[N/mm]')
+    print('Shear flow in the web at the back of the aileron rib C: ', q_2_C, '[N/mm]')
+    print('Shear flow in the web at the nose of the aileron rib D: ', q_1_D, '[N/mm]')
+    print('Shear flow in the web at the back of the aileron rib D: ', q_2_D, '[N/mm]')
     
 print('Iyy=', I_yy)
 print('Izz=', I_zz)

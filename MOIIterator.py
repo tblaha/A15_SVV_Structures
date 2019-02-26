@@ -21,8 +21,15 @@ from UniversalConstants import *
 Izzactual=1.252E+07
 Iyyactual=9.934E+07
 
-Iyy= 96213672.46566828
-Izz= 12603720.561167922
+#50 Booms
+Iyy= 97028265.30805449
+Izz= 12556285.832960596
+#100 Booms
+Iyy= 97176018.87363233
+Izz= 12545621.129745593
+#150 Booms
+Iyy= 97226010.9787685
+Izz= 12542104.797035603
 
 print(Izzactual/Izz)
 print(Iyyactual/Iyy)

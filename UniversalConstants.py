@@ -25,12 +25,12 @@ d_3=16.42   #Vertical displacement hinge 3, 1.642cm
 theta=26    #Degrees (max) deflection,      26 
 p=91700     #Force of actuator 2,           91.7kN
 q=4.530     #Distributed aerodynamic load,  4.53kN/m
-E=69e3      # Young's modulus Aluminium     69GPa
-G=28e3      # Shear modulus Aluminium     28GPa
+E=73.1e3    # Young's modulus Al 2042 T3    73.1GPa
+G=28e3      # Shear modulus Aluminium       28GPa
 A_st=(h_st+w_st-t_st)*t_st
 
 #Stiffener properties
-st_acc=0 #Change this to 1 to increase accuracy, 0 is to be
+st_acc=1 #Change this to 1 to increase accuracy, 0 is to be
          #closer to analytical model
          
 #A_st=(h_st+w_st-t_st*st_acc)*t_st 
