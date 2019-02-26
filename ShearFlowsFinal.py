@@ -209,7 +209,6 @@ def baseShearFlows(I_zz,I_yy,SFIz,SFIy,B_array,MIx,Z_bar):
     
     #Solve and output vector x[qs0_1,qs0_2,qs0_3]
     x = np.linalg.solve(A,b)
-    dtheta_dx=x[2]/G
     
     #Function for superiposing the constant shear flows with the final shear flows
     
@@ -233,7 +232,7 @@ def baseShearFlows(I_zz,I_yy,SFIz,SFIy,B_array,MIx,Z_bar):
             
     Shear_Final=getFinalShearFlow()
         
-    return Qb_z, Qb_y,B_Distance,Line_Integral_qb_3,A,b,x,dtheta_dx,Shear_Final
+    return Qb_z, Qb_y,B_Distance,Line_Integral_qb_3,A,b,x,Shear_Final
 
 
 
