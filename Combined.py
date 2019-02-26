@@ -47,7 +47,7 @@ if plotSpan==True:
     plt.show()
 
 ##Discretize cross-section
-cross_disc=discretizeCrossSection(h_a, c_a, n_st, A_st, t_sk, t_sp, y_bar, z_bar, booms_between, 0)
+cross_disc=discretizeCrossSection(h_a, c_a, n_st, A_st, t_sk, t_sp, y_bar, z_bar, booms_between, Ybar_st, 0)
 
 ##Calc MOI
 I_zz,I_yy = MomentOfInertia(cross_disc)

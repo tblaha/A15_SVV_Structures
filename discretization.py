@@ -55,7 +55,7 @@ def discretizeCrossSection(h_a, c_a, n_st, A_st, t_sk, t_sp, y_c, z_c, booms_bet
     # booms_between*(n_st+1) +       # in each of the (n_st+1) segments there are booms_between booms
     # booms_between*spar_upscaling + # upscaling for the spar
     # 2                              # two additional booms at the ends of the spar
-    B = np.zeros((n_st + booms_between*(n_st+spar_upscaling), 5)) # works better without the +2
+    B = np.zeros((n_st + booms_between*(n_st+spar_upscaling)*2, 5)) # works better without the +2
     
     
     
@@ -74,7 +74,7 @@ def discretizeCrossSection(h_a, c_a, n_st, A_st, t_sk, t_sp, y_c, z_c, booms_bet
     total_length = sc_arc_length + straight_length
     
     # length per segment in between stiffeners
-    length_per_stiff_seg = total_length/(len(S)-0.5)
+    length_per_stiff_seg = total_length/(n_st)
     
     # length per boom segment (here, the booms in the spar need to be
     # subtracted since we want to know the length intervals in the skin, not
@@ -258,7 +258,7 @@ def discretizeCrossSection(h_a, c_a, n_st, A_st, t_sk, t_sp, y_c, z_c, booms_bet
         angle_stiff = np.arctan2(h_a/2 , -c_a+h_a/2)
         u_vec = np.array([np.cos(angle_stiff), np.sin(angle_stiff)])
         actual_centroid = B[i,0:2] + u_vec * Ybar_st
-        if not (i-booms_to_first_stiff)%(booms_between+1):
+        if not (i-booms_to_first_stiff-np.ceil(booms_between/2)*2+1)%(booms_between+1):
             if abs(B[i,1]-z_c)>1e-6 and cg_correction:
                 B[i,2]   += A_st * ((actual_centroid[1]-z_c) / (B[i,1]-z_c))**2
             else:
@@ -320,7 +320,7 @@ def discretizeCrossSection(h_a, c_a, n_st, A_st, t_sk, t_sp, y_c, z_c, booms_bet
 
 
  
-def plotCrossSection(B):
+def plotCrossSection(B, Balt):
     # plots the 2 cross sectional discretization for verification
     #
     # --- INPUTS --- #
@@ -340,9 +340,13 @@ def plotCrossSection(B):
         # put down the scatter with the area as the size argument
         axs[0].scatter(B[:,1], B[:,0], B[:,2])
         axs[1].scatter(B[:,1], B[:,0], B[:,3])
+        axs[0].scatter(Balt[:,1], Balt[:,0], Balt[:,2])
+        axs[1].scatter(Balt[:,1], Balt[:,0], Balt[:,3])
     else:
         axs[0].scatter(B[:,1], B[:,0])
         axs[1].scatter(B[:,1], B[:,0])
+        axs[0].scatter(Balt[:,1], Balt[:,0])
+        axs[1].scatter(Balt[:,1], Balt[:,0])
         
     
     # format: axis equal and invert the z axis (x-axis in the plot referece frame)
@@ -469,8 +473,7 @@ def discretizeSpan(x_h1, x_h2, x_h3, d_a, l_a, nodes_between=50,ec=0.0001,offset
 #cross_disc=discretizeCrossSection(h_a, c_a, n_st, A_st, t_sk, t_sp, y_bar, z_bar, 27)
 
 #print(cross_disc)
-     
-#B = discretizeCrossSection(h_a, c_a, n_st, t_st*(w_st+h_st-t_st), t_sk, t_sp, 0, -98, 5, 0)
-
-     
+for i in range(20,3,-1):
+    B = discretizeCrossSection(h_a, c_a, n_st, t_st*(w_st+h_st-t_st), t_sk, t_sp, 0, -98, i, Ybar_st, 0)
+    plotCrossSection(B, B)
      

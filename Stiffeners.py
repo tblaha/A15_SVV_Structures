@@ -54,7 +54,7 @@ def generateStiffeners(h_a, c_a, n_st, A_st, t_sk, t_sp, Ybar_st, cg_correction)
     total_length = sc_arc_length + straight_length
     
     # length per segment in between stiffeners
-    length_per_stiff_seg = total_length/(len(S)-0.5)
+    length_per_stiff_seg = total_length/(len(S))
     
     # number of stiffeners and booms in the circular segment
     stiffs_quarter_circular = np.floor(sc_arc_length/2/length_per_stiff_seg)
@@ -162,5 +162,5 @@ def generateStiffeners(h_a, c_a, n_st, A_st, t_sk, t_sp, Ybar_st, cg_correction)
     # finally, return the booms
     return  S
 
-#plotCrossSection(generateStiffeners(h_a, c_a, n_st, A_st, t_sk, t_sp, Ybar_st, 1))
+plotCrossSection(generateStiffeners(h_a, c_a, n_st, A_st, t_sk, t_sp, Ybar_st, 1), generateStiffeners(h_a, c_a, n_st, A_st, t_sk, t_sp, Ybar_st, 0))
 
