@@ -205,7 +205,7 @@ def baseShearFlows(I_zz,I_yy,SFIz,SFIy,B_array,MIx,Z_bar):
     #Moment_Cont_qs0_2=2*Cell_Area_2*qs0_2
     
     #Total moment contribution including base shear
-    RHS_Moment_eq=Moment_Cont_qb_1_z +  Moment_Cont_qb_1_y + Moment_Cont_qb_2_z + Moment_Cont_qb_2_y + Moment_Cont_qb_3 
+    RHS_Moment_eq=Moment_Cont_qb_1_z +  Moment_Cont_qb_1_y + Moment_Cont_qb_2_z + Moment_Cont_qb_2_y + Moment_Cont_qb_3 + Moment_qb_z_1 + Moment_qb_z_2
     
     #Note: No moment caused by SFIz
     External_Loads = MIx + SFIy*(abs(Z_bar))
