@@ -22,7 +22,7 @@ from UniversalConstants import *
 span_nodes_between=50 #How many nodes between two points of interest
 span_ec=0.0001 #How close should the first point be to the point of interest
 span_offset=30 #How concentrated should the points be (Lower is higher concentration)
-booms_between=0 #The amount of booms between each centre
+booms_between=25 #The amount of booms between each centre
 
 #Extra outputs
 plotBending=False #Plots the bending shape
@@ -33,7 +33,7 @@ printInfo=False #Prints all chosen variables
 printInputs=False #Prints actual input values for booms_between,span_nodes_between
 
 #Generate stiffener locations
-Stiffeners = generateStiffeners(h_a, c_a, n_st, A_st, t_sk, t_sp)
+Stiffeners = generateStiffeners(h_a, c_a, n_st, A_st, t_sk, t_sp, Ybar_st, 0)
 
 #Finding the centroid (small letter due to reference system)
 y_bar,z_bar=findCentroid(Stiffeners)
@@ -47,7 +47,7 @@ if plotSpan==True:
     plt.show()
 
 ##Discretize cross-section
-cross_disc=discretizeCrossSection(h_a, c_a, n_st, A_st, t_sk, t_sp, y_bar, z_bar, booms_between)
+cross_disc=discretizeCrossSection(h_a, c_a, n_st, A_st, t_sk, t_sp, y_bar, z_bar, booms_between, Ybar_st, 0)
 
 ##Calc MOI
 I_zz,I_yy = MomentOfInertia(cross_disc)
@@ -126,6 +126,9 @@ if printInputs==True:
     print('span_offset=',span_offset)
     print('booms_between=',booms_between)
     
-#Print output
-print('Maximum displacement in Y of the leading edge: ', disp_le_y_max, '[mm] at X coordinate: ', disp_le_max_x, '[mm]')
-print('Maximum displacement in Y of the trailing edge: ', disp_te_y_max, '[mm] at X coordinate: ', disp_te_max_x, '[mm]')
+##Print output
+#print('Maximum displacement in Y of the leading edge: ', disp_le_y_max, '[mm] at X coordinate: ', disp_le_max_x, '[mm]')
+#print('Maximum displacement in Y of the trailing edge: ', disp_te_y_max, '[mm] at X coordinate: ', disp_te_max_x, '[mm]')
+    
+print('Iyy=', I_yy)
+print('Izz=', I_zz)

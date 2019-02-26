@@ -7,7 +7,7 @@ Created on Tue Feb 19 14:57:40 2019
 
 import numpy as np
 from UniversalConstants import *
-#from discretization import *
+from discretization import *
 from Centroid import *
 from InternalLoads import *
 from Stiffeners import *
@@ -218,7 +218,7 @@ def baseShearFlows(I_zz,I_yy,SFIz,SFIy,B_array,MIx,Z_bar):
     A_31=2*Cell_Area1
     A_32=2*Cell_Area2
     
-    B_1=-(1./(2.*Cell_Area1))*(Line_Integral_qb_1+Line_Integral_qb_3)
+    B_1=-(1./(2.*Cell_Area1))*(Line_Integral_qb_1-Line_Integral_qb_3)
     B_2=-(1./(2.*Cell_Area2))*(Line_Integral_qb_2+Line_Integral_qb_3)
     B_3=External_Loads-RHS_Moment_eq
     
@@ -229,8 +229,8 @@ def baseShearFlows(I_zz,I_yy,SFIz,SFIy,B_array,MIx,Z_bar):
     x = np.linalg.solve(A,b)
     return Qb_z, Qb_y,B_Distance,Line_Integral_qb,Line_Integral_qb_1,Line_Integral_qb_2,Line_Integral_qb_3,A,b,x
 
-Qb_z=baseShearFlows(214.3*10**6,0.1,0.,44500.,B_test,1524.,0.,84.)[0]
-Qb_y=baseShearFlows(214.3*10**6,0.1,0.,44500.,B_test,1524.,0.,84.)[1]
+Qb_z=baseShearFlows(214.3*10**6,0.1,0.,44500.,B_test,1524.,84.)[0]
+Qb_y=baseShearFlows(214.3*10**6,0.1,0.,44500.,B_test,1524.,84.)[1]
 #B_Distance=baseShearFlows(23,528,30,20,B,l_Skin_Curved,MIx,Z_bar)[2]
 #Line_Integral_qb=baseShearFlows(23,528,30,20,B,l_Skin_Curved,MIx,Z_bar)[3]
 #Line_Integral_qb_1=baseShearFlows(23,528,30,20,B,l_Skin_Curved,MIx,Z_bar)[4]
@@ -241,7 +241,7 @@ Qb_y=baseShearFlows(214.3*10**6,0.1,0.,44500.,B_test,1524.,0.,84.)[1]
 
 #Input: I_zz[mm^4],I_yy[],SFIz,SFIy,B_array,l_Skin_Curved,MIx,Z_Hingeline,Z_bar
 #Output:Constant / shear flow in cell 1 / Constant shear flow in cell 2 / dtheta/dz /
-x=baseShearFlows(214.3*10**6,0.00001,0.,44500.,B_test,1524.,0.,84.)[9]
+x=baseShearFlows(214.3*10**6,0.00001,0.,44500.,B_test,1524.,84.)[9]
 
 
 #def integrateTwistRate(twist_Rate, start_x,end_x):
@@ -256,7 +256,4 @@ x=baseShearFlows(214.3*10**6,0.00001,0.,44500.,B_test,1524.,0.,84.)[9]
 #    return theta
 #
 #    
-    
-    
-    
     

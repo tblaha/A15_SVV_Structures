@@ -194,7 +194,7 @@ def baseShearFlows(I_zz,I_yy,SFIz,SFIy,B_array,l_Skin_Curved,MIx,Z_bar):
                 Moment_Integral_qb[i,1]=(np.multiply(Moment_Integral_qb[i,1],abs(B_array[i,0])))
                 
                 #Moment contribution is positive for spar 
-                Moment_Cont_qb_3 =  (Moment_Cont_qb_3+Moment_Integral_qb[i,1])
+                Moment_Cont_qb_3 =  -(Moment_Cont_qb_3+Moment_Integral_qb[i,1])
                 Line_Integral_qb_3 = Line_Integral_qb_3 + Line_Integral_qb[i,1] + Line_Integral_qb[i,2]
             
             i=i+1
@@ -228,7 +228,7 @@ def baseShearFlows(I_zz,I_yy,SFIz,SFIy,B_array,l_Skin_Curved,MIx,Z_bar):
     A_31=2*Cell_Area1
     A_32=2*Cell_Area2
     
-    B_1=-(1./(2.*Cell_Area1))*(Line_Integral_qb_1+Line_Integral_qb_3)
+    B_1=-(1./(2.*Cell_Area1))*(Line_Integral_qb_1-Line_Integral_qb_3)
     B_2=-(1./(2.*Cell_Area2))*(Line_Integral_qb_2+Line_Integral_qb_3)
     B_3=External_Loads-RHS_Moment_eq
     
@@ -252,7 +252,9 @@ Qb_y=baseShearFlows(214.3*10**6,0.1,0.,44500.,B_test,1524.,0.,84.)[1]
 #Input: I_zz[mm^4],I_yy[],SFIz,SFIy,B_array,l_Skin_Curved,MIx,Z_Hingeline,Z_bar
 #Output:Constant / shear flow in cell 1 / Constant shear flow in cell 2 / dtheta/dz /
 x=baseShearFlows(214.3*10**6,0.00001,0.,44500.,B_test,1524.,0.,84.)[9]
-
+B_Distance=baseShearFlows(214.3*10**6,0.00001,0.,44500.,B_test,1524.,0.,84.)[2]
+Line_Integral_qb=baseShearFlows(214.3*10**6,0.00001,0.,44500.,B_test,1524.,0.,84.)[3]
+Line_Integral_qb_3=baseShearFlows(214.3*10**6,0.00001,0.,44500.,B_test,1524.,0.,84.)[6]
 
 #def integrateTwistRate(twist_Rate, start_x,end_x):
 #    theta=0
