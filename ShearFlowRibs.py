@@ -2,7 +2,7 @@ import numpy as np
 from numpy.linalg import solve, lstsq, inv, eigvals, det
 from UniversalConstants import *
 import Centroid as C
-import discretization as d
+import DiscretizationV2 as d
 import matplotlib.pyplot as plt
 import Stiffeners as s
 
@@ -179,8 +179,8 @@ def shearFlowRib(B, Z_bar, Y_bar, P_1=0., P_2=0., F_z=0., F_y=0.):
 	
 	b = np.zeros(len(points))
 	for i in range(len(b)):
-		b[i] += (points[i][1] - (h_a/2.))*P_1*np.cos(theta) + ((h_a/2.) - points[i][0])*P_1*np.sin(theta)
-		b[i] += ((h_a/2.) - points[i][1])*P_2*np.cos(theta) + (points[i][0] - (h_a/2.))*P_2*np.sin(theta)
+		b[i] += (points[i][1] - (h_a/2.))*P_1*np.cos(theta_radians) + ((h_a/2.) - points[i][0])*P_1*np.sin(theta_radians)
+		b[i] += ((h_a/2.) - points[i][1])*P_2*np.cos(theta_radians) + (points[i][0] - (h_a/2.))*P_2*np.sin(theta_radians)
 		b[i] += (-0. + points[i][1])*F_z + (0. - points[i][0])*F_y
 
 	#b[sparcap_top] = F_z
