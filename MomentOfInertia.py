@@ -10,7 +10,7 @@ from math import *
 import numpy as np
 
 #Start Definition
-def MomentOfInertia(BoomDiscretization): 
+def momentOfInertia(BoomDiscretization): 
     #Boom_disc array is [y,z,By,Bz]
     #Define I_zz and I_yy
     I_zz = 0

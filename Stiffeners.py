@@ -162,5 +162,3 @@ def generateStiffeners(h_a, c_a, n_st, A_st, t_sk, t_sp, Ybar_st, cg_correction)
     # finally, return the booms
     return  S
 
-plotCrossSection(generateStiffeners(h_a, c_a, n_st, A_st, t_sk, t_sp, Ybar_st, 1), generateStiffeners(h_a, c_a, n_st, A_st, t_sk, t_sp, Ybar_st, 0))
-

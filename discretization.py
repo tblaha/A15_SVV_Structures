@@ -306,10 +306,7 @@ def discretizeCrossSection(h_a, c_a, n_st, A_st, t_sk, t_sp, y_c, z_c, booms_bet
             B[i,2]   += t_sp/6 * length_per_boom_seg * (2 + (0-z_c)/(B[i,1]-z_c))
             B[i,3]   += t_sp/6 * length_per_boom_seg * (2 + (-h_a/2-y_c)/(B[i,0]-y_c))
         
-    
-    # shitty postfix
-    emtpy_lines = int(np.floor(len(B[np.where(B[:,3:5] == 0)])/2))
-    B = np.delete(B, [np.arange(len(B)-emtpy_lines,len(B))],0)
+        
         
     # bring to centroidal coordinate system
     B[:,0:2] = B[:,0:2] - np.array([y_c, z_c])
@@ -467,7 +464,7 @@ def discretizeSpan(x_h1, x_h2, x_h3, d_a, l_a, nodes_between=50,ec=0.0001,offset
 #B=discretizeCrossSection(h_a, c_a, n_st, 1, t_sk, t_sp, 0, -98, 3)
 #for i in range(4,3,-1):
      # = generateStiffeners(h_a, c_a, n_st, t_st*(w_st+h_st-t_st), t_sk, t_sp)
-#     B=discretizeCrossSection(254,1398, n_st, t_st*(w_st+h_st-t_st), t_sk, t_sp, 0, -98, i)
+#     B=discretizeCrossSection(h_a, c_a, n_st, t_st*(w_st+h_st-t_st), t_sk, t_sp, 0, -98, i)
      #plotCrossSection(B)
 
 #cross_disc=discretizeCrossSection(h_a, c_a, n_st, A_st, t_sk, t_sp, y_bar, z_bar, 27)

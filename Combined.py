@@ -8,21 +8,26 @@ Created on Wed Feb 20 09:49:58 2019
 import numpy as np
 import matplotlib.pyplot as plt
 
-from Centroid import *
-from discretization import *
-from InternalLoads import *
-from MomentOfInertia import *
-from ReactionForcesV2 import *
-from ShapeOfAileron import *
-from ShearFlows import *
-from Stiffeners import *
-from UniversalConstants import *
+from Centroid import findCentroid
+from DiscretizationV2 import discretizeCrossSection, discretizeSpan
+from DiscretizationMOI import discretizeCrossSectionMOI
+from InternalLoads import getInternalLoads
+from MomentOfInertia import momentOfInertia
+from ReactionForcesV2 import sampleBendingShape
+from ShapeOfAileron import shapeOfAileron
+from ShearFlowsFinal import baseShearFlows
+from ShearFlowRibs import shearFlowRib
+from Stiffeners import generateStiffeners
+from UniversalConstants import \
+h_a,c_a,n_st,A_st,t_sk,t_sp,Ybar_st,x_h1,x_h2,x_h3,l_a,d_a,p,q,theta,d_1,d_3,E,G
+
 
 #Variables to be chosen:
-span_nodes_between=50 #How many nodes between two points of interest
+span_nodes_between=76 #How many nodes between two points of interest
 span_ec=0.0001 #How close should the first point be to the point of interest
 span_offset=30 #How concentrated should the points be (Lower is higher concentration)
-booms_between=25 #The amount of booms between each centre
+booms_between=100 #The amount of booms between each centre
+cg_cor_stiffeners=1 #Correct for the stiffeners centroid or not
 
 #Extra outputs
 plotBending=False #Plots the bending shape
@@ -31,9 +36,16 @@ plotInternal=False #Plots the internal shear and moment diagrams
 plotDisplacements=False #Plot the displacements of the aileron
 printInfo=False #Prints all chosen variables
 printInputs=False #Prints actual input values for booms_between,span_nodes_between
+printOutputs=True #Prints the actual output of the program
 
 #Generate stiffener locations
-Stiffeners = generateStiffeners(h_a, c_a, n_st, A_st, t_sk, t_sp, Ybar_st, 0)
+S_uncor = generateStiffeners(h_a, c_a, n_st, A_st, t_sk, t_sp, Ybar_st, 0)
+S_cor = generateStiffeners(h_a, c_a, n_st, A_st, t_sk, t_sp, Ybar_st, 1)
+if cg_cor_stiffeners==1:
+    Stiffeners=S_cor
+else:
+    Stiffeners=S_uncor
+
 
 #Finding the centroid (small letter due to reference system)
 y_bar,z_bar=findCentroid(Stiffeners)
@@ -46,11 +58,14 @@ if plotSpan==True:
     plt.plot(span_disc,len(span_disc)*[1],'x')
     plt.show()
 
-##Discretize cross-section
-cross_disc=discretizeCrossSection(h_a, c_a, n_st, A_st, t_sk, t_sp, y_bar, z_bar, booms_between, Ybar_st, 0)
+##Discretize cross-section and separately for MOI
+cross_disc=discretizeCrossSection(S_cor,S_uncor,h_a, c_a, n_st, A_st, t_sk, t_sp, y_bar, z_bar, booms_between, Ybar_st, cg_cor_stiffeners)
+cross_discMOI=discretizeCrossSectionMOI(S_cor,S_uncor,h_a, c_a, n_st, A_st, t_sk, t_sp, y_bar, z_bar, booms_between, Ybar_st, cg_cor_stiffeners)
 
 ##Calc MOI
-I_zz,I_yy = MomentOfInertia(cross_disc)
+I_zz,I_yy = momentOfInertia(cross_discMOI)
+print('Iyy=', I_yy)
+print('Izz=', I_zz)
 
 ## Get bending and reaction forces
 ## don't worry about the magic numbers at the end. I tried including Timoshenko shear deformations, but it doesnt make much of a difference
@@ -73,7 +88,7 @@ if plotBending==True:
 SFIx, SFIy, SFIz, MIx, MIy, MIz = getInternalLoads(span_disc,F_2x, Fy, Fz, P_1)
 
 #Plot internal loads if enabled
-if plotInternal==True:
+if plotInternal:
     plt.subplot(231)
     plt.plot(span_disc,SFIx)
     plt.title('Internal normal force x')
@@ -100,35 +115,45 @@ if plotInternal==True:
     
     plt.show ()
 
-##Compute dtheta dz
-dtdz=np.zeros(len(span_disc))
+##Compute dtheta dx
+dtdx=np.zeros(len(span_disc))
 for i in range(len(span_disc)):
     x=span_disc[i]
-    Qb_z, Qb_y,B_Distance,Line_Integral_qb,Line_Integral_qb_1,Line_Integral_qb_2,Line_Integral_qb_3,A,b,shear_vec=baseShearFlows(I_zz,I_yy,SFIz[i],SFIy[i],cross_disc,MIx[i],z_bar)
-    dtdz_x=shear_vec[2]
-    dtdz[i]=dtdz_x
+    Qb_z, Qb_y,B_Distance,Line_Integral_qb_3,A,b,shear_vec,Shear_Final=baseShearFlows(I_zz,I_yy,SFIz[i],SFIy[i],cross_disc,MIx[i],z_bar)
+    dtdx[i]=shear_vec[2]/(G)
 
 ##Compute shape of aileron    
-disp_le_y_max, disp_te_y_max, disp_le_max_x, disp_te_max_x=shapeOfAileron(span_disc, d_yz_vec, dtdz, theta, z_bar, plot=plotDisplacements)
+disp_le_y_max, disp_te_y_max, disp_le_max_x, disp_te_max_x=shapeOfAileron(span_disc, d_yz_vec, dtdx, z_bar, plot=plotDisplacements)
 
+##Compute the shear flow in the ribs
+#Rib A, Fy1,Fz1
+q_A,q_1_A,q_2_A=shearFlowRib(cross_disc, z_bar, y_bar, P_1=0, P_2=0, F_z=Fz[0], F_y=Fy[0])
+#Rib B
+q_B,q_1_B,q_2_B=shearFlowRib(cross_disc, z_bar, y_bar, P_1=P_1, P_2=0, F_z=Fz[1]*0.5, F_y=Fy[1]*0.5)
+#Rib C
+q_C,q_1_C,q_2_C=shearFlowRib(cross_disc, z_bar, y_bar, P_1=0, P_2=p, F_z=Fz[1]*0.5, F_y=Fy[1]*0.5)
+#Rib D
+q_D,q_1_D,q_2_D=shearFlowRib(cross_disc, z_bar, y_bar, P_1=0, P_2=0, F_z=Fz[2], F_y=Fy[2])
 
 #Print info if enabled
-if printInfo==True:
+if printInfo:
     print('The following run had a total of', len(span_disc),\
           'spanwise nodes, with a distance of', span_ec,\
           '[mm] with a distribution coefficient of', span_offset)
     print('For the boom discretization a total of', len(cross_disc), 'booms were used')
 
 #Print inputs if enabled
-if printInputs==True:
+if printInputs:
     print('span_nodes_between=',span_nodes_between)
     print('span_ec=',span_ec)
     print('span_offset=',span_offset)
     print('booms_between=',booms_between)
     
-##Print output
-#print('Maximum displacement in Y of the leading edge: ', disp_le_y_max, '[mm] at X coordinate: ', disp_le_max_x, '[mm]')
-#print('Maximum displacement in Y of the trailing edge: ', disp_te_y_max, '[mm] at X coordinate: ', disp_te_max_x, '[mm]')
-    
-print('Iyy=', I_yy)
-print('Izz=', I_zz)
+#Print output
+if printOutputs:
+    print('Maximum displacement in Y of the leading edge: ', disp_le_y_max, '[mm] at X coordinate: ', disp_le_max_x, '[mm]')
+    print('Maximum displacement in Y of the trailing edge: ', disp_te_y_max, '[mm] at X coordinate: ', disp_te_max_x, '[mm]')
+    print('Magnitude of the maximum shear flow in rib A: ', max(abs(q_A)), '[N/mm]')
+    print('Magnitude of the maximum shear flow in rib B: ', max(abs(q_B)), '[N/mm]')
+    print('Magnitude of the maximum shear flow in rib C: ', max(abs(q_C)), '[N/mm]')
+    print('Magnitude of the maximum shear flow in rib D: ', max(abs(q_D)), '[N/mm]')
