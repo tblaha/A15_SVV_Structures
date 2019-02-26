@@ -1,5 +1,5 @@
 import numpy as np
-from numpy.linalg import solve, lstsq, inv, eigvals
+from numpy.linalg import solve, lstsq, inv, eigvals, det
 from UniversalConstants import *
 import Centroid as C
 import discretization as d
@@ -20,7 +20,7 @@ def arctan(x, y):
 	elif x == 0. and y < 0.: return -np.pi/2.
 	else: return np.arctan(y/x)
 
-def shearFlowRib(B, P_1=None, P_2=None, F_z=None, F_y=None):
+def shearFlowRib(B, Z_bar, Y_bar, P_1=0., P_2=0., F_z=0., F_y=0.):
 	'''
 	INPUTS:
 	- B:
@@ -28,18 +28,23 @@ def shearFlowRib(B, P_1=None, P_2=None, F_z=None, F_y=None):
 	discretizeCrossSection() function in the discretization.py module.
 	
 	- P_1:
-	EXPLANATION
+	EXPLANATION (ask Tuur)
 	
 	- P_2:
-	EXPLANATION
+	EXPLANATION (ask Tuur)
 	
 	- F_x:
-	EXPLANATION
+	EXPLANATION (ask Tuur)
 	
 	- F_y:
-	EXPLANATION
+	EXPLANATION (ask Tuur)
 	
 	OUTPUTS:
+	- The shearflows on the perimeter of the rib given in an array.
+	Each entry corresponds with a section of the boom discretization,
+	only considering the sections on the perimeter. The sections are
+	ordered starting from the top of the spar, going down over the nose.
+	The shear flows are also defined positive in this direction.
 	- The shearflow in the web of the nose of the aileron.
 	Defined positive counter-clockwise.
 	- The shearflow in the web of the back of the aileron.
@@ -62,27 +67,34 @@ def shearFlowRib(B, P_1=None, P_2=None, F_z=None, F_y=None):
 	plt.ioff()
 	plt.show()
 	'''
+	
+	plot_q_sections = False
+	plot_cross_section = False
+	plot_cross_section_live = False
+	plot_matrix = False
 
 	print('There are %i points in the cross-section discretization.' % len(B))
 
 	### This thing produces the array of point coordinates of the points on the circumfarence of the rib.###
 	# Define the point types.
-	nose = 1
-	tail = 2
+	nose = 2
+	tail = 1
 	spar = 3
+	
 	points = []
 	points.append([0., h_a/2., spar])
 	for point in B:
-		if point[4] == 1: points.append([point[1], point[0], nose])
+		if point[4] == 1: points.append([point[1] + Z_bar, point[0] + Y_bar, nose])
 	points.append([0., -h_a/2., spar])
 	for point in B:
-		if point[4] == 2: points.append([point[1], point[0], tail])
+		if point[4] == 2: points.append([point[1] + Z_bar, point[0] + Y_bar, tail])
 	points = np.array(points)
 	#print(points)
 	
-	plot = False
-	if plot:
+	if plot_cross_section:
 		plt.plot(points.transpose()[0], points.transpose()[1], 'bo')
+		B = np.array(B)
+		plt.plot(B[:, 1], B[:, 0], 'r+')
 		plt.grid()
 		plt.tight_layout()
 		plt.show()
@@ -111,17 +123,17 @@ def shearFlowRib(B, P_1=None, P_2=None, F_z=None, F_y=None):
 	
 	two_point_areas[bottom_tail] = area_tail_triangle
 	
-	
-	plot = False
-	if plot:
+	if plot_cross_section_live:
 		plt.ion()
 		plt.grid()
 		plt.tight_layout()
-		for z, y, type in points:
+		for y, z, dump1, dump2, type in B:
 			if type == spar: plt.plot(z, y, 'ro')
 			elif type == nose: plt.plot(z, y, 'bo')
 			elif type == tail: plt.plot(z, y, 'go')
-			else: print('Type not recognized!')
+			else:
+				print(y, z, dump1, dump2, type)
+				print('Type not recognized!')
 			plt.show()
 			plt.pause(0.01)
 		plt.ioff()
@@ -153,8 +165,7 @@ def shearFlowRib(B, P_1=None, P_2=None, F_z=None, F_y=None):
 	print(min(eigen_values))
 	print('The eigenvalue of the matrix A is %f.' % condition_number)
 	
-	plot = False
-	if plot:
+	if plot_matrix:
 		plt.imshow(A,interpolation='none')#,cmap='binary')
 		plt.colorbar()
 		plt.show()
@@ -167,8 +178,10 @@ def shearFlowRib(B, P_1=None, P_2=None, F_z=None, F_y=None):
 	#F_y = 600.
 	
 	b = np.zeros(len(points))
-	for i in range(len(points)):
-		b[i] = (-0. + points[i][1])*F_z + (0. - points[i][0])*F_y
+	for i in range(len(b)):
+		b[i] += (points[i][1] - (h_a/2.))*P_1*np.cos(theta) + ((h_a/2.) - points[i][0])*P_1*np.sin(theta)
+		b[i] += ((h_a/2.) - points[i][1])*P_2*np.cos(theta) + (points[i][0] - (h_a/2.))*P_2*np.sin(theta)
+		b[i] += (-0. + points[i][1])*F_z + (0. - points[i][0])*F_y
 
 	#b[sparcap_top] = F_z
 	#b[sparcap_bot] = F_y
@@ -176,7 +189,8 @@ def shearFlowRib(B, P_1=None, P_2=None, F_z=None, F_y=None):
 	#print(b)
 	### END ###
 	
-	q = lstsq(A, b)
+	print('The determinant of A: det(A) = %i.' % det(A))
+	q = lstsq(A, b, rcond=1e-10)
 	q = q[0]
 	
 	#q = solve(A, b)
@@ -185,8 +199,7 @@ def shearFlowRib(B, P_1=None, P_2=None, F_z=None, F_y=None):
 	#q = np.dot(A_inv, b)
 	#q = np.array(q)[0]
 	
-	plot = True
-	if plot:
+	if plot_q_sections:
 		plt.title('Number of points: ' + str(len(points)))
 		plt.plot(range(len(points)), q, color='lightgray')
 		for i in range(len(points)):
@@ -223,8 +236,8 @@ def shearFlowRib(B, P_1=None, P_2=None, F_z=None, F_y=None):
 	q_2 = q_2/h_a
 	### END ###
 	
-	return q_1, q_2
-
+	return q, q_1, q_2
+'''
 print('Triangles tests:')
 print(areaTriangle([0., 0.], [1., 0.], [0., 1.]))
 print(areaTriangle([1., 0.], [0., 0.], [0., 1.]))
@@ -235,25 +248,37 @@ print()
 # This bit was used for testing.
 q_1_list = []
 q_2_list = []
+q_list = []
 Stiffeners = s.generateStiffeners(h_a, c_a, n_st, A_st, t_sk, t_sp, Ybar_st, 0.)
 Y_bar, Z_bar = C.findCentroid(Stiffeners)
 booms_between_list = [0, 1, 5, 10, 20, 30, 40, 50]
 booms_between_list = range(0, 55, 5)
 booms_between_list = [0, 1, 5, 10, 20]
 #booms_between_list = [0, 1, 2, 5, 10, 20, 50, 100]
-booms_between_list = range(21)
+#booms_between_list = range(200, 201)
 #booms_between_list = [0]
 for i in booms_between_list:
 	booms_between = i
 	B = d.discretizeCrossSection(h_a, c_a, 3, A_st, t_sk, t_sp, Y_bar, Z_bar, booms_between, Ybar_st, 0.)
-	q_1, q_2 = shearFlowRib(B, F_z=19390., F_y=8397.)
+	q, q_1, q_2 = shearFlowRib(B, Z_bar, Y_bar, F_z=19390./2., F_y=8397./2., P_1=100.)
 	q_1_list.append(q_1)
 	q_2_list.append(q_2)
+	q_list.append(q)
 	print('The calculated shearflow in the nose web: q_1 = %f.' % q_1)
-	print('The calculated shearflow in the nose web: q_2 = %f.' % q_2)
+	print('The calculated shearflow in the tail web: q_2 = %f.' % q_2)
 	print()
 plt.plot(booms_between_list, q_1_list, 'b-o', label='q_1')
 plt.plot(booms_between_list, q_2_list, 'g-o', label='q_2')
 plt.grid()
 plt.tight_layout()
 plt.show()
+'''
+'''
+max = len(q_list[-1])
+for i in range(len(q_list)):
+	plt.plot(np.linspace(0., max, len(q_list[i])), q_list[i], '-o', label=str(len(q_list[i])))
+plt.grid()
+plt.legend()
+plt.tight_layout()
+plt.show()
+'''

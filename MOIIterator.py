@@ -21,22 +21,22 @@ from UniversalConstants import *
 Izzactual=1.252E+07
 Iyyactual=9.934E+07
 
-#50 Booms
-Iyy= 97028265.30805449
-Izz= 12556285.832960596
-#100 Booms
-Iyy= 97176018.87363233
-Izz= 12545621.129745593
-#150 Booms
-Iyy= 97226010.9787685
-Izz= 12542104.797035603
-
-print(Izzactual/Izz)
-print(Iyyactual/Iyy)
+##50 Booms
+#Iyy= 97028265.30805449
+#Izz= 12556285.832960596
+##100 Booms
+#Iyy= 97176018.87363233
+#Izz= 12545621.129745593
+##150 Booms
+#Iyy= 97226010.9787685
+#Izz= 12542104.797035603
+#
+#print(Izzactual/Izz)
+#print(Iyyactual/Iyy)
 
 Izzlist=[]
 Iyylist=[]
-max_booms = 100
+max_booms = 200
 
 for i in range(max_booms):
     
@@ -50,7 +50,7 @@ for i in range(max_booms):
     y_bar,z_bar=findCentroid(Stiffeners_corrected)
     
     ##Discretize cross-section
-    cross_disc=discretizeCrossSection(Stiffeners, Stiffeners_corrected, h_a, c_a, n_st, A_st, t_sk, t_sp, y_bar, z_bar, booms_between, Ybar_st, 1)
+    cross_disc=discretizeCrossSection(Stiffeners, Stiffeners_corrected, h_a, c_a, n_st, A_st, t_sk, t_sp, y_bar, z_bar, booms_between, Ybar_st, 0)
     
     ##Calc MOI
     I_zz,I_yy = MomentOfInertia(cross_disc)
@@ -67,7 +67,7 @@ plt.show()
 
 
 # plot discretizations
-B    = discretizeCrossSection(Stiffeners, Stiffeners_corrected, h_a, c_a, n_st, A_st, t_sk, t_sp, y_bar, z_bar, booms_between, Ybar_st, 0)
-Balt = discretizeCrossSection(Stiffeners, Stiffeners_corrected, h_a, c_a, n_st, A_st, t_sk, t_sp, y_bar, z_bar, booms_between, Ybar_st, 1)
+#B    = discretizeCrossSection(Stiffeners, Stiffeners_corrected, h_a, c_a, n_st, A_st, t_sk, t_sp, y_bar, z_bar, booms_between, Ybar_st, 0)
+#Balt = discretizeCrossSection(Stiffeners, Stiffeners_corrected, h_a, c_a, n_st, A_st, t_sk, t_sp, y_bar, z_bar, booms_between, Ybar_st, 1)
 
 #plotCrossSection(B, Balt)
