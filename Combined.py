@@ -18,7 +18,8 @@ from ShapeOfAileron import shapeOfAileron
 from ShearFlowsFinal import baseShearFlows
 from ShearFlowRibs import shearFlowRib
 from Stiffeners import generateStiffeners
-from UniversalConstants import *
+from UniversalConstants import \
+    h_a,c_a,n_st,A_st,t_sk,t_sp,Ybar_st,x_h1,x_h2,x_h3,l_a,d_a,p,q,theta
 
 
 #Variables to be chosen:
@@ -118,9 +119,9 @@ if plotInternal:
 dtdx=np.zeros(len(span_disc))
 for i in range(len(span_disc)):
     x=span_disc[i]
-    Qb_z, Qb_y,B_Distance,Line_Integral_qb_3,A,b,shear_vec,Shear_Final=baseShearFlows(I_zz,I_yy,SFIz[i],SFIy[i],cross_disc,MIx[i],z_bar)
-    dtdx[i]=shear_vec[2]/(G)
-
+    Qb_z, Qb_y,B_Distance,Line_Integral_qb_3,A,b,shear_vec,dtheta_dx,Shear_Final=baseShearFlows(I_zz,I_yy,SFIz[i],SFIy[i],cross_disc,MIx[i],z_bar)
+    dtdx[i]=dtheta_dx
+    
 
 ##Compute shape of aileron    
 disp_le_y_max, disp_te_y_max, disp_le_max_x, disp_te_max_x=shapeOfAileron(span_disc, d_yz_vec, dtdx, z_bar, plot=plotDisplacements)

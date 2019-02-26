@@ -1,9 +1,9 @@
 import numpy as np
 import matplotlib.pyplot as plt
-import UniversalConstants as UC
+from UniversalConstants import *
 from mpl_toolkits.mplot3d import Axes3D
 
-def shapeOfAileron(x_coords, displ_na, d_theta, theta, Z_bar, h_a=UC.h_a, c_a=UC.c_a, plot=False):
+def shapeOfAileron(x_coords, displ_na, d_theta, Z_bar, plot=False):
 	'''
 	INPUTS:
 	- x_coords:
@@ -23,25 +23,9 @@ def shapeOfAileron(x_coords, displ_na, d_theta, theta, Z_bar, h_a=UC.h_a, c_a=UC
 	closest the the fuselage (positive x-direction).  Note that angles are taken
 	positive counter clockwise.
 	
-	- theta:
-	The angle of the maximum upward deflection of the aileron.
-	This variable is a given constant of the simulation.
-	
 	- Z_bar:
 	The z coordinate of the centroid of the cross-section as measured from the
 	hingeline.
-	
-	- d_a:
-	The distance between the two actuators.
-	This variable is a given constant of the simulation.
-	
-	- h_a:
-	The thickness of the airfoil.
-	This variable is a given constant of the simulation.
-	
-	- c_a:
-	The chord length of the airfoil.
-	This variable is a given constant of the simulation.
 	
 	- plot:
 	This variable will dictate whether a plot will be made or not.
@@ -125,7 +109,7 @@ def shapeOfAileron(x_coords, displ_na, d_theta, theta, Z_bar, h_a=UC.h_a, c_a=UC
 	
 	# The correction_angle is than the difference between the maximum angle we want
 	# and the maximum angle we actually have.
-	correction_angle = theta - theta_max
+	correction_angle = theta_radians - theta_max
 	
 	# Now we correct the angles we previously calculated by adding the correction.
 	section_thetas = section_thetas + correction_angle
@@ -259,14 +243,13 @@ def shapeOfAileronTest():
 	d_theta = np.array([-1, -0.5, -0.2, 0.3, 1.2])*0.0001
 	#d_theta = np.ones(5)*0.0005
 	#d_theta = np.zeros(5)
-	theta = 26.*(np.pi/180.)
 	Z_bar = -100.
 	#h_a = 12.5
 	#c_a = 50.
 	
 	# And here we run the shapeOfAileron() function and print its outputs.
 	#disp_le_y_max, disp_te_y_max, disp_le_max_x, disp_te_max_x = shapeOfAileron(x_coords, displ_na, d_theta, theta, x_h2, d_a, h_a, c_a, plot=True)
-	disp_le_y_max, disp_te_y_max, disp_le_max_x, disp_te_max_x = shapeOfAileron(x_coords, displ_na, d_theta, theta, Z_bar, plot=True)
+	disp_le_y_max, disp_te_y_max, disp_le_max_x, disp_te_max_x = shapeOfAileron(x_coords, displ_na, d_theta, Z_bar, plot=True)
 	print(disp_le_y_max)
 	print(disp_te_y_max)
 	print(disp_le_max_x)
