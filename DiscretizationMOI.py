@@ -10,7 +10,7 @@ from Stiffeners import *
 import numpy as np
 
 
-def discretizeCrossSection(S_cor, S_uncor, h_a, c_a, n_st, A_st, t_sk, t_sp, y_c, z_c, booms_between, Ybar_st, cg_correction):
+def discretizeCrossSectionMOI(S_cor, S_uncor, h_a, c_a, n_st, A_st, t_sk, t_sp, y_c, z_c, booms_between, Ybar_st, cg_correction):
     
     spar_scale_up = 4
     B = np.zeros(( (booms_between+1) * (n_st + spar_scale_up) + n_st, 5))
@@ -263,93 +263,3 @@ def plotCrossSection(B, Balt):
 #B = discretizeCrossSection(S_cor, S_uncor, h_a, c_a, n_st, A_st, t_sk, t_sp, 0, -98, bib, Ybar_st, 0)
 #Balt = discretizeCrossSection(S_cor, S_uncor, h_a, c_a, n_st, A_st, t_sk, t_sp, 0, -98, bib, Ybar_st, 1)
 #plotCrossSection(B, Balt)
-
-def discretizeSpan(x_h1, x_h2, x_h3, d_a, l_a, nodes_between=50,ec=0.0001,offset=30):
-    # Takes the spanwise characteristics of the aileron and computes a
-    # discretization at which the deflection of leading edge and trailing edge
-    # will be computed later. Spanwise nodes (the x-location of the discrete
-    # cross sections) are closer to spanwise items like ribs and actuators,
-    # since a lot of the stresses
-    #
-    # --- INPUTS --- #
-    # x_h1, x_h2, x_h3    : locations of the hinges
-    # d_a                 : distance between the actuators; centred in hinge 2
-    # l_a                 : overall length of the aileron
-    # nodes_between       : needs to be a positive, even number! The spanwise
-    #                       nodes in between two spanwise "events"
-    #                       (rib, hinge and one of the two ends)
-    # ec                  : ec, edge_correction, makes sure no points land on
-    #                       any points that have discontinuties
-    # offset              : The points are distributed according to a logarithm
-    #                       this logarithm can be the start of a base 10 log,
-    #                       or it can be somewhat further, decreasing the
-    #                       concentration of points near the edge.
-    # --- OUTPUTS --- #
-    # 1d numpy array: of the x-locations (NOT equally spaced)
-    # | x-loc |
-    # | 0     |
-    # | 15.5  |
-    # | ...   |
-    #
-    # Concentrations of nodes will exist aruond x_h1, x_h2, x_h3, x_h2+/-d_a
-    
-    
-    #Nodes_between needs to be divisable by two to get nodes per part
-    if nodes_between%2!=0:
-        return "Nodes_between not divisable by two"
-    nodes_between=int(nodes_between)
-    nodes_per_part=int(nodes_between/2)
-    
-    #Also need to find the centre points of each segment
-    #Points of interest
-    location_list=[x_h1,x_h2-(d_a/2),x_h2,x_h2+(d_a/2),x_h3,l_a]
-    location_list_new=[0]
-    for i in range(len(location_list)-2):
-        location_list_new.append(location_list[i])
-        a=location_list[i]
-        b=location_list[i+1]
-        location_list_new.append(a+((b-a)/2))
-    location_list_new.append(x_h3)
-    location_list_new.append(l_a)
-    total_nodes=nodes_per_part*(len(location_list_new)-1)   
-    
-    #initialize array for final nodes.
-    nodes=np.zeros(total_nodes)
-    
-    #np.geomspace(), the function used, generates a concentration about the
-    #start of the range, this is why an 'invert' variable is introduced.
-    invert=True
-    
-    #iterate over each segment
-    for i in range(len(location_list_new)-1):
-        #initialize section start, end and range variables
-        sec_start=location_list_new[i]
-        sec_end=location_list_new[i+1]
-        sec_length=sec_end-sec_start
-        #np.geomspace() is used to find the distribution over the desired range
-        distr=np.geomspace(ec+offset,sec_length+offset-ec,num=nodes_per_part)
-        #the inserted offset is removed to have the range start at ec again
-        sec_distr=distr-offset 
-
-        #Check wether inversion is necessary, if inversion is necessary invert
-        #the distribution over the range. 
-        #Next add the starting value of the range so the range starts at the
-        #segment's starting point instead of at the ec
-        #Finally append to nodes list
-        if invert==True:
-            sec_distr_inv=sec_length-sec_distr[::-1]
-            sec_pos=sec_distr_inv+sec_start
-            invert=False
-        else:
-            sec_pos=sec_distr+sec_start
-            invert=True
-            
-#       Debugging code:
-#        print('sec properties: Sec_start:',sec_start,'Sec_end:',sec_end,\
-#        'sec_pos[1] and [-1]:',sec_pos[1],',',sec_pos[-1],'invert=',invert)
-    
-        #add section to nodes list
-        start_index=i*nodes_per_part
-        for o in range(len(sec_pos)):
-            nodes[start_index+o]=sec_pos[o]
-    return nodes
