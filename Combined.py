@@ -123,25 +123,17 @@ for i in range(len(span_disc)):
 
 
 ##Compute shape of aileron    
-disp_le_y_max, disp_te_y_max, disp_le_max_x, disp_te_max_x=shapeOfAileron(span_disc, d_yz_vec, dtdx, theta, z_bar, plot=plotDisplacements)
+disp_le_y_max, disp_te_y_max, disp_le_max_x, disp_te_max_x=shapeOfAileron(span_disc, d_yz_vec, dtdx, z_bar, plot=plotDisplacements)
 
 ##Compute the shear flow in the ribs
 #Rib A, Fy1,Fz1
-q_1_A,q_2_A=shearFlowRib(cross_disc, P_1=None, P_2=None, F_z=Fz[0], F_y=Fy[0])
+q_A,q_1_A,q_2_A=shearFlowRib(cross_disc, z_bar, y_bar, P_1=0, P_2=0, F_z=Fz[0], F_y=Fy[0])
 #Rib B
-q_1_B,q_2_B=shearFlowRib(cross_disc, P_1=P_1, P_2=None, F_z=Fz[1]*0.5, F_y=Fy[1]*0.5)
+q_B,q_1_B,q_2_B=shearFlowRib(cross_disc, z_bar, y_bar, P_1=P_1, P_2=0, F_z=Fz[1]*0.5, F_y=Fy[1]*0.5)
 #Rib C
-q_1_C,q_2_C=shearFlowRib(cross_disc, P_1=None, P_2=p, F_z=Fz[1]*0.5, F_y=Fy[1]*0.5)
+q_C,q_1_C,q_2_C=shearFlowRib(cross_disc, z_bar, y_bar, P_1=0, P_2=p, F_z=Fz[1]*0.5, F_y=Fy[1]*0.5)
 #Rib D
-q_1_D,q_2_D=shearFlowRib(cross_disc, P_1=None, P_2=None, F_z=Fz[2], F_y=Fy[2])
-
-
-
-
-#	q_1 - The shearflow in the web of the nose of the aileron.
-#	Defined positive counter-clockwise.
-#	q_2 - The shearflow in the web of the back of the aileron.
-#	Defined positive counter-clockwise.
+q_D,q_1_D,q_2_D=shearFlowRib(cross_disc, z_bar, y_bar, P_1=0, P_2=0, F_z=Fz[2], F_y=Fy[2])
 
 #Print info if enabled
 if printInfo:
@@ -161,14 +153,7 @@ if printInputs:
 if printOutputs:
     print('Maximum displacement in Y of the leading edge: ', disp_le_y_max, '[mm] at X coordinate: ', disp_le_max_x, '[mm]')
     print('Maximum displacement in Y of the trailing edge: ', disp_te_y_max, '[mm] at X coordinate: ', disp_te_max_x, '[mm]')
-    print('Shear flow in the web at the nose of the aileron rib A: ', q_1_A, '[N/mm]')
-    print('Shear flow in the web at the back of the aileron rib A: ', q_2_A, '[N/mm]')
-    print('Shear flow in the web at the nose of the aileron rib B: ', q_1_B, '[N/mm]')
-    print('Shear flow in the web at the back of the aileron rib B: ', q_2_B, '[N/mm]')
-    print('Shear flow in the web at the nose of the aileron rib C: ', q_1_C, '[N/mm]')
-    print('Shear flow in the web at the back of the aileron rib C: ', q_2_C, '[N/mm]')
-    print('Shear flow in the web at the nose of the aileron rib D: ', q_1_D, '[N/mm]')
-    print('Shear flow in the web at the back of the aileron rib D: ', q_2_D, '[N/mm]')
-    
-print('Iyy=', I_yy)
-print('Izz=', I_zz)
+    print('Magnitude of the maximum shear flow in rib A: ', max(abs(q_A)), '[N/mm]')
+    print('Magnitude of the maximum shear flow in rib B: ', max(abs(q_B)), '[N/mm]')
+    print('Magnitude of the maximum shear flow in rib C: ', max(abs(q_C)), '[N/mm]')
+    print('Magnitude of the maximum shear flow in rib D: ', max(abs(q_D)), '[N/mm]')
