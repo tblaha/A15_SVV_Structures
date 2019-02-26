@@ -1,10 +1,10 @@
 import numpy as np
 from numpy.linalg import solve, lstsq, inv, eigvals, det
 from UniversalConstants import *
-import Centroid as C
-import discretization as d
+#import Centroid as C
+#import discretization as d
 import matplotlib.pyplot as plt
-import Stiffeners as s
+#import Stiffeners as s
 
 def areaTriangle(point_1, point_2, point_3):
 	A_x = point_1[0]
@@ -72,8 +72,10 @@ def shearFlowRib(B, Z_bar, Y_bar, P_1=0., P_2=0., F_z=0., F_y=0.):
 	plot_cross_section = False
 	plot_cross_section_live = False
 	plot_matrix = False
-
-	print('There are %i points in the cross-section discretization.' % len(B))
+	print_statements = False
+    
+	if print_statements:
+		print('There are %i points in the cross-section discretization.' % len(B))
 
 	### This thing produces the array of point coordinates of the points on the circumfarence of the rib.###
 	# Define the point types.
@@ -98,7 +100,8 @@ def shearFlowRib(B, Z_bar, Y_bar, P_1=0., P_2=0., F_z=0., F_y=0.):
 		plt.grid()
 		plt.tight_layout()
 		plt.show()
-	print('There are %i points on the circumference.' % len(points))
+	if print_statements:
+		print('There are %i points on the circumference.' % len(points))
 	### END ###
 
 	### Here we construct the matrix A. This matrix is only dependend on the geometry of the cross-section (the boom positions of the booms in this case). ###
@@ -161,9 +164,10 @@ def shearFlowRib(B, Z_bar, Y_bar, P_1=0., P_2=0., F_z=0., F_y=0.):
 	'''
 	eigen_values = eigvals(A)
 	condition_number = max(eigen_values)/min(eigen_values)
-	print(max(eigen_values))
-	print(min(eigen_values))
-	print('The eigenvalue of the matrix A is %f.' % condition_number)
+	if print_statements:
+		print(max(eigen_values))
+		print(min(eigen_values))
+		print('The eigenvalue of the matrix A is %f.' % condition_number)
 	
 	if plot_matrix:
 		plt.imshow(A,interpolation='none')#,cmap='binary')
@@ -179,8 +183,8 @@ def shearFlowRib(B, Z_bar, Y_bar, P_1=0., P_2=0., F_z=0., F_y=0.):
 	
 	b = np.zeros(len(points))
 	for i in range(len(b)):
-		b[i] += (points[i][1] - (h_a/2.))*P_1*np.cos(theta) + ((h_a/2.) - points[i][0])*P_1*np.sin(theta)
-		b[i] += ((h_a/2.) - points[i][1])*P_2*np.cos(theta) + (points[i][0] - (h_a/2.))*P_2*np.sin(theta)
+		b[i] += (points[i][1] - (h_a/2.))*P_1*np.cos(theta_radians) + ((h_a/2.) - points[i][0])*P_1*np.sin(theta_radians)
+		b[i] += ((h_a/2.) - points[i][1])*P_2*np.cos(theta_radians) + (points[i][0] - (h_a/2.))*P_2*np.sin(theta_radians)
 		b[i] += (-0. + points[i][1])*F_z + (0. - points[i][0])*F_y
 
 	#b[sparcap_top] = F_z
@@ -189,7 +193,8 @@ def shearFlowRib(B, Z_bar, Y_bar, P_1=0., P_2=0., F_z=0., F_y=0.):
 	#print(b)
 	### END ###
 	
-	print('The determinant of A: det(A) = %i.' % det(A))
+	if print_statements:
+		print('The determinant of A: det(A) = %i.' % det(A))
 	q = lstsq(A, b, rcond=1e-10)
 	q = q[0]
 	
@@ -219,8 +224,9 @@ def shearFlowRib(B, Z_bar, Y_bar, P_1=0., P_2=0., F_z=0., F_y=0.):
 		fy += q[i]*(points[i+1][1] - points[i][1])
 	fz += q[len(points)-1]*(points[0][0] - points[len(points)-1][0])
 	fy += q[len(points)-1]*(points[0][1] - points[len(points)-1][1])
-	print('The sum of the shearforces in the z direction: fz = %f.' % fz)
-	print('The sum of the shearforces in the y direction: fy = %f.' % fy)
+	if print_statements:
+		print('The sum of the shearforces in the z direction: fz = %f.' % fz)
+		print('The sum of the shearforces in the y direction: fy = %f.' % fy)
 	### END ###
 	
 	### Determine the shearflows in the ribs. ###
