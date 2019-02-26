@@ -12,7 +12,7 @@ Created on Tue Feb 19 14:57:40 2019
 """
 
 import numpy as np
-from UniversalConstants import *
+#from UniversalConstants import *
 ##from discretization import *
 #from Centroid import *
 #from InternalLoads import *
@@ -20,6 +20,19 @@ from UniversalConstants import *
 
 import matplotlib.pyplot as plt
 
+#MIx=InternalMomentx(0)
+#stiffeners = generateStiffeners(h_a, c_a, n_st, A_st, t_sk, 1.27)
+#Y_bar,Z_bar=findCentroid(stiffeners)
+#B=discretizeCrossSection(h_a, c_a, n_st, A_st, t_sk, t_sp, Y_bar, Z_bar, 3)
+
+#Test B for validation 
+
+B_test=np.array([[100.,300.,1000.,1000.,1.],[-100.,300.,1000.,1000.,1.],[-100.,-300,1000.,1000.,2.],[100.,-300,1000.,1000.,2.],[100.,0 ,1000.,1000.,3.],[-100.,0,1000.,1000.,3.]])
+
+#First find some additional geom properties
+#h=UC.h_a / 2 #also r
+#l_Skin_Curved=m.pi*h
+#Z_Hingeline=UC.c_a-h
 
 def baseShearFlows(I_zz,I_yy,SFIz,SFIy,B_array,MIx,Z_bar):
  
@@ -49,8 +62,12 @@ def baseShearFlows(I_zz,I_yy,SFIz,SFIy,B_array,MIx,Z_bar):
     #Note q1 will be the represent the shear flow between boom 0 and 1 and so on
     
     #geometry:
-    h_a=225
-    l_skin_curved=np.pi*(h_a/2.)
+    Cell_Area1=232000
+    Cell_Area2=232000
+    l_skin_curved=300
+    h_a=200
+    t_sk=1
+    t_sp=1
     
     #Create output arrays which will have the same number of rows as input boom area array
     Qb_z = np.zeros((len(B_array[:,0]),3))
@@ -236,6 +253,11 @@ def baseShearFlows(I_zz,I_yy,SFIz,SFIy,B_array,MIx,Z_bar):
 
 
 
-
+Shear_Final=baseShearFlows(15*10**6,60*10**6,10000,15000.,B_test,0.,0)[6]
+Qb_y=baseShearFlows(15*10**6,60*10**6,10000,15000.,B_test,0.,0)[1]
+print (Qb_y)
+Qb_z=baseShearFlows(15*10**6,60*10**6,10000,15000.,B_test,0.,0)[0]
+print (Qb_z)
+print(Shear_Final)
 
 
