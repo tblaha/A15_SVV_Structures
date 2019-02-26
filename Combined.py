@@ -87,7 +87,7 @@ if plotBending==True:
 SFIx, SFIy, SFIz, MIx, MIy, MIz = getInternalLoads(span_disc,F_2x, Fy, Fz, P_1)
 
 #Plot internal loads if enabled
-if plotInternal==True:
+if plotInternal:
     plt.subplot(231)
     plt.plot(span_disc,SFIx)
     plt.title('Internal normal force x')
@@ -119,8 +119,8 @@ dtdx=np.zeros(len(span_disc))
 for i in range(len(span_disc)):
     x=span_disc[i]
     Qb_z, Qb_y,B_Distance,Line_Integral_qb_3,A,b,shear_vec,Shear_Final=baseShearFlows(I_zz,I_yy,SFIz[i],SFIy[i],cross_disc,MIx[i],z_bar)
-    dtdx[i]=shear_vec[2]
-    
+    dtdx[i]=shear_vec[2]/(G)
+
 
 ##Compute shape of aileron    
 disp_le_y_max, disp_te_y_max, disp_le_max_x, disp_te_max_x=shapeOfAileron(span_disc, d_yz_vec, dtdx, theta, z_bar, plot=plotDisplacements)
@@ -129,9 +129,9 @@ disp_le_y_max, disp_te_y_max, disp_le_max_x, disp_te_max_x=shapeOfAileron(span_d
 #Rib A, Fy1,Fz1
 q_1_A,q_2_A=shearFlowRib(cross_disc, P_1=None, P_2=None, F_z=Fz[0], F_y=Fy[0])
 #Rib B
-q_1_B,q_2_B=shearFlowRib(cross_disc, P_1=P_1, P_2=None, F_z=Fz[1], F_y=Fy[1])
+q_1_B,q_2_B=shearFlowRib(cross_disc, P_1=P_1, P_2=None, F_z=Fz[1]*0.5, F_y=Fy[1]*0.5)
 #Rib C
-q_1_C,q_2_C=shearFlowRib(cross_disc, P_1=None, P_2=p, F_z=Fz[1], F_y=Fy[1])
+q_1_C,q_2_C=shearFlowRib(cross_disc, P_1=None, P_2=p, F_z=Fz[1]*0.5, F_y=Fy[1]*0.5)
 #Rib D
 q_1_D,q_2_D=shearFlowRib(cross_disc, P_1=None, P_2=None, F_z=Fz[2], F_y=Fy[2])
 
@@ -144,21 +144,21 @@ q_1_D,q_2_D=shearFlowRib(cross_disc, P_1=None, P_2=None, F_z=Fz[2], F_y=Fy[2])
 #	Defined positive counter-clockwise.
 
 #Print info if enabled
-if printInfo==True:
+if printInfo:
     print('The following run had a total of', len(span_disc),\
           'spanwise nodes, with a distance of', span_ec,\
           '[mm] with a distribution coefficient of', span_offset)
     print('For the boom discretization a total of', len(cross_disc), 'booms were used')
 
 #Print inputs if enabled
-if printInputs==True:
+if printInputs:
     print('span_nodes_between=',span_nodes_between)
     print('span_ec=',span_ec)
     print('span_offset=',span_offset)
     print('booms_between=',booms_between)
     
 #Print output
-if printOutputs==True:
+if printOutputs:
     print('Maximum displacement in Y of the leading edge: ', disp_le_y_max, '[mm] at X coordinate: ', disp_le_max_x, '[mm]')
     print('Maximum displacement in Y of the trailing edge: ', disp_te_y_max, '[mm] at X coordinate: ', disp_te_max_x, '[mm]')
     print('Shear flow in the web at the nose of the aileron rib A: ', q_1_A, '[N/mm]')
