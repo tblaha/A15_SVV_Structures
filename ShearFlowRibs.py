@@ -1,10 +1,7 @@
 import numpy as np
 from numpy.linalg import solve, lstsq, inv, eigvals, det
 from UniversalConstants import *
-#import Centroid as C
-#import discretization as d
 import matplotlib.pyplot as plt
-#import Stiffeners as s
 
 def areaTriangle(point_1, point_2, point_3):
 	A_x = point_1[0]
@@ -27,17 +24,25 @@ def shearFlowRib(B, Z_bar, Y_bar, P_1=0., P_2=0., F_z=0., F_y=0.):
 	The boom discretization of the cross-section produced by the
 	discretizeCrossSection() function in the discretization.py module.
 	
+	- Z_bar:
+	The z coordinate of the centroid of the idealized cross-section as
+	measured from the hingeline.
+	
+	- Y_bar:
+	The y coordinate of the centroid of the idealized cross-section as
+	measured from the hingeline.
+	
 	- P_1:
-	EXPLANATION (ask Tuur)
+	The force of actuator I.
 	
 	- P_2:
-	EXPLANATION (ask Tuur)
+	The force of actuator II.
 	
-	- F_x:
-	EXPLANATION (ask Tuur)
+	- F_z:
+	The force in the positive z direction of the hinge.
 	
 	- F_y:
-	EXPLANATION (ask Tuur)
+	The force in the positive y direction of the hinge.
 	
 	OUTPUTS:
 	- The shearflows on the perimeter of the rib given in an array.
@@ -51,24 +56,7 @@ def shearFlowRib(B, Z_bar, Y_bar, P_1=0., P_2=0., F_z=0., F_y=0.):
 	Defined positive counter-clockwise.
 	'''
 	
-	'''
-	plt.ion()
-	plt.grid()
-	plt.tight_layout()
-	for line in discr:
-		print(line)
-		if line[4] == 1: plt.plot(line[1], line[0], 'bo')
-		elif line[4] == 2: plt.plot(line[1], line[0], 'go')
-		elif line[4] == 3: plt.plot(line[1], line[0], 'ro')
-		else: print('Cell ID not recognized.')
-		plt.show()
-		plt.pause(0.01)
-	print('There are %i points in the cross-section discretization.' % len(discr))
-	plt.ioff()
-	plt.show()
-	'''
-	
-	plot_q_sections = False
+	plot_q_sections = True
 	plot_cross_section = False
 	plot_cross_section_live = False
 	plot_matrix = False
@@ -91,7 +79,6 @@ def shearFlowRib(B, Z_bar, Y_bar, P_1=0., P_2=0., F_z=0., F_y=0.):
 	for point in B:
 		if point[4] == 2: points.append([point[1] + Z_bar, point[0] + Y_bar, tail])
 	points = np.array(points)
-	#print(points)
 	
 	if plot_cross_section:
 		plt.plot(points.transpose()[0], points.transpose()[1], 'bo')
@@ -142,9 +129,6 @@ def shearFlowRib(B, Z_bar, Y_bar, P_1=0., P_2=0., F_z=0., F_y=0.):
 		plt.ioff()
 		plt.show()
 	
-	
-	#print(two_point_areas)
-
 	A = np.zeros((len(points), len(points)))
 	A = np.matrix(A)
 
@@ -155,54 +139,34 @@ def shearFlowRib(B, Z_bar, Y_bar, P_1=0., P_2=0., F_z=0., F_y=0.):
 		col = len(points)-1
 		area = areaTriangle(points[row], points[len(points)-1], points[0]) + two_point_areas[len(points)-1]
 		A[row, len(points)-1] = -2. * area
-	'''
-	for i in range(len(points)-1):
-		A[sparcap_top, i] = points[i+1][0] - points[i][0]
-		A[sparcap_bot, i] = points[i+1][1] - points[i][1]
-	A[sparcap_top, len(points)-1] = points[0][0] - points[len(points)-1][0]
-	A[sparcap_bot, len(points)-1] = points[0][1] - points[len(points)-1][1]
-	'''
+	
 	eigen_values = eigvals(A)
 	condition_number = max(eigen_values)/min(eigen_values)
+	
 	if print_statements:
 		print(max(eigen_values))
 		print(min(eigen_values))
 		print('The eigenvalue of the matrix A is %f.' % condition_number)
 	
 	if plot_matrix:
-		plt.imshow(A,interpolation='none')#,cmap='binary')
+		plt.imshow(A,interpolation='none')
 		plt.colorbar()
 		plt.show()
-	
-	#print(A)
 	### END ###
 
 	### This bit creates the b vector. The b vector is dependend on the load case. ###
-	#F_z = 600.
-	#F_y = 600.
-	
 	b = np.zeros(len(points))
 	for i in range(len(b)):
 		b[i] += (points[i][1] - (h_a/2.))*P_1*np.cos(theta_radians) + ((h_a/2.) - points[i][0])*P_1*np.sin(theta_radians)
 		b[i] += ((h_a/2.) - points[i][1])*P_2*np.cos(theta_radians) + (points[i][0] - (h_a/2.))*P_2*np.sin(theta_radians)
 		b[i] += (-0. + points[i][1])*F_z + (0. - points[i][0])*F_y
-
-	#b[sparcap_top] = F_z
-	#b[sparcap_bot] = F_y
-
-	#print(b)
 	### END ###
 	
 	if print_statements:
 		print('The determinant of A: det(A) = %i.' % det(A))
+	
 	q = lstsq(A, b, rcond=1e-10)
 	q = q[0]
-	
-	#q = solve(A, b)
-	
-	#A_inv = inv(A)
-	#q = np.dot(A_inv, b)
-	#q = np.array(q)[0]
 	
 	if plot_q_sections:
 		plt.title('Number of points: ' + str(len(points)))
@@ -243,48 +207,3 @@ def shearFlowRib(B, Z_bar, Y_bar, P_1=0., P_2=0., F_z=0., F_y=0.):
 	### END ###
 	
 	return q, q_1, q_2
-'''
-print('Triangles tests:')
-print(areaTriangle([0., 0.], [1., 0.], [0., 1.]))
-print(areaTriangle([1., 0.], [0., 0.], [0., 1.]))
-print(areaTriangle([-1., 0.], [1., 0.], [0., 1.]))
-print(areaTriangle([1., 0.], [-1., 0.], [0., 1.]))
-print()
-
-# This bit was used for testing.
-q_1_list = []
-q_2_list = []
-q_list = []
-Stiffeners = s.generateStiffeners(h_a, c_a, n_st, A_st, t_sk, t_sp, Ybar_st, 0.)
-Y_bar, Z_bar = C.findCentroid(Stiffeners)
-booms_between_list = [0, 1, 5, 10, 20, 30, 40, 50]
-booms_between_list = range(0, 55, 5)
-booms_between_list = [0, 1, 5, 10, 20]
-#booms_between_list = [0, 1, 2, 5, 10, 20, 50, 100]
-#booms_between_list = range(200, 201)
-#booms_between_list = [0]
-for i in booms_between_list:
-	booms_between = i
-	B = d.discretizeCrossSection(h_a, c_a, 3, A_st, t_sk, t_sp, Y_bar, Z_bar, booms_between, Ybar_st, 0.)
-	q, q_1, q_2 = shearFlowRib(B, Z_bar, Y_bar, F_z=19390./2., F_y=8397./2., P_1=100.)
-	q_1_list.append(q_1)
-	q_2_list.append(q_2)
-	q_list.append(q)
-	print('The calculated shearflow in the nose web: q_1 = %f.' % q_1)
-	print('The calculated shearflow in the tail web: q_2 = %f.' % q_2)
-	print()
-plt.plot(booms_between_list, q_1_list, 'b-o', label='q_1')
-plt.plot(booms_between_list, q_2_list, 'g-o', label='q_2')
-plt.grid()
-plt.tight_layout()
-plt.show()
-'''
-'''
-max = len(q_list[-1])
-for i in range(len(q_list)):
-	plt.plot(np.linspace(0., max, len(q_list[i])), q_list[i], '-o', label=str(len(q_list[i])))
-plt.grid()
-plt.legend()
-plt.tight_layout()
-plt.show()
-'''
