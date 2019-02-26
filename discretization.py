@@ -10,7 +10,7 @@ from Stiffeners import *
 import numpy as np
 
 
-def discretizeCrossSection(h_a, c_a, n_st, A_st, t_sk, t_sp, y_c, z_c, booms_between):
+def discretizeCrossSection(h_a, c_a, n_st, A_st, t_sk, t_sp, y_c, z_c, booms_between, Ybar_st, cg_correction):
     # Takes the geometry, the number of stiffeners and the number of booms in
     # between each 2 stiffeners and computes boom locations and corresponding 
     # areas
@@ -55,7 +55,7 @@ def discretizeCrossSection(h_a, c_a, n_st, A_st, t_sk, t_sp, y_c, z_c, booms_bet
     # booms_between*(n_st+1) +       # in each of the (n_st+1) segments there are booms_between booms
     # booms_between*spar_upscaling + # upscaling for the spar
     # 2                              # two additional booms at the ends of the spar
-    B = np.zeros((n_st + booms_between*(n_st+spar_upscaling), 5)) # works better without the +2
+    B = np.zeros((n_st + booms_between*(n_st+spar_upscaling)*2, 5)) # works better without the +2
     
     
     
@@ -74,7 +74,7 @@ def discretizeCrossSection(h_a, c_a, n_st, A_st, t_sk, t_sp, y_c, z_c, booms_bet
     total_length = sc_arc_length + straight_length
     
     # length per segment in between stiffeners
-    length_per_stiff_seg = total_length/(len(S)-0.5)
+    length_per_stiff_seg = total_length/(n_st)
     
     # length per boom segment (here, the booms in the spar need to be
     # subtracted since we want to know the length intervals in the skin, not
@@ -136,9 +136,22 @@ def discretizeCrossSection(h_a, c_a, n_st, A_st, t_sk, t_sp, y_c, z_c, booms_bet
         # returns 0)
         # booms_to_first_stiff is the offset to the first stiffener when going
         # CCW
+        
+        angle_stiff = - np.pi/2 - angle
+        # centroid location
+        u_vec = np.array([np.cos(angle_stiff), np.sin(angle_stiff)])
+        actual_centroid  = B[i,0:2] + u_vec * Ybar_st
+        
         if not (i-booms_to_first_stiff)%(booms_between+1): 
-            B[i,2] += A_st
-            B[i,3] += A_st
+            if abs(B[i,1]-z_c)>1e-6 and cg_correction:
+                B[i,2] += A_st * ((actual_centroid[1]-z_c) / (B[i,1]-z_c))**2
+            else:
+                B[i,2] += A_st
+                
+            if abs(B[i,0]-y_c)>1e-6 and cg_correction:
+                B[i,3] += A_st * ((actual_centroid[0]-y_c) / (B[i,0]-y_c))**2
+            else:
+                B[i,3] += A_st
         
         # Fix corner cases
         if i == 0: # if first boom
@@ -199,10 +212,20 @@ def discretizeCrossSection(h_a, c_a, n_st, A_st, t_sk, t_sp, y_c, z_c, booms_bet
             B[i-1,3] += t_sk/6 * length_per_boom_seg * (2 + (B[i,0]-y_c)   / (B[i-1,0]-y_c))
         
         # add the stiffener area where there is a stiffener
+        angle_stiff = np.arctan2(h_a/2 , c_a-h_a/2)
+        u_vec = np.array([np.cos(angle_stiff), np.sin(angle_stiff)])
+        actual_centroid = B[i,0:2] + u_vec * Ybar_st
         if not (i-booms_to_first_stiff)%(booms_between+1):
-            B[i,2]   += A_st
-            B[i,3]   += A_st
+            if abs(B[i,1]-z_c)>1e-6 and cg_correction:
+                B[i,2]   += A_st * ((actual_centroid[1]-z_c) / (B[i,1]-z_c))**2
+            else:
+                B[i,2]   += A_st
     
+            if abs(B[i,0]-y_c)>1e-6 and cg_correction:
+                B[i,3]   += A_st * ((actual_centroid[0]-y_c) / (B[i,0]-y_c))**2
+            else:
+                B[i,3]   += A_st
+                
         # Fix corner cases, but only for the first one
         # AM I SURE THAT THERE IS NO CORNER CASE AT THE END OF THIS SECTION
         if j == 0:
@@ -232,9 +255,19 @@ def discretizeCrossSection(h_a, c_a, n_st, A_st, t_sk, t_sp, y_c, z_c, booms_bet
             B[i-1,3] += t_sk/6 * length_per_boom_seg * (2 + (B[i,0]-y_c)  /(B[i-1,0]-y_c))
         
         # add the stiffener area where there is a stiffener
-        if not (i-booms_to_first_stiff-booms_between+2)%(booms_between+1):
-            B[i,2]   += A_st
-            B[i,3]   += A_st
+        angle_stiff = np.arctan2(h_a/2 , -c_a+h_a/2)
+        u_vec = np.array([np.cos(angle_stiff), np.sin(angle_stiff)])
+        actual_centroid = B[i,0:2] + u_vec * Ybar_st
+        if not (i-booms_to_first_stiff-np.ceil(booms_between/2)*2+1)%(booms_between+1):
+            if abs(B[i,1]-z_c)>1e-6 and cg_correction:
+                B[i,2]   += A_st * ((actual_centroid[1]-z_c) / (B[i,1]-z_c))**2
+            else:
+                B[i,2]   += A_st
+    
+            if abs(B[i,0]-y_c)>1e-6 and cg_correction:
+                B[i,3]   += A_st * ((actual_centroid[0]-y_c) / (B[i,0]-y_c))**2
+            else:
+                B[i,3]   += A_st
             
         # Fix corner cases, but only for the last one
         # AM I SURE THAT THERE IS NO CORNER CASE AT THE START OF THIS SECTION         
@@ -278,13 +311,16 @@ def discretizeCrossSection(h_a, c_a, n_st, A_st, t_sk, t_sp, y_c, z_c, booms_bet
     emtpy_lines = int(np.floor(len(B[np.where(B[:,3:5] == 0)])/2))
     B = np.delete(B, [np.arange(len(B)-emtpy_lines,len(B))],0)
         
+    # bring to centroidal coordinate system
+    B[:,0:2] = B[:,0:2] - np.array([y_c, z_c])
+    
     # finally, return the booms
     return  B
-       
+    
 
 
  
-def plotCrossSection(B):
+def plotCrossSection(B, Balt):
     # plots the 2 cross sectional discretization for verification
     #
     # --- INPUTS --- #
@@ -304,9 +340,13 @@ def plotCrossSection(B):
         # put down the scatter with the area as the size argument
         axs[0].scatter(B[:,1], B[:,0], B[:,2])
         axs[1].scatter(B[:,1], B[:,0], B[:,3])
+        axs[0].scatter(Balt[:,1], Balt[:,0], Balt[:,2])
+        axs[1].scatter(Balt[:,1], Balt[:,0], Balt[:,3])
     else:
         axs[0].scatter(B[:,1], B[:,0])
         axs[1].scatter(B[:,1], B[:,0])
+        axs[0].scatter(Balt[:,1], Balt[:,0])
+        axs[1].scatter(Balt[:,1], Balt[:,0])
         
     
     # format: axis equal and invert the z axis (x-axis in the plot referece frame)
@@ -433,8 +473,7 @@ def discretizeSpan(x_h1, x_h2, x_h3, d_a, l_a, nodes_between=50,ec=0.0001,offset
 #cross_disc=discretizeCrossSection(h_a, c_a, n_st, A_st, t_sk, t_sp, y_bar, z_bar, 27)
 
 #print(cross_disc)
-     
-     
-     
-     
+for i in range(20,3,-1):
+    B = discretizeCrossSection(h_a, c_a, n_st, t_st*(w_st+h_st-t_st), t_sk, t_sp, 0, -98, i, Ybar_st, 0)
+    plotCrossSection(B, B)
      
