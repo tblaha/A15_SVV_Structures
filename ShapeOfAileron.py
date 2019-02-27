@@ -27,11 +27,21 @@ def shapeOfAileron(x_coords, displ_na, d_theta, Z_bar, plot_aileron=False, plot_
 	The z coordinate of the centroid of the cross-section as measured from the
 	hingeline.
 	
-	- plot:
-	This variable will dictate whether a plot will be made or not.
+	- plot_aileron:
+	This variable will dictate whether a plot of the aileron will be made or not.
 	If the variable is True, a plot will be made with the TE, LE and NA.
 	The chords will also be plotted at each position that the aileron
 	was cut (and the tips).
+	
+	- plot_deflections_theta_0:
+	When set to True, a plot will be made of the displacements in z and y of
+	the TE and LE as compared to there positions if there was no loading and
+	theta was 0.
+	
+	- plot_deflections:
+	When set to True, a plot will be made of the displacements in z and y of
+	the TE and LE as compared to there positions if there was no loading.
+	
 	
 	METHOD:
 	Note that the spanwise points at which we'll be avaluating the aileron will be referred to
@@ -158,20 +168,35 @@ def shapeOfAileron(x_coords, displ_na, d_theta, Z_bar, plot_aileron=False, plot_
 	
 	# The correction_angle is than the difference between the maximum angle we want
 	# and the maximum angle we actually have.
-	correction_angle = theta_radians - fixed_cross_section_theta
+	correction_angle = -theta_radians - fixed_cross_section_theta
 	
 	# Now we correct the angles we previously calculated by adding the correction.
 	section_thetas = section_thetas + correction_angle
 	
-	### Rotate the neutral axis. ###
+	# The displacements of the NA have been calculated relative to the aileron coordinate system
+	# (centered on the hinge line with the y axis pointing upward, the z axis pointing toward the LE
+	# and the x axis going to the rigth when looking at the aileron head on). As we want to know
+	# the displacements in the global coordinate system (same but with the aileron at a nose down
+	# angle theta), we need to rotate the coordinates of the NA to match this rotation of the aileron.
+	# To do this, we'll look at each point and determine its polar coordinates. Then we'll correct the
+	# angle by adding the angle theta that the NA needs to be rotated with. Do note that this theta
+	# is the nose down angle, which is negative in our coordinate system so we need to change the
+	# sign. Then we'll convert the corrected polar coordinates back in to cartesian coordinates.
 	for i in range(len(displ_na[0])):
+		# We calculate the radius by taking the Euclidian norm of the cartesian coordinates.
 		r = np.sqrt(displ_na[0][i]**2 + displ_na[1][i]**2)
+		
+		# And calculate the angle by simply using trigonometry. Note that for numpy's arctan2 function,
+		# the y coordinate is passed first and then the z coordinate. This function also takes into account
+		# the signs of the y and z coordinate to get an angle between -pi and pi.
 		angle = np.arctan2(displ_na[0][i], displ_na[1][i])
 		
-		angle -= theta_radians
+		# Then we correct the angle by adding theta. Again, mind the sign of theta.
+		angle += -theta_radians
+		
+		# And we convert back to cartesian coordinates by using simple trigonometry.
 		displ_na[0][i] = r*np.sin(angle)
 		displ_na[1][i] = r*np.cos(angle)
-	### END ###
 	
 	# For the displacements of the LE and TE we use the displacement of the NA and
 	# add/subtract the displacement of the LE/TE with respect to the NA. For this, we'll also assume that
@@ -205,15 +230,17 @@ def shapeOfAileron(x_coords, displ_na, d_theta, Z_bar, plot_aileron=False, plot_
 	# The y and z coordinates are then put together in an array.
 	te_coords = np.array([te_y_coords, te_z_coords])
 	
-	### Determine the deflections compared to the no load case. ###
+	# Now we'll calculate the displacement of the LE/TE as compared to the case when there
+	# would be no loading. First we'll copy the coordinates array of the LE/TE coordinates
+	# to get the right format of array. Then we'll subtract the coordinates of the LE/TE coordinates
+	# Were there no load.
 	displ_le = le_coords.copy()
-	displ_le[0] = displ_le[0] - displ_na[0]*np.sin(theta_radians)*((h_a/2.)-Z_bar)
-	displ_le[1] = displ_le[1] - displ_na[1]*np.cos(theta_radians)*((h_a/2.)-Z_bar)
+	displ_le[0] = le_coords[0] - np.sin(-theta_radians)*((h_a/2.)-Z_bar)
+	displ_le[1] = le_coords[1] - np.cos(-theta_radians)*((h_a/2.)-Z_bar)
 	
 	displ_te = te_coords.copy()
-	displ_te[0] = displ_te[0] - displ_na[0]*np.sin(theta_radians)*(c_a - (h_a/2.) + Z_bar)
-	displ_te[1] = displ_te[1] - displ_na[1]*np.cos(theta_radians)*(c_a - (h_a/2.) + Z_bar)
-	### END ###
+	displ_te[0] = te_coords[0] - np.sin(-theta_radians+np.pi)*(c_a - (h_a/2.) + Z_bar)
+	displ_te[1] = te_coords[1] - np.cos(-theta_radians+np.pi)*(c_a - (h_a/2.) + Z_bar)
 	
 	# Here I plot the NA, LE and TE if so desired (if plot is set to True).
 	if plot_aileron:
@@ -284,8 +311,11 @@ def shapeOfAileron(x_coords, displ_na, d_theta, Z_bar, plot_aileron=False, plot_
 		# And show our glorious plot.
 		plt.show()
 	
-	### Plot the graphs for the deflections ###
+	# This thing will make a plot of the displacements in z and y of
+	# the TE and LE as compared to there positions if there was no loading and
+	# theta was 0.
 	if plot_deflections_theta_0:
+		# Plot the LE/TE displacements.
 		plt.plot(x_coords, displ_le[0], label='LE y deflection', marker='v')
 		plt.plot(x_coords, displ_le[1], label='LE z deflection', marker='<')
 		plt.plot(x_coords, displ_te[0], label='TE y deflection', marker='^')
@@ -303,11 +333,15 @@ def shapeOfAileron(x_coords, displ_na, d_theta, Z_bar, plot_aileron=False, plot_
 		# And show our glorious plot.
 		plt.show()
 	
+	
+	# This thing will make a plot of the displacements in z and y of
+	# the TE and LE as compared to there positions if there was no loading.
 	if plot_deflections:
-		plt.plot(x_coords, le_coords[0], label='LE y deflection', marker='v')
-		plt.plot(x_coords, le_coords[1], label='LE z deflection', marker='<')
-		plt.plot(x_coords, te_coords[0], label='TE y deflection', marker='^')
-		plt.plot(x_coords, te_coords[1], label='TE z deflection', marker='>')
+		# Plot the LE/TE coordinates.
+		plt.plot(x_coords, le_coords[0], label='LE y position', marker='v')
+		plt.plot(x_coords, le_coords[1], label='LE z position', marker='<')
+		plt.plot(x_coords, te_coords[0], label='TE y position', marker='^')
+		plt.plot(x_coords, te_coords[1], label='TE z position', marker='>')
 		
 		# Include the legend.
 		plt.legend()
@@ -320,7 +354,6 @@ def shapeOfAileron(x_coords, displ_na, d_theta, Z_bar, plot_aileron=False, plot_
 		
 		# And show our glorious plot.
 		plt.show()
-	### END ###
 	
 	#The maximum displacement is found by simply taking the maximum of all the y
 	# displacements of the LE/TE. Note that we need to add the abs key to the max()

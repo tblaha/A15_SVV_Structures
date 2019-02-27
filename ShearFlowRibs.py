@@ -12,11 +12,6 @@ def areaTriangle(point_1, point_2, point_3):
 	C_y = point_3[1]
 	return np.abs(((A_x * (B_y - C_y)) + (B_x * (C_y - A_y)) + (C_x * (A_y - B_y)))/2.)
 
-def arctan(x, y):
-	if x == 0. and y > 0.: return np.pi/2.
-	elif x == 0. and y < 0.: return -np.pi/2.
-	else: return np.arctan(y/x)
-
 def shearFlowRib(B, Z_bar, Y_bar, P_1=0., P_2=0., F_z=0., F_y=0.):
 	'''
 	INPUTS:
@@ -98,8 +93,8 @@ def shearFlowRib(B, Z_bar, Y_bar, P_1=0., P_2=0., F_z=0., F_y=0.):
 
 	two_point_areas = np.zeros(len(points))
 	for i in range(sparcap_bot):
-		angle_1 = arctan(points[i][0], points[i][1])
-		angle_2 = arctan(points[i+1][0], points[i+1][1])
+		angle_1 = np.arctan2(points[i][1], points[i][0])
+		angle_2 = np.arctan2(points[i+1][1], points[i+1][0])
 		angle = np.abs(angle_1 - angle_2)
 		area_circle = (np.pi * (h_a**2))/4.
 		area_pie = (angle/(2. * np.pi)) * area_circle

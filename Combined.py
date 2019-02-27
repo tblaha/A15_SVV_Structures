@@ -34,12 +34,12 @@ cg_cor_stiffeners=1 #Correct for the stiffeners centroid or not
 plotBending=False #Plots the bending shape
 plotSpan=False #Plots the distribution of the points in which forces are calculated
 plotInternal=False #Plots the internal shear and moment diagrams
-plotAileron=True #Plot the displacements of the aileron
-plotDeflectionsTheta0=False
-plotDeflections=False
+plotAileron=True #Plots a simplified version of the aileron.
+plotDeflectionsTheta0=True	#Plots the displacements of the LE and TE compared to where they would be if theta was 0 and there was no loading.
+plotDeflections=True #Plots the displacements of the LE and TE compared to where they would be if there was no loading.
 printInfo=False #Prints all chosen variables
 printInputs=False #Prints actual input values for booms_between,span_nodes_between
-printOutputs=False #Prints the actual output of the program
+printOutputs=True #Prints the actual output of the program
 printReactionForces=False #Prints all reaction forces 
 printMOI=True #Prints Moment of Inertia 
  
