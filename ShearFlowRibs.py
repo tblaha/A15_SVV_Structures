@@ -51,7 +51,7 @@ class shearFlowRib:
 	Defined positive counter-clockwise.
 	'''
 	
-	def __init__(self, B, Z_bar, Y_bar)
+	def __init__(self, B, Z_bar, Y_bar):
 		plot_q_sections = True
 		plot_cross_section = False
 		plot_cross_section_live = False
