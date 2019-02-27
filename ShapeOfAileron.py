@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 from UniversalConstants import *
 from mpl_toolkits.mplot3d import Axes3D
 
-def shapeOfAileron(x_coords, displ_na, d_theta, Z_bar, plot=False):
+def shapeOfAileron(x_coords, displ_na, d_theta, Z_bar, plot_aileron=False, plot_deflections_theta_0=False, plot_deflections=False):
 	'''
 	INPUTS:
 	- x_coords:
@@ -52,8 +52,8 @@ def shapeOfAileron(x_coords, displ_na, d_theta, Z_bar, plot=False):
 	LE and TE in the y direction and the x coordinate of the corresponding cross-sections.
 	
 	OUTPUTS:
-	- The maximum (absolute) displacement of the ailerons LE.
-	- The maximum (absolute) displacement of the ailerons TE.
+	- The maximum (absolute) displacement of the ailerons LE compared to the unloaded case.
+	- The maximum (absolute) displacement of the ailerons TE compared to the unloaded case.
 	- The x coordinate of the cross-section at which the displacement of the LE is maximum (absolute).
 	- The x coordinate of the cross-section at which the displacement of the TE is maximum (absolute).
 	'''
@@ -93,7 +93,7 @@ def shapeOfAileron(x_coords, displ_na, d_theta, Z_bar, plot=False):
 	# by going over the sections.
 	for i in range(len(section_widths)):
 		# We calculate the angle the cross-section is at.
-		section_theta = section_thetas[i] + section_widths[i]*d_theta[i]
+		section_theta = section_thetas[i] - section_widths[i]*d_theta[i]
 		
 		# And then we update its corresponding entry in section_thetas.
 		# Note that we never update the 0th entry as the first angle is taken
@@ -154,7 +154,7 @@ def shapeOfAileron(x_coords, displ_na, d_theta, Z_bar, plot=False):
 	# for the other cross-sections was calculated. We look at the angle the previous cross-section
 	# (in this case the first cross-section of that section which has the same index as that section)
 	# and add the amount the section twists.
-	fixed_cross_section_theta = section_thetas[fixed_section_index] + (fixed_section_x_coord - x_coords[fixed_section_index])*d_theta[fixed_section_index]
+	fixed_cross_section_theta = section_thetas[fixed_section_index] - (fixed_section_x_coord - x_coords[fixed_section_index])*d_theta[fixed_section_index]
 	
 	# The correction_angle is than the difference between the maximum angle we want
 	# and the maximum angle we actually have.
@@ -162,6 +162,16 @@ def shapeOfAileron(x_coords, displ_na, d_theta, Z_bar, plot=False):
 	
 	# Now we correct the angles we previously calculated by adding the correction.
 	section_thetas = section_thetas + correction_angle
+	
+	### Rotate the neutral axis. ###
+	for i in range(len(displ_na[0])):
+		r = np.sqrt(displ_na[0][i]**2 + displ_na[1][i]**2)
+		angle = np.arctan2(displ_na[0][i], displ_na[1][i])
+		
+		angle -= theta_radians
+		displ_na[0][i] = r*np.sin(angle)
+		displ_na[1][i] = r*np.cos(angle)
+	### END ###
 	
 	# For the displacements of the LE and TE we use the displacement of the NA and
 	# add/subtract the displacement of the LE/TE with respect to the NA. For this, we'll also assume that
@@ -173,11 +183,11 @@ def shapeOfAileron(x_coords, displ_na, d_theta, Z_bar, plot=False):
 	# For a positive angle the LE of the aileron goes down in the y direction. Thus, the
 	# displacement of the LE in the y direction needs to be subtracted from the displacement
 	# of the NA in the y direction.
-	le_y_coords = displ_na[0] - np.sin(section_thetas)*((h_a/2.)-Z_bar)
+	le_y_coords = displ_na[0] + np.sin(section_thetas)*((h_a/2.)-Z_bar)
 	
 	# As the LE is in fron of the hinge line, the displacement of the LE with respect to the hinge line
 	# in the z direction should be added to the displacement of the NA in the z direction.
-	le_z_coords = displ_na[1] + np.cos(section_thetas)*(h_a/2.-Z_bar)
+	le_z_coords = displ_na[1] + np.cos(section_thetas)*((h_a/2.)-Z_bar)
 	
 	# The y and z coordinates are then put together in an array.
 	le_coords = np.array([le_y_coords, le_z_coords])
@@ -186,17 +196,27 @@ def shapeOfAileron(x_coords, displ_na, d_theta, Z_bar, plot=False):
 	# between the LE and hinge line.
 	# The TE will go up in the y direction for a positive angle so we need to add the displacement
 	# in the y direction.
-	te_y_coords = displ_na[0] + np.sin(section_thetas)*(c_a - (h_a/2.) + Z_bar)
+	te_y_coords = displ_na[0] + np.sin(section_thetas+np.pi)*(c_a - (h_a/2.) + Z_bar)
 	
 	# As the TE is behind the hinge line, the displacement of the TE with respect to the hinge line
 	# in the z direction should be subtracted from the displacement of the NA in the z direction.
-	te_z_coords = displ_na[1] - np.cos(section_thetas)*(c_a - (h_a/2.) + Z_bar)
+	te_z_coords = displ_na[1] + np.cos(section_thetas+np.pi)*(c_a - (h_a/2.) + Z_bar)
 	
 	# The y and z coordinates are then put together in an array.
 	te_coords = np.array([te_y_coords, te_z_coords])
 	
+	### Determine the deflections compared to the no load case. ###
+	displ_le = le_coords.copy()
+	displ_le[0] = displ_le[0] - displ_na[0]*np.sin(theta_radians)*((h_a/2.)-Z_bar)
+	displ_le[1] = displ_le[1] - displ_na[1]*np.cos(theta_radians)*((h_a/2.)-Z_bar)
+	
+	displ_te = te_coords.copy()
+	displ_te[0] = displ_te[0] - displ_na[0]*np.sin(theta_radians)*(c_a - (h_a/2.) + Z_bar)
+	displ_te[1] = displ_te[1] - displ_na[1]*np.cos(theta_radians)*(c_a - (h_a/2.) + Z_bar)
+	### END ###
+	
 	# Here I plot the NA, LE and TE if so desired (if plot is set to True).
-	if plot == True:
+	if plot_aileron:
 		# Make the figure and create a 3D axes object.
 		fig = plt.figure()
 		ax = fig.add_subplot(111, projection='3d')
@@ -247,6 +267,11 @@ def shapeOfAileron(x_coords, displ_na, d_theta, Z_bar, plot=False):
 		ax.set_ylim3d([plot_centre_y - radius, plot_centre_y + radius])
 		ax.set_zlim3d([plot_centre_z - radius, plot_centre_z + radius])
 		
+		# The y axis needs to be inverted as the coordinate system that is used
+		# by default has it going the wrong way. Note that this is the z axis for the
+		# aileron.
+		ax.invert_yaxis()
+		
 		# This bit is then needed to make the axis appear equal size in the plot.
 		ax.set_aspect('equal')
 		
@@ -259,18 +284,56 @@ def shapeOfAileron(x_coords, displ_na, d_theta, Z_bar, plot=False):
 		# And show our glorious plot.
 		plt.show()
 	
+	### Plot the graphs for the deflections ###
+	if plot_deflections_theta_0:
+		plt.plot(x_coords, displ_le[0], label='LE y deflection', marker='v')
+		plt.plot(x_coords, displ_le[1], label='LE z deflection', marker='<')
+		plt.plot(x_coords, displ_te[0], label='TE y deflection', marker='^')
+		plt.plot(x_coords, displ_te[1], label='TE z deflection', marker='>')
+		
+		# Include the legend.
+		plt.legend()
+		
+		# Include the grid lines.
+		plt.grid()
+		
+		# Make it all a bit tighter.
+		plt.tight_layout()
+		
+		# And show our glorious plot.
+		plt.show()
+	
+	if plot_deflections:
+		plt.plot(x_coords, le_coords[0], label='LE y deflection', marker='v')
+		plt.plot(x_coords, le_coords[1], label='LE z deflection', marker='<')
+		plt.plot(x_coords, te_coords[0], label='TE y deflection', marker='^')
+		plt.plot(x_coords, te_coords[1], label='TE z deflection', marker='>')
+		
+		# Include the legend.
+		plt.legend()
+		
+		# Include the grid lines.
+		plt.grid()
+		
+		# Make it all a bit tighter.
+		plt.tight_layout()
+		
+		# And show our glorious plot.
+		plt.show()
+	### END ###
+	
 	#The maximum displacement is found by simply taking the maximum of all the y
 	# displacements of the LE/TE. Note that we need to add the abs key to the max()
 	# function to have it take the absolute maximum.
-	disp_le_y_max = max(le_coords[0], key=abs)
-	disp_te_y_max = max(te_coords[0], key=abs)
+	disp_le_y_max = max(displ_le[0], key=abs)
+	disp_te_y_max = max(displ_te[0], key=abs)
 	
 	# Now the corresponding x coordinate. We find this by looking at the index
 	# that the disp_le_y_max and disp_te_y_max variables have in there cooresponding
 	# arrays. As there is no function to get there index for arrays, we first convert them
 	# into lists.
-	disp_le_max_x_index = list(le_coords[0]).index(disp_le_y_max)
-	disp_te_max_x_index = list(te_coords[0]).index(disp_te_y_max)
+	disp_le_max_x_index = list(displ_le[0]).index(disp_le_y_max)
+	disp_te_max_x_index = list(displ_te[0]).index(disp_te_y_max)
 	
 	# The index is then used to get the x coordinates.
 	disp_le_max_x = x_coords[disp_le_max_x_index]
