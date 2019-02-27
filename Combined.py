@@ -18,7 +18,8 @@ from ShapeOfAileron import shapeOfAileron
 from ShearFlowsFinal import baseShearFlows
 from ShearFlowRibs import shearFlowRib
 from Stiffeners import generateStiffeners
-from UniversalConstants import *
+from UniversalConstants import \ 
+h_a,c_a,n_st,A_st,t_sk,t_sp,Ybar_st,x_h1,x_h2,x_h3,l_a,d_a,p,q,theta,d_1,d_3,E,G 
 
 #Verification
 VerificationAssumptions=True #Adjusts the program so that the program matches the analytical model as closely as possible.
