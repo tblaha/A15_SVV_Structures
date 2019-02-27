@@ -60,7 +60,7 @@ def InternalMomentx (xlocation,F_y_1,F_y_2,F_y_3,F_z_1,F_z_2,F_z_3,Fx2,P_1):
           - (P_1 * sin(radians(theta)) * Macauly(xlocation, x_h2 - d_a/2) * h_a/2) \
           - (P_2 * cos(radians(theta)) * Macauly(xlocation, x_h2 + d_a/2) * h_a/2) \
           + (P_2 * sin(radians(theta)) * Macauly(xlocation, x_h2 + d_a/2) * h_a/2) \
-          + (F_z_1 * d_1 * Macauly(xlocation,x_h1)) + (F_z_3 * d_3 * Macauly(xlocation,x_h3))  
+#          + (F_z_1 * d_1 * Macauly(xlocation,x_h1)) + (F_z_3 * d_3 * Macauly(xlocation,x_h3))  
     return MIx
 
 #Calculation of the moment force in y in function of x coordinate
