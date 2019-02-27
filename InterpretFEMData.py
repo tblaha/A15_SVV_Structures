@@ -37,6 +37,13 @@ nodes_ribD = np.array([2,   3,  16,  17,  32,  33,  34,  35,  36,  37, 289, 290,
  334, 335, 336, 337, 338, 339, 340, 341, 342, 343, 344, 345, 418, 419, 420, 421,\
  422, 423, 424, 425, 426, 427, 428, 429, 430, 431]).astype('int')
 
+nodes_ribs = np.zeros((4, len(nodes_ribA)))
+nodes_ribs[0,:] = nodes_ribA
+nodes_ribs[1,:] = nodes_ribB
+nodes_ribs[2,:] = nodes_ribC
+nodes_ribs[3,:] = nodes_ribD
+
+nodes_ribs_sort = np.zeros(np.shape(nodes_ribs))
 
 # get and sort leading and trailing edge nodes
 nodes_TE  = nodes[np.where(nodes[:,3] == -c_a+h_a/2), :][0]
@@ -99,7 +106,7 @@ S_down_nL = S_down_nL[S_down_nL[:,0].argsort(),:]
 ### Get displacement data ###
 #############################
 
-header_lines_S = 19
+header_lines_U = 19
 
 # up, with loads
 U_up_L = np.genfromtxt('FEMData/A320_ULC1.rpt', skip_header=header_lines_U, max_rows=numnodes)[:,[0,6,7,8]]
@@ -112,14 +119,6 @@ U_down_L = np.genfromtxt('FEMData/A320_ULC2.rpt',  skip_header=header_lines_U, m
 
 # down, without loads
 U_down_nL = np.genfromtxt('FEMData/A320_UR2.rpt',  skip_header=header_lines_U, max_rows=numnodes)[:,[0,6,7,8]]
-
-
-
-
-
-
-
-
 
 
 
@@ -152,25 +151,85 @@ for i in range(1, 1+numnodes):
     
 
 ### assign to ribs ###
-S_up_L_post_ribA = S_up_L_post[nodes_ribA, 1]
-S_up_L_post_ribB = S_up_L_post[nodes_ribB, 1]
-S_up_L_post_ribC = S_up_L_post[nodes_ribC, 1]
-S_up_L_post_ribD = S_up_L_post[nodes_ribD, 1]
 
-S_up_nL_post_ribA = S_up_nL_post[nodes_ribA, 1]
-S_up_nL_post_ribB = S_up_nL_post[nodes_ribB, 1]
-S_up_nL_post_ribC = S_up_nL_post[nodes_ribC, 1]
-S_up_nL_post_ribD = S_up_nL_post[nodes_ribD, 1]
+arc_coords = np.zeros(np.shape(nodes_ribs))
 
-S_down_L_post_ribA = S_down_L_post[nodes_ribA, 1]
-S_down_L_post_ribB = S_down_L_post[nodes_ribB, 1]
-S_down_L_post_ribC = S_down_L_post[nodes_ribC, 1]
-S_down_L_post_ribD = S_down_L_post[nodes_ribD, 1]
+# sort ribs
+i = 0
+for nodes_rib in nodes_ribs:
+    nodes_rib_tmp = nodes[nodes_rib.astype('int')-1]
+    num           = len(nodes_rib_tmp[:,0])
+    
+    cutoff = 1e-12
 
-S_down_nL_post_ribA = S_down_nL_post[nodes_ribA, 1]
-S_down_nL_post_ribB = S_down_nL_post[nodes_ribB, 1]
-S_down_nL_post_ribC = S_down_nL_post[nodes_ribC, 1]
-S_down_nL_post_ribD = S_down_nL_post[nodes_ribD, 1]
+    left = nodes_rib_tmp[:,3] > cutoff*np.ones((num))
+    right = nodes_rib_tmp[:,3] < -cutoff*np.ones((num))
+    top = nodes_rib_tmp[:,2] > cutoff*np.ones((num))
+    bottom = nodes_rib_tmp[:,2] < -cutoff*np.ones((num))
+    in_spar=  abs(nodes_rib_tmp[:,3]) < 1e-12*np.ones((num))
+
+    left         = nodes_rib_tmp[left]
+    left         = np.flipud(left[left[:,2].argsort(),:])
+    right_bottom = nodes_rib_tmp[right * bottom]
+    right_bottom = right_bottom[right_bottom[:,2].argsort(),:]
+    right_top    = nodes_rib_tmp[right * top]
+    right_top    = right_top[right_top[:,2].argsort(),:]
+    spar         = nodes_rib_tmp[in_spar]
+    spar         = np.flipud(spar[spar[:,2].argsort(),:])
+
+    nodes_rib_sort = np.zeros(num)
+    nodes_amounts = [len(left), len(right_bottom), len(right_top), len(spar)]
+    cum_nodes     = np.cumsum(nodes_amounts)    
+    
+    nodes_rib_sort[0           :cum_nodes[0]] = left[:,0]
+    nodes_rib_sort[cum_nodes[0]:cum_nodes[1]] = right_bottom[:,0]
+    nodes_rib_sort[cum_nodes[1]:cum_nodes[2]] = right_top[:,0]
+    nodes_rib_sort[cum_nodes[2]:cum_nodes[3]] = spar[:,0]
+    nodes_rib_sort = nodes_rib_sort.astype('int')
+    
+    nodes_ribs_sort[i] = nodes_rib_sort
+    
+    j = 0
+    for node in nodes_rib_sort:
+        if j < len(left):
+            # circular section
+            arc_coords[i,j] = h_a/2 * np.arctan2(nodes[node-1, 3], nodes[node-1, 2])
+        elif j < len(left) + len(right_bottom):
+            arc_coords[i,j] = np.pi * h_a/2 + np.linalg.norm(nodes[node-1, 2:] - np.array([-h_a/2, 0]))
+        elif j < len(left) + len(right_bottom) + len(right_top):
+            arc_coords[i,j] = np.pi * h_a/2 + np.linalg.norm(np.array([h_a/2, c_a-h_a/2]))\
+                                            + np.linalg.norm(nodes[node-1, 2:] - np.array([0, -c_a+h_a/2]))
+        else:
+            arc_coords[i,j] = np.pi * h_a/2 + np.linalg.norm(np.array([h_a/2, c_a-h_a/2]))*2\
+                                            - nodes[node-1, 2] + h_a/2
+        
+        j = j + 1
+        
+    
+    i = i + 1
+
+    
+S_up_L_post_ribA = S_up_L_post[nodes_ribs_sort[0].astype('int')-1, 1]
+S_up_L_post_ribB = S_up_L_post[nodes_ribs_sort[1].astype('int')-1, 1]
+S_up_L_post_ribC = S_up_L_post[nodes_ribs_sort[2].astype('int')-1, 1]
+S_up_L_post_ribD = S_up_L_post[nodes_ribs_sort[3].astype('int')-1, 1]
+
+S_up_nL_post_ribA = S_up_nL_post[nodes_ribs_sort[0].astype('int')-1, 1]
+S_up_nL_post_ribB = S_up_nL_post[nodes_ribs_sort[1].astype('int')-1, 1]
+S_up_nL_post_ribC = S_up_nL_post[nodes_ribs_sort[2].astype('int')-1, 1]
+S_up_nL_post_ribD = S_up_nL_post[nodes_ribs_sort[3].astype('int')-1, 1]
+
+S_down_L_post_ribA = S_down_L_post[nodes_ribs_sort[0].astype('int')-1, 1]
+S_down_L_post_ribB = S_down_L_post[nodes_ribs_sort[1].astype('int')-1, 1]
+S_down_L_post_ribC = S_down_L_post[nodes_ribs_sort[2].astype('int')-1, 1]
+S_down_L_post_ribD = S_down_L_post[nodes_ribs_sort[3].astype('int')-1, 1]
+
+S_down_nL_post_ribA = S_down_nL_post[nodes_ribs_sort[0].astype('int')-1, 1]
+S_down_nL_post_ribB = S_down_nL_post[nodes_ribs_sort[1].astype('int')-1, 1]
+S_down_nL_post_ribC = S_down_nL_post[nodes_ribs_sort[2].astype('int')-1, 1]
+S_down_nL_post_ribD = S_down_nL_post[nodes_ribs_sort[3].astype('int')-1, 1]
+
+
 
 
 
@@ -178,9 +237,11 @@ S_down_nL_post_ribD = S_down_nL_post[nodes_ribD, 1]
 ### von Mises plots ###
 #######################
 
+
+# scatters
 plt.figure(0)
 axs = plt.axes()
-plt.scatter(nodes[nodes_ribA,3], nodes[nodes_ribA,2], c=S_up_L_post_ribA, cmap='jet')
+plt.scatter(nodes[nodes_ribs_sort[0].astype('int')-1,3], nodes[nodes_ribs_sort[0].astype('int')-1,2], c=S_up_L_post_ribA, cmap='jet')
 plt.title('Rib A: Maximum von Mises: %.2f MPa' % np.max(S_up_L_post_ribA))
 plt.axis('equal')
 axs.invert_xaxis()
@@ -190,7 +251,7 @@ plt.savefig('FEMData/LC1_RibA_scatter.eps', format='eps')
 
 plt.figure(1)
 axs = plt.axes()
-plt.scatter(nodes[nodes_ribB,3], nodes[nodes_ribB,2], c=S_up_L_post_ribB, cmap='jet')
+plt.scatter(nodes[nodes_ribs_sort[1].astype('int')-1,3], nodes[nodes_ribs_sort[1].astype('int')-1,2], c=S_up_L_post_ribB, cmap='jet')
 plt.title('Rib B: Maximum von Mises: %.2f MPa' % np.max(S_up_L_post_ribB))
 plt.axis('equal')
 axs.invert_xaxis()
@@ -200,7 +261,7 @@ plt.savefig('FEMData/LC1_RibB_scatter.eps', format='eps')
 
 plt.figure(2)
 axs = plt.axes()
-plt.scatter(nodes[nodes_ribC,3], nodes[nodes_ribC,2], c=S_up_L_post_ribC, cmap='jet')
+plt.scatter(nodes[nodes_ribs_sort[2].astype('int')-1,3], nodes[nodes_ribs_sort[2].astype('int')-1,2], c=S_up_L_post_ribC, cmap='jet')
 plt.title('Rib C: Maximum von Mises: %.2f MPa' % np.max(S_up_L_post_ribC))
 plt.axis('equal')
 axs.invert_xaxis()
@@ -210,7 +271,7 @@ plt.savefig('FEMData/LC1_RibC_scatter.eps', format='eps')
 
 plt.figure(3)
 axs = plt.axes()
-plt.scatter(nodes[nodes_ribD,3], nodes[nodes_ribD,2], c=S_up_L_post_ribD, cmap='jet')
+plt.scatter(nodes[nodes_ribs_sort[3].astype('int')-1,3], nodes[nodes_ribs_sort[3].astype('int')-1,2], c=S_up_L_post_ribD, cmap='jet')
 plt.title('Rib D: Maximum von Mises: %.2f MPa' % np.max(S_up_L_post_ribD))
 plt.axis('equal')
 axs.invert_xaxis()
@@ -219,26 +280,39 @@ plt.colorbar()
 plt.savefig('FEMData/LC1_RibD_scatter.eps', format='eps')
 
 
+plt.figure(4)
+axs = plt.axes()
+plt.plot(arc_coords[0], S_up_L_post_ribA)
+plt.title('Rib A: Maximum von Mises: %.2f MPa' % np.max(S_up_L_post_ribA))
+plt.tight_layout
+
+
+# lines
+
+
 
 ########################
 ### Deflection Plots ###
 ########################
 
-#TE_xlocs = nodes_TE[:,1]
-#U_up_L_TE  = U_up_L [nodes_TE[:,0].astype('int'), :][:,[1,2,3]]
-#U_up_nL_TE = U_up_nL[nodes_TE[:,0].astype('int'), :][:,[1,2,3]]
-#
-#U_down_L_TE  = U_down_L [nodes_TE[:,0].astype('int'), :][:,[1,2,3]]
-#U_down_nL_TE = U_down_nL[nodes_TE[:,0].astype('int'), :][:,[1,2,3]]
-#
-#plt.subplot(221)
-#plt.plot(TE_xlocs, U_up_nL_TE[:,1])
-#plt.plot(TE_xlocs, U_up_L_TE[:,1])
-#
-#plt.subplot(223)
-#plt.plot(TE_xlocs, U_up_nL_TE[:,2])
-#plt.plot(TE_xlocs, U_up_L_TE[:,2])
-#
+TE_xlocs = nodes_TE[:,1]
+U_up_L_TE  = U_up_L [nodes_TE[:,0].astype('int')-1, :][:,[1,2,3]]
+U_up_nL_TE = U_up_nL[nodes_TE[:,0].astype('int')-1, :][:,[1,2,3]]
+
+U_down_L_TE  = U_down_L [nodes_TE[:,0].astype('int')-1, :][:,[1,2,3]]
+U_down_nL_TE = U_down_nL[nodes_TE[:,0].astype('int')-1, :][:,[1,2,3]]
+
+plt.figure(10)
+plt.title('Validation Data -- Global Trailing Edge Deflection -- Maximum: %.2f mm' % np.max(U_up_nL_TE[:,1]))
+axs = plt.axes()
+plt.subplot(211)
+plt.plot(TE_xlocs, U_up_nL_TE[:,1])
+plt.plot(TE_xlocs, U_up_L_TE[:,1])
+
+plt.subplot(212)
+plt.plot(TE_xlocs, U_up_nL_TE[:,2])
+plt.plot(TE_xlocs, U_up_L_TE[:,2])
+
 #plt.subplot(222)
 #plt.plot(TE_xlocs, U_down_nL_TE[:,1])
 #plt.plot(TE_xlocs, U_down_L_TE[:,1])
@@ -247,9 +321,18 @@ plt.savefig('FEMData/LC1_RibD_scatter.eps', format='eps')
 #plt.plot(TE_xlocs, U_down_nL_TE[:,2])
 #plt.plot(TE_xlocs, U_down_L_TE[:,2])
 
+correction_up = -26/180*np.pi * (c_a-h_a/2)
 
+plt.figure(11)
+axs = plt.axes()
+plt.subplot(211)
+plt.title('Corrected Validation Data -- Global Trailing Edge Deflection -- Maximum: %.2f mm' % np.max(U_up_nL_TE[:,1]))
+plt.plot(TE_xlocs, U_up_nL_TE[:,1] + correction_up)
+plt.plot(TE_xlocs, U_up_L_TE[:,1] + correction_up)
 
-
+plt.subplot(212)
+plt.plot(TE_xlocs, U_up_nL_TE[:,2])
+plt.plot(TE_xlocs, U_up_L_TE[:,2])
 
 
 
