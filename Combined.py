@@ -157,36 +157,36 @@ if plotVerInternal:
     plt.title('Internal moment x')
     
     plt.subplot(235)
+    plt.plot(span_disc,MIy,'b',label='Numerical model result')
+    plt.plot(xVer,MyVer,'r',label='Analytical model result')
+    plt.title('Internal moment y')
+    plt.legend()
+    
+    plt.subplot(236)
     plt.plot(span_disc,MIz,'b')
     plt.plot(xVer,MzVer,'r')
     plt.title('Internal moment z')
     
-    plt.subplot(236)
-    plt.plot(span_disc,MIy,'b')
-    plt.plot(xVer,MyVer,'r')
-    plt.title('Internal moment y')
-    
-    plt.legend(['b','r'],['Numerical model result','Analytical model result'])
     plt.show ()
-
-##Compute dtheta dx
-dtdx=np.zeros(len(span_disc))
-for i in range(len(span_disc)):
-    x=span_disc[i]
-    Qb_z, Qb_y,B_Distance,Line_Integral_qb_3,A,b,shear_vec,Shear_Final=baseShearFlows(I_zz,I_yy,SFIz[i],SFIy[i],cross_disc,MIx[i],z_bar)
-    dtdx[i]=shear_vec[2]/(G)
-##Compute shape of aileron    
-disp_le_y_max, disp_te_y_max, disp_le_max_x, disp_te_max_x=shapeOfAileron(span_disc, d_yz_vec, dtdx, z_bar, plot_aileron=plotAileron, plot_deflections_theta_0=plotDeflectionsTheta0, plot_deflections=plotDeflections)
-
-##Compute the shear flow in the ribs
-#Rib A, Fy1,Fz1
-q_A,q_1_A,q_2_A=shearFlowRib(cross_disc, z_bar, y_bar, P_1=0, P_2=0, F_z=Fz[0], F_y=Fy[0])
-#Rib B
-q_B,q_1_B,q_2_B=shearFlowRib(cross_disc, z_bar, y_bar, P_1=P_1, P_2=0, F_z=Fz[1]*0.5, F_y=Fy[1]*0.5)
-#Rib C
-q_C,q_1_C,q_2_C=shearFlowRib(cross_disc, z_bar, y_bar, P_1=0, P_2=p, F_z=Fz[1]*0.5, F_y=Fy[1]*0.5)
-#Rib D
-q_D,q_1_D,q_2_D=shearFlowRib(cross_disc, z_bar, y_bar, P_1=0, P_2=0, F_z=Fz[2], F_y=Fy[2])
+#
+###Compute dtheta dx
+#dtdx=np.zeros(len(span_disc))
+#for i in range(len(span_disc)):
+#    x=span_disc[i]
+#    Qb_z, Qb_y,B_Distance,Line_Integral_qb_3,A,b,shear_vec,Shear_Final=baseShearFlows(I_zz,I_yy,SFIz[i],SFIy[i],cross_disc,MIx[i],z_bar)
+#    dtdx[i]=shear_vec[2]/(G)
+###Compute shape of aileron    
+#disp_le_y_max, disp_te_y_max, disp_le_max_x, disp_te_max_x=shapeOfAileron(span_disc, d_yz_vec, dtdx, z_bar, plot_aileron=plotAileron, plot_deflections_theta_0=plotDeflectionsTheta0, plot_deflections=plotDeflections)
+#
+###Compute the shear flow in the ribs
+##Rib A, Fy1,Fz1
+#q_A,q_1_A,q_2_A=shearFlowRib(cross_disc, z_bar, y_bar, P_1=0, P_2=0, F_z=Fz[0], F_y=Fy[0])
+##Rib B
+#q_B,q_1_B,q_2_B=shearFlowRib(cross_disc, z_bar, y_bar, P_1=P_1, P_2=0, F_z=Fz[1]*0.5, F_y=Fy[1]*0.5)
+##Rib C
+#q_C,q_1_C,q_2_C=shearFlowRib(cross_disc, z_bar, y_bar, P_1=0, P_2=p, F_z=Fz[1]*0.5, F_y=Fy[1]*0.5)
+##Rib D
+#q_D,q_1_D,q_2_D=shearFlowRib(cross_disc, z_bar, y_bar, P_1=0, P_2=0, F_z=Fz[2], F_y=Fy[2])
 
 #Print info if enabled
 if printInfo:
