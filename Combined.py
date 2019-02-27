@@ -10,7 +10,7 @@ import matplotlib.pyplot as plt
 
 from Centroid import findCentroid
 from DiscretizationV2 import discretizeCrossSection, discretizeSpan
-from DiscretizationMOI import discretizeCrossSectionMOI
+from DiscretizationMOI import discretizeCrossSectionMOI #Calculates booms for the verification case
 from InternalLoads import getInternalLoads
 from MomentOfInertia import momentOfInertia
 from ReactionForcesV2 import sampleBendingShape
@@ -18,25 +18,31 @@ from ShapeOfAileron import shapeOfAileron
 from ShearFlowsFinal import baseShearFlows
 from ShearFlowRibs import shearFlowRib
 from Stiffeners import generateStiffeners
-from UniversalConstants import \
-h_a,c_a,n_st,A_st,t_sk,t_sp,Ybar_st,x_h1,x_h2,x_h3,l_a,d_a,p,q,theta,d_1,d_3,E,G
+from UniversalConstants import *
 
+#Verification
+VerificationAssumptions=True #Adjusts the program so that the program matches the analytical model as closely as possible.
 
 #Variables to be chosen:
-span_nodes_between=76 #How many nodes between two points of interest
+span_nodes_between=100 #How many nodes between two points of interest
 span_ec=0.0001 #How close should the first point be to the point of interest
 span_offset=30 #How concentrated should the points be (Lower is higher concentration)
-booms_between=100 #The amount of booms between each centre
+booms_between=200 #The amount of booms between each centre
 cg_cor_stiffeners=1 #Correct for the stiffeners centroid or not
 
 #Extra outputs
 plotBending=False #Plots the bending shape
 plotSpan=False #Plots the distribution of the points in which forces are calculated
 plotInternal=False #Plots the internal shear and moment diagrams
-plotDisplacements=False #Plot the displacements of the aileron
+plotAileron=True #Plots a simplified version of the aileron.
+plotDeflectionsTheta0=True	#Plots the displacements of the LE and TE compared to where they would be if theta was 0 and there was no loading.
+plotDeflections=True #Plots the displacements of the LE and TE compared to where they would be if there was no loading.
 printInfo=False #Prints all chosen variables
 printInputs=False #Prints actual input values for booms_between,span_nodes_between
 printOutputs=True #Prints the actual output of the program
+printReactionForces=False #Prints all reaction forces 
+printMOI=True #Prints Moment of Inertia 
+ 
 
 #Generate stiffener locations
 S_uncor = generateStiffeners(h_a, c_a, n_st, A_st, t_sk, t_sp, Ybar_st, 0)
@@ -58,15 +64,17 @@ if plotSpan==True:
     plt.plot(span_disc,len(span_disc)*[1],'x')
     plt.show()
 
-##Discretize cross-section and separately for MOI
-cross_disc=discretizeCrossSection(S_cor,S_uncor,h_a, c_a, n_st, A_st, t_sk, t_sp, y_bar, z_bar, booms_between, Ybar_st, cg_cor_stiffeners)
-cross_discMOI=discretizeCrossSectionMOI(S_cor,S_uncor,h_a, c_a, n_st, A_st, t_sk, t_sp, y_bar, z_bar, booms_between, Ybar_st, cg_cor_stiffeners)
+
+#Check which discretization to use and discretize the cross section
+if VerificationAssumptions:
+    cross_disc=discretizeCrossSectionMOI(S_cor,S_uncor,h_a, c_a, n_st, A_st, t_sk, t_sp, y_bar, z_bar, booms_between, Ybar_st, cg_cor_stiffeners)
+    z_bar=0 #done after the calculations for MOI to not upset the boom discretization
+else:
+    cross_disc=discretizeCrossSection(S_cor,S_uncor,h_a, c_a, n_st, A_st, t_sk, t_sp, y_bar, z_bar, booms_between, Ybar_st, cg_cor_stiffeners)
 
 ##Calc MOI
-I_zz,I_yy = momentOfInertia(cross_discMOI)
-print('Iyy=', I_yy)
-print('Izz=', I_zz)
-
+I_zz,I_yy = momentOfInertia(cross_disc)
+    
 ## Get bending and reaction forces
 ## don't worry about the magic numbers at the end. I tried including Timoshenko shear deformations, but it doesnt make much of a difference
 d_yz_vec, F_2x, Fy, Fz, P_1 = sampleBendingShape(span_disc, x_h1, x_h2, x_h3, p, d_a, q, theta, c_a, h_a, l_a, d_1, d_3,  E,  I_yy, I_zz, 1, 1200e10, 27e3)
@@ -123,7 +131,7 @@ for i in range(len(span_disc)):
     dtdx[i]=shear_vec[2]/(G)
 
 ##Compute shape of aileron    
-disp_le_y_max, disp_te_y_max, disp_le_max_x, disp_te_max_x=shapeOfAileron(span_disc, d_yz_vec, dtdx, z_bar, plot=plotDisplacements)
+disp_le_y_max, disp_te_y_max, disp_le_max_x, disp_te_max_x=shapeOfAileron(span_disc, d_yz_vec, dtdx, z_bar, plot_aileron=plotAileron, plot_deflections_theta_0=plotDeflectionsTheta0, plot_deflections=plotDeflections)
 
 ##Compute the shear flow in the ribs
 #Rib A, Fy1,Fz1
@@ -157,3 +165,12 @@ if printOutputs:
     print('Magnitude of the maximum shear flow in rib B: ', max(abs(q_B)), '[N/mm]')
     print('Magnitude of the maximum shear flow in rib C: ', max(abs(q_C)), '[N/mm]')
     print('Magnitude of the maximum shear flow in rib D: ', max(abs(q_D)), '[N/mm]')
+    
+if printReactionForces==True: #Prints all reaction forces 
+    print('Fyh1,2,3,Fzh1,2,3,P_1',Fy,Fz,P_1) 
+     
+if printMOI==True: #Prints Moment of Inertia 
+    print('Iyy=', I_yy) 
+    print('Izz=', I_zz) 
+     
+     
