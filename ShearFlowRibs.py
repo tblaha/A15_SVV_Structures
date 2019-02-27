@@ -52,28 +52,50 @@ def shearFlowRib(B, Z_bar, Y_bar, P_1=0., P_2=0., F_z=0., F_y=0.):
 	'''
 	
 	plot_q_sections = True
-	plot_cross_section = False
+	plot_cross_section = True
 	plot_cross_section_live = False
-	plot_matrix = False
-	print_statements = False
+	plot_matrix = True
+	print_statements = True
     
 	if print_statements:
 		print('There are %i points in the cross-section discretization.' % len(B))
 
 	### This thing produces the array of point coordinates of the points on the circumfarence of the rib.###
 	# Define the point types.
-	nose = 2
-	tail = 1
+	nose = 1
+	tail = 2
 	spar = 3
-	
+	'''
 	points = []
+	points.append([0., h_a/2., spar)
+	current_type = nose
+	for y, z, dump1, dump2, type in B:
+		if type != current_type and type == tail:
+			points.append([0., -h_a/2., spar)
+		points.append([z+ Z_bar, y + Y_bar, type])
+	'''
+	###
+	points = []
+	points_spar = []
 	points.append([0., h_a/2., spar])
 	for point in B:
-		if point[4] == 1: points.append([point[1] + Z_bar, point[0] + Y_bar, nose])
+		if point[4] == nose: points.append([point[1] + Z_bar, point[0] + Y_bar, nose])
 	points.append([0., -h_a/2., spar])
 	for point in B:
-		if point[4] == 2: points.append([point[1] + Z_bar, point[0] + Y_bar, tail])
+		if point[4] == tail: points.append([point[1] + Z_bar, point[0] + Y_bar, tail])
+	for point in B:
+		if point[4] == spar:
+			points_spar.append([point[1] + Z_bar, point[0] + Y_bar, spar])
+	###
 	points = np.array(points)
+	points_spar = np.array(points_spar)
+	
+	points_spar_transpose = points_spar.transpose()
+	plt.plot(points_spar_transpose[0], points_spar_transpose[1], 'bo')
+	plt.grid()
+	plt.title('Spar points')
+	plt.tight_layout()
+	plt.show()
 	
 	if plot_cross_section:
 		plt.plot(points.transpose()[0], points.transpose()[1], 'bo')
@@ -120,13 +142,14 @@ def shearFlowRib(B, Z_bar, Y_bar, P_1=0., P_2=0., F_z=0., F_y=0.):
 				print(y, z, dump1, dump2, type)
 				print('Type not recognized!')
 			plt.show()
-			plt.pause(0.01)
+			plt.pause(0.05)
 		plt.ioff()
 		plt.show()
 	
-	A = np.zeros((len(points), len(points)))
+	dim = len(points) + len(points_spar) - 1
+	A = np.zeros((dim, dim))
 	A = np.matrix(A)
-
+	
 	for row in range(len(points)):
 		for col in range(len(points)-1):
 			area = areaTriangle(points[row], points[col], points[col + 1]) + two_point_areas[col]
@@ -134,6 +157,37 @@ def shearFlowRib(B, Z_bar, Y_bar, P_1=0., P_2=0., F_z=0., F_y=0.):
 		col = len(points)-1
 		area = areaTriangle(points[row], points[len(points)-1], points[0]) + two_point_areas[len(points)-1]
 		A[row, len(points)-1] = -2. * area
+	
+	points_spar_index = 1
+	for row in range(len(points), len(A)-1):
+		for col in range(len(points)-1):
+			area = areaTriangle(points_spar[points_spar_index], points[col], points[col + 1]) + two_point_areas[col]
+			A[row, col] = -2. * area
+		col = len(points)-1
+		area = areaTriangle(points_spar[points_spar_index], points[len(points)-1], points[0]) + two_point_areas[len(points)-1]
+		A[row, len(points)-1] = -2. * area
+		points_spar_index += 1
+	
+	for row in range(len(points)):
+		points_spar_index = 0
+		for col in range(len(points), len(A)):
+			if points[row][2] == nose:
+				area = areaTriangle(points[row], points_spar[points_spar_index], points_spar[points_spar_index + 1])
+				A[row, col] = 2. * area
+			elif points[row][2] == tail:
+				area = areaTriangle(points[row], points_spar[points_spar_index], points_spar[points_spar_index + 1])
+				A[row, col] = -2. * area
+			else: A[row, col] = 0.
+			points_spar_index += 1
+	
+	for i in range(len(points)-1):
+		A[len(A)-1, i] = points[i+1][1] - points[i][1]
+	A[len(A)-1, len(points)-1] = points[0][1] - points[len(points)-1][1]
+	
+	points_spar_index = 0
+	for i in range(len(points), len(A)):
+		A[len(A)-1, i] = points_spar[points_spar_index+1][1] - points_spar[points_spar_index][1]
+		points_spar_index += 1
 	
 	eigen_values = eigvals(A)
 	condition_number = max(eigen_values)/min(eigen_values)
@@ -150,11 +204,21 @@ def shearFlowRib(B, Z_bar, Y_bar, P_1=0., P_2=0., F_z=0., F_y=0.):
 	### END ###
 
 	### This bit creates the b vector. The b vector is dependend on the load case. ###
-	b = np.zeros(len(points))
-	for i in range(len(b)):
+	b = np.zeros(dim)
+	for i in range(len(points)):
 		b[i] += (points[i][1] - (h_a/2.))*P_1*np.cos(theta_radians) + ((h_a/2.) - points[i][0])*P_1*np.sin(theta_radians)
 		b[i] += ((h_a/2.) - points[i][1])*P_2*np.cos(theta_radians) + (points[i][0] - (h_a/2.))*P_2*np.sin(theta_radians)
 		b[i] += (-0. + points[i][1])*F_z + (0. - points[i][0])*F_y
+	
+	points_spar_index = 1
+	for i in range(len(points), len(A)-1):
+		b[i] += (points_spar[points_spar_index][1] - (h_a/2.))*P_1*np.cos(theta_radians) + ((h_a/2.) - points_spar[points_spar_index][0])*P_1*np.sin(theta_radians)
+		b[i] += ((h_a/2.) - points_spar[points_spar_index][1])*P_2*np.cos(theta_radians) + (points_spar[points_spar_index][0] - (h_a/2.))*P_2*np.sin(theta_radians)
+		b[i] += (-0. + points_spar[points_spar_index][1])*F_z + (0. - points_spar[points_spar_index][0])*F_y
+		points_spar_index += 1
+	
+	b[len(A)-1] = F_y + (P_1 - P_2)*np.sin(theta_radians)
+	
 	### END ###
 	
 	if print_statements:
@@ -165,12 +229,9 @@ def shearFlowRib(B, Z_bar, Y_bar, P_1=0., P_2=0., F_z=0., F_y=0.):
 	
 	if plot_q_sections:
 		plt.title('Number of points: ' + str(len(points)))
-		plt.plot(range(len(points)), q, color='lightgray')
-		for i in range(len(points)):
-			if points[i][2] == nose: plt.plot(i, q[i], 'bo')
-			elif points[i][2] == spar: plt.plot(i, q[i], 'ro')
-			elif points[i][2] == tail: plt.plot(i, q[i], 'go')
-			else: print('Type not recognized!')
+		plt.plot(range(len(A)), q, color='lightgray')
+		for i in range(len(A)):
+			plt.plot(i, q[i], 'bo')
 		plt.tight_layout()
 		plt.grid()
 		plt.show()
@@ -202,3 +263,44 @@ def shearFlowRib(B, Z_bar, Y_bar, P_1=0., P_2=0., F_z=0., F_y=0.):
 	### END ###
 	
 	return q, q_1, q_2
+
+# This bit was used for testing.
+import Stiffeners as s
+import Centroid as C
+import DiscretizationV2 as d
+import discretization as d
+q_1_list = []
+q_2_list = []
+q_list = []
+S_uncor = s.generateStiffeners(h_a, c_a, n_st, A_st, t_sk, t_sp, Ybar_st, 0)
+S_cor = s.generateStiffeners(h_a, c_a, n_st, A_st, t_sk, t_sp, Ybar_st, 1)
+cg_cor_stiffeners=1
+if cg_cor_stiffeners==1:
+    Stiffeners=S_cor
+else:
+    Stiffeners=S_uncor
+y_c, z_c = C.findCentroid(Stiffeners)
+booms_between_list = [0, 1, 5, 10, 20, 30, 40, 50]
+booms_between_list = range(0, 55, 5)
+booms_between_list = [0, 1, 5, 10, 20]
+#booms_between_list = [0, 1, 2, 5, 10, 20, 50, 100]
+#booms_between_list = range(200, 201)
+#booms_between_list = [0]
+n_st = 3
+for i in booms_between_list:
+	booms_between = i
+	#B = d.discretizeCrossSection(S_cor, S_uncor, h_a, c_a, n_st, A_st, t_sk, t_sp, y_c, z_c, booms_between, Ybar_st, cg_cor_stiffeners)
+	B = d.discretizeCrossSection(h_a, c_a, n_st, A_st, t_sk, t_sp, y_c, z_c, booms_between, Ybar_st, 0.)
+	for line in B: print(line)
+	q, q_1, q_2 = shearFlowRib(B, z_c, y_c, F_z=19390./2., F_y=8397./2., P_1=100.)
+	q_1_list.append(q_1)
+	q_2_list.append(q_2)
+	q_list.append(q)
+	print('The calculated shearflow in the nose web: q_1 = %f.' % q_1)
+	print('The calculated shearflow in the tail web: q_2 = %f.' % q_2)
+	print()
+plt.plot(booms_between_list, q_1_list, 'b-o', label='q_1')
+plt.plot(booms_between_list, q_2_list, 'g-o', label='q_2')
+plt.grid()
+plt.tight_layout()
+plt.show()
