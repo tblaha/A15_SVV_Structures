@@ -232,7 +232,7 @@ def baseShearFlows(I_zz,I_yy,SFIz,SFIy,B_array,MIx,Z_bar):
             
     Shear_Final=getFinalShearFlow()
         
-    return Qb_z, Qb_y,B_Distance,Line_Integral_qb_3,A,b,x,Shear_Final
+    return Qb_z, Qb_y,B_Distance,Line_Integral_qb_3,A,b,x,Shear_Final,x[2]
 
 
 
