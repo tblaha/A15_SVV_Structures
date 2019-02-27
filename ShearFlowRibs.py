@@ -89,14 +89,14 @@ def shearFlowRib(B, Z_bar, Y_bar, P_1=0., P_2=0., F_z=0., F_y=0.):
 	###
 	points = np.array(points)
 	points_spar = np.array(points_spar)
-	
+	'''
 	points_spar_transpose = points_spar.transpose()
 	plt.plot(points_spar_transpose[0], points_spar_transpose[1], 'bo')
 	plt.grid()
 	plt.title('Spar points')
 	plt.tight_layout()
 	plt.show()
-	
+	'''
 	if plot_cross_section:
 		plt.plot(points.transpose()[0], points.transpose()[1], 'bo')
 		B = np.array(B)
@@ -237,16 +237,29 @@ def shearFlowRib(B, Z_bar, Y_bar, P_1=0., P_2=0., F_z=0., F_y=0.):
 		plt.show()
 	
 	### Here we check whether the sum of the shear forces matches the applied forces. ###
-	fz = 0
-	fy = 0
+	fz = 0.
+	fy = 0.
 	for i in range(len(points)-1):
 		fz += q[i]*(points[i+1][0] - points[i][0])
 		fy += q[i]*(points[i+1][1] - points[i][1])
 	fz += q[len(points)-1]*(points[0][0] - points[len(points)-1][0])
 	fy += q[len(points)-1]*(points[0][1] - points[len(points)-1][1])
+	for i in range(len(points_spar)-1):
+		fy -= q[len(points) + i]*(points_spar[i+1][0] - points_spar[i][0])
+	
+	F_z_tot = F_z + (P_1 - P_2)*np.cos(theta_radians)
+	F_y_tot = F_y + (P_1 - P_2)*np.sin(theta_radians)
+	
+	if fz != F_z_tot or fy != F_y_tot:
+		print('A discrepancy was found!')
+		print('The sum of the forces in the z direction was: %f' % F_z_tot)
+		print('The sum of the calculated shear flows in the z direction was: %f' % fz)
+		print('The sum of the forces in the y direction was: %f' % F_y_tot)
+		print('The sum of the calculated shear flows in the y direction was: %f' % fy)
+	
 	if print_statements:
-		print('The sum of the shearforces in the z direction: fz = %f.' % fz)
-		print('The sum of the shearforces in the y direction: fy = %f.' % fy)
+		print('The sum of the shearforces in the z direction: fz = %f.' % F_z_tot)
+		print('The sum of the shearforces in the y direction: fy = %f.' % F_y_tot)
 	### END ###
 	
 	### Determine the shearflows in the ribs. ###
