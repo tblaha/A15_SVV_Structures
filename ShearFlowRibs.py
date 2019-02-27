@@ -52,10 +52,10 @@ def shearFlowRib(B, Z_bar, Y_bar, P_1=0., P_2=0., F_z=0., F_y=0.):
 	'''
 	
 	plot_q_sections = True
-	plot_cross_section = True
+	plot_cross_section = False
 	plot_cross_section_live = False
-	plot_matrix = True
-	print_statements = True
+	plot_matrix = False
+	print_statements = False
     
 	if print_statements:
 		print('There are %i points in the cross-section discretization.' % len(B))
