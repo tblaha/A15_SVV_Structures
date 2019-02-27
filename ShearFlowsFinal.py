@@ -50,8 +50,8 @@ def baseShearFlows(I_zz,I_yy,SFIz,SFIy,B_array,MIx,Z_bar):
     
     #geometry:
     h_a=225
-    l_skin_curved=np.pi*(h_a/2.)
-    
+    l_skin_curved=np.pi*(h_a/2.)    
+    l_skin_2 = np.sqrt((c_a-h_a/2)**2+((h_a/2)**2))
     #Create output arrays which will have the same number of rows as input boom area array
     Qb_z = np.zeros((len(B_array[:,0]),3))
     Qb_y = np.zeros((len(B_array[:,0]),3))
@@ -201,7 +201,7 @@ def baseShearFlows(I_zz,I_yy,SFIz,SFIy,B_array,MIx,Z_bar):
     A_11 = (1./(2.*Cell_Area1))*(((l_skin_curved)/(t_sk))+((h_a/(t_sp))))
     A_12 = -(1./(2.*Cell_Area1))*((h_a)/(t_sp))    
     A_21 = -(1./(2.*Cell_Area2))*((h_a)/(t_sp))
-    A_22 = (1./(2.*Cell_Area2))*(((l_skin_curved)/(t_sk))+((h_a/(t_sp))))
+    A_22 = (1./(2.*Cell_Area2))*(((l_skin_2)/(t_sk))+((h_a/(t_sp))))
     A_31=2*Cell_Area1
     A_32=2*Cell_Area2
     
@@ -237,7 +237,7 @@ def baseShearFlows(I_zz,I_yy,SFIz,SFIy,B_array,MIx,Z_bar):
             
     Shear_Final=getFinalShearFlow()
         
-    return Qb_z, Qb_y,B_Distance,Line_Integral_qb_3,A,b,x,Shear_Final,x[2]
+    return Qb_z, Qb_y,B_Distance,Line_Integral_qb_3,A,b,x,Shear_Final
 
 
 

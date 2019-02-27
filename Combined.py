@@ -34,7 +34,9 @@ cg_cor_stiffeners=1 #Correct for the stiffeners centroid or not
 plotBending=False #Plots the bending shape
 plotSpan=False #Plots the distribution of the points in which forces are calculated
 plotInternal=False #Plots the internal shear and moment diagrams
-plotDisplacements=True #Plot the displacements of the aileron
+plotAileron=True #Plot the displacements of the aileron
+plotDeflectionsTheta0=True
+plotDeflections=True
 printInfo=False #Prints all chosen variables
 printInputs=False #Prints actual input values for booms_between,span_nodes_between
 printOutputs=False #Prints the actual output of the program
@@ -129,7 +131,7 @@ for i in range(len(span_disc)):
     dtdx[i]=shear_vec[2]/(G)
 
 ##Compute shape of aileron    
-disp_le_y_max, disp_te_y_max, disp_le_max_x, disp_te_max_x=shapeOfAileron(span_disc, d_yz_vec, dtdx, z_bar, plot_aileron=plotDisplacements)
+disp_le_y_max, disp_te_y_max, disp_le_max_x, disp_te_max_x=shapeOfAileron(span_disc, d_yz_vec, dtdx, z_bar, plot_aileron=plotAileron, plot_deflections_theta_0=plotDeflectionsTheta0, plot_deflections=plotDeflections)
 
 ##Compute the shear flow in the ribs
 #Rib A, Fy1,Fz1
