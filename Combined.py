@@ -194,14 +194,15 @@ for i in range(len(span_disc)):
 disp_le_y_max, disp_te_y_max, disp_le_max_x, disp_te_max_x=shapeOfAileron(span_disc, d_yz_vec, dtdx, z_bar, plot_aileron=plotAileron, plot_deflections_theta_0=plotDeflectionsTheta0, plot_deflections=plotDeflections)
 
 ##Compute the shear flow in the ribs
+systemOfEquationsForShearRib = shearFlowRib(cross_disc, z_bar, y_bar)
 #Rib A, Fy1,Fz1
-q_A,q_1_A,q_2_A=shearFlowRib(cross_disc, z_bar, y_bar, P_1=0, P_2=0, F_z=Fz[0], F_y=Fy[0])
+q_A,q_1_A,q_2_A=systemOfEquationsForShearRib.solve(P_1=0, P_2=0, F_z=Fz[0], F_y=Fy[0])
 #Rib B
-q_B,q_1_B,q_2_B=shearFlowRib(cross_disc, z_bar, y_bar, P_1=P_1, P_2=0, F_z=Fz[1]*0.5, F_y=Fy[1]*0.5)
+q_B,q_1_B,q_2_B=systemOfEquationsForShearRib.solve(P_1=P_1, P_2=0, F_z=Fz[1]*0.5, F_y=Fy[1]*0.5)
 #Rib C
-q_C,q_1_C,q_2_C=shearFlowRib(cross_disc, z_bar, y_bar, P_1=0, P_2=p, F_z=Fz[1]*0.5, F_y=Fy[1]*0.5)
+q_C,q_1_C,q_2_C=systemOfEquationsForShearRib.solve(P_1=0, P_2=p, F_z=Fz[1]*0.5, F_y=Fy[1]*0.5)
 #Rib D
-q_D,q_1_D,q_2_D=shearFlowRib(cross_disc, z_bar, y_bar, P_1=0, P_2=0, F_z=Fz[2], F_y=Fy[2])
+q_D,q_1_D,q_2_D=systemOfEquationsForShearRib.solve(P_1=0, P_2=0, F_z=Fz[2], F_y=Fy[2])
 
 #Print info if enabled
 if printInfo:
