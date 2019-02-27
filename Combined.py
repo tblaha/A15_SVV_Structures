@@ -38,7 +38,7 @@ cg_cor_stiffeners=1 #Correct for the stiffeners centroid or not
 plotBending=False #Plots the bending shape
 plotSpan=False #Plots the distribution of the points in which forces are calculated
 plotInternal=False #Plots the internal shear and moment diagrams
-plotVerInternal=True #Plots Internal loads in a diagram with the analytical internal loads
+plotVerInternal=False #Plots Internal loads in a diagram with the analytical internal loads
 plotAileron=False #Plots a simplified version of the aileron.
 plotDeflectionsTheta0=False	#Plots the displacements of the LE and TE compared to where they would be if theta was 0 and there was no loading.
 plotDeflections=False #Plots the displacements of the LE and TE compared to where they would be if there was no loading.
@@ -202,22 +202,17 @@ arc_coordinates, vonMises_ribs = InterpretFEM(h_a, c_a)
 ##Compute shape of aileron    
 disp_le_y_max, disp_te_y_max, disp_le_max_x, disp_te_max_x=shapeOfAileron(span_disc, d_yz_vec, dtdx, z_bar, plot_aileron=plotAileron, plot_deflections_theta_0=plotDeflectionsTheta0, plot_deflections=plotDeflections)
 
-## WARNING; TAKE THIS OUT LATER, bullshit FEM values
-Fz[0] = -3.93*1e3
-Fz[2] =  5.35*1e3
-Fy[0] = 22.9*1e3
-Fy[2] = 19.4*1e3
 
 ##Compute the shear flow in the ribs
 systemOfEquationsForShearRib = shearFlowRib(cross_disc, z_bar, y_bar)
 #Rib A, Fy1,Fz1
-q_A,q_1_A,q_2_A=systemOfEquationsForShearRib.solve(P_1=0, P_2=0, F_z=Fz[0], F_y=Fy[0])
+q_A,q_1_A,q_2_A=systemOfEquationsForShearRib.solveSys(P_1=0, P_2=0, F_z=Fz[0], F_y=Fy[0])
 #Rib B
-q_B,q_1_B,q_2_B=shearFlowRib(cross_disc, z_bar, y_bar, P_1=P_1, P_2=0, F_z=0*Fz[1]*0.5, F_y=0*Fy[1]*0.5)
+q_B,q_1_B,q_2_B=systemOfEquationsForShearRib.solveSys(P_1=P_1, P_2=0, F_z=0*Fz[1]*0.5, F_y=0*Fy[1]*0.5)
 #Rib C
-q_C,q_1_C,q_2_C=shearFlowRib(cross_disc, z_bar, y_bar, P_1=0, P_2=p, F_z=0*Fz[1]*0.5, F_y=0*Fy[1]*0.5)
+q_C,q_1_C,q_2_C=systemOfEquationsForShearRib.solveSys(P_1=0, P_2=p, F_z=0*Fz[1]*0.5, F_y=0*Fy[1]*0.5)
 #Rib D
-q_D,q_1_D,q_2_D=systemOfEquationsForShearRib.solve(P_1=0, P_2=0, F_z=Fz[2], F_y=Fy[2])
+q_D,q_1_D,q_2_D=systemOfEquationsForShearRib.solveSys(P_1=0, P_2=0, F_z=Fz[2], F_y=Fy[2])
 
 
 

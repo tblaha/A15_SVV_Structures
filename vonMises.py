@@ -30,7 +30,7 @@ def getVonMises(xloc, span_disc, cross_disc, SFIz, SFIy, MIx, MIy, MIz, I_yy, I_
     # process rib shear input (this awkward way of doing it was when Tuur
     # didn't have the spar ready yet)
     all_q_B             = np.zeros(len(cross_disc))
-    all_q_B[0:len(q_B)] = q_B
+    all_q_B[0:np.min(np.array([len(cross_disc), len(q_B)]))] = q_B[0:np.min(np.array([len(cross_disc), len(q_B)]))]
     
     #(xloc, h_a, c_a, filename, all_nodes, rib_nodes=[])
     
