@@ -48,7 +48,7 @@ printInputs=False #Prints actual input values for booms_between,span_nodes_betwe
 printOutputs=False #Prints the actual output of the program
 printReactionForces=False #Prints all reaction forces 
 printMOI=False #Prints Moment of Inertia 
- 
+
 
 #Generate stiffener locations
 S_uncor = generateStiffeners(h_a, c_a, n_st, A_st, t_sk, t_sp, Ybar_st, 0)
@@ -137,35 +137,50 @@ if plotVerInternal:
     else:
         case=2
     xVer,VzVer,VyVer,MyVer,MzVer,MxVer=getVerInternalLoads(case)
+    titleFontSize=14
+    axisFontSize=12
     plt.subplot(231)
     plt.plot(span_disc,SFIx,'b')
-    plt.title('Internal normal force x')
+    plt.plot(xVer,xVer*[0],'r')
+    plt.xlabel('x-position [mm]', fontsize=axisFontSize)
+    plt.ylabel('Internal force [N]', fontsize=axisFontSize)
+    plt.title('Internal normal force x', fontsize=titleFontSize)
     
     plt.subplot(232)
     plt.plot(span_disc,SFIy,'b')
     plt.plot(xVer,VyVer,'r')
-    plt.title('Internal shear force y')
+    plt.xlabel('x-position [mm]', fontsize=axisFontSize)
+    plt.ylabel('Internal shear force [N]', fontsize=axisFontSize)
+    plt.title('Internal shear force y', fontsize=titleFontSize)
     
     plt.subplot(233)
     plt.plot(span_disc,SFIz,'b')
     plt.plot(xVer,VzVer,'r')
-    plt.title('Internal shear force z')
+    plt.xlabel('x-position [mm]', fontsize=axisFontSize)
+    plt.ylabel('Internal shear force [N]', fontsize=axisFontSize)
+    plt.title('Internal shear force z', fontsize=titleFontSize)
     
     plt.subplot(234)
     plt.plot(span_disc,MIx,'b')
     plt.plot(xVer,MxVer,'r')
-    plt.title('Internal moment x')
+    plt.xlabel('x-position [mm]', fontsize=axisFontSize)
+    plt.ylabel('Moment [N/mm]', fontsize=axisFontSize)
+    plt.title('Internal moment x', fontsize=titleFontSize)
     
     plt.subplot(235)
     plt.plot(span_disc,MIy,'b',label='Numerical model result')
     plt.plot(xVer,MyVer,'r',label='Analytical model result')
-    plt.title('Internal moment y')
-    plt.legend()
+    plt.xlabel('x-position [mm]', fontsize=axisFontSize)
+    plt.ylabel('Moment [N/mm]', fontsize=axisFontSize)
+    plt.title('Internal moment y', fontsize=titleFontSize)
+    plt.legend(loc=8)
     
     plt.subplot(236)
     plt.plot(span_disc,MIz,'b')
     plt.plot(xVer,MzVer,'r')
-    plt.title('Internal moment z')
+    plt.xlabel('x-position [mm]', fontsize=axisFontSize)
+    plt.ylabel('Moment [N/mm]', fontsize=axisFontSize)
+    plt.title('Internal moment z', fontsize=titleFontSize)
     
     plt.show ()
 #
