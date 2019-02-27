@@ -48,7 +48,7 @@ printInputs=False #Prints actual input values for booms_between,span_nodes_betwe
 printOutputs=False #Prints the actual output of the program
 printReactionForces=False #Prints all reaction forces 
 printMOI=False #Prints Moment of Inertia 
- 
+
 
 #Generate stiffener locations
 S_uncor = generateStiffeners(h_a, c_a, n_st, A_st, t_sk, t_sp, Ybar_st, 0)
@@ -137,56 +137,71 @@ if plotVerInternal:
     else:
         case=2
     xVer,VzVer,VyVer,MyVer,MzVer,MxVer=getVerInternalLoads(case)
+    titleFontSize=14
+    axisFontSize=12
     plt.subplot(231)
     plt.plot(span_disc,SFIx,'b')
-    plt.title('Internal normal force x')
+    plt.plot(xVer,xVer*[0],'r')
+    plt.xlabel('x-position [mm]', fontsize=axisFontSize)
+    plt.ylabel('Internal force [N]', fontsize=axisFontSize)
+    plt.title('Internal normal force x', fontsize=titleFontSize)
     
     plt.subplot(232)
     plt.plot(span_disc,SFIy,'b')
     plt.plot(xVer,VyVer,'r')
-    plt.title('Internal shear force y')
+    plt.xlabel('x-position [mm]', fontsize=axisFontSize)
+    plt.ylabel('Internal shear force [N]', fontsize=axisFontSize)
+    plt.title('Internal shear force y', fontsize=titleFontSize)
     
     plt.subplot(233)
     plt.plot(span_disc,SFIz,'b')
     plt.plot(xVer,VzVer,'r')
-    plt.title('Internal shear force z')
+    plt.xlabel('x-position [mm]', fontsize=axisFontSize)
+    plt.ylabel('Internal shear force [N]', fontsize=axisFontSize)
+    plt.title('Internal shear force z', fontsize=titleFontSize)
     
     plt.subplot(234)
     plt.plot(span_disc,MIx,'b')
     plt.plot(xVer,MxVer,'r')
-    plt.title('Internal moment x')
+    plt.xlabel('x-position [mm]', fontsize=axisFontSize)
+    plt.ylabel('Moment [N/mm]', fontsize=axisFontSize)
+    plt.title('Internal moment x', fontsize=titleFontSize)
     
     plt.subplot(235)
     plt.plot(span_disc,MIy,'b',label='Numerical model result')
     plt.plot(xVer,MyVer,'r',label='Analytical model result')
-    plt.title('Internal moment y')
-    plt.legend()
+    plt.xlabel('x-position [mm]', fontsize=axisFontSize)
+    plt.ylabel('Moment [N/mm]', fontsize=axisFontSize)
+    plt.title('Internal moment y', fontsize=titleFontSize)
+    plt.legend(loc=8)
     
     plt.subplot(236)
     plt.plot(span_disc,MIz,'b')
     plt.plot(xVer,MzVer,'r')
-    plt.title('Internal moment z')
+    plt.xlabel('x-position [mm]', fontsize=axisFontSize)
+    plt.ylabel('Moment [N/mm]', fontsize=axisFontSize)
+    plt.title('Internal moment z', fontsize=titleFontSize)
     
     plt.show ()
-#
-###Compute dtheta dx
-#dtdx=np.zeros(len(span_disc))
-#for i in range(len(span_disc)):
-#    x=span_disc[i]
-#    Qb_z, Qb_y,B_Distance,Line_Integral_qb_3,A,b,shear_vec,Shear_Final=baseShearFlows(I_zz,I_yy,SFIz[i],SFIy[i],cross_disc,MIx[i],z_bar)
-#    dtdx[i]=shear_vec[2]/(G)
-###Compute shape of aileron    
-#disp_le_y_max, disp_te_y_max, disp_le_max_x, disp_te_max_x=shapeOfAileron(span_disc, d_yz_vec, dtdx, z_bar, plot_aileron=plotAileron, plot_deflections_theta_0=plotDeflectionsTheta0, plot_deflections=plotDeflections)
-#
-###Compute the shear flow in the ribs
-##Rib A, Fy1,Fz1
-#q_A,q_1_A,q_2_A=shearFlowRib(cross_disc, z_bar, y_bar, P_1=0, P_2=0, F_z=Fz[0], F_y=Fy[0])
-##Rib B
-#q_B,q_1_B,q_2_B=shearFlowRib(cross_disc, z_bar, y_bar, P_1=P_1, P_2=0, F_z=Fz[1]*0.5, F_y=Fy[1]*0.5)
-##Rib C
-#q_C,q_1_C,q_2_C=shearFlowRib(cross_disc, z_bar, y_bar, P_1=0, P_2=p, F_z=Fz[1]*0.5, F_y=Fy[1]*0.5)
-##Rib D
-#q_D,q_1_D,q_2_D=shearFlowRib(cross_disc, z_bar, y_bar, P_1=0, P_2=0, F_z=Fz[2], F_y=Fy[2])
+
+##Compute dtheta dx
+dtdx=np.zeros(len(span_disc))
+for i in range(len(span_disc)):
+    x=span_disc[i]
+    Qb_z, Qb_y,B_Distance,Line_Integral_qb_3,A,b,shear_vec,Shear_Final=baseShearFlows(I_zz,I_yy,SFIz[i],SFIy[i],cross_disc,MIx[i],z_bar)
+    dtdx[i]=shear_vec[2]/(G)
+##Compute shape of aileron    
+disp_le_y_max, disp_te_y_max, disp_le_max_x, disp_te_max_x=shapeOfAileron(span_disc, d_yz_vec, dtdx, z_bar, plot_aileron=plotAileron, plot_deflections_theta_0=plotDeflectionsTheta0, plot_deflections=plotDeflections)
+
+##Compute the shear flow in the ribs
+#Rib A, Fy1,Fz1
+q_A,q_1_A,q_2_A=shearFlowRib(cross_disc, z_bar, y_bar, P_1=0, P_2=0, F_z=Fz[0], F_y=Fy[0])
+#Rib B
+q_B,q_1_B,q_2_B=shearFlowRib(cross_disc, z_bar, y_bar, P_1=P_1, P_2=0, F_z=Fz[1]*0.5, F_y=Fy[1]*0.5)
+#Rib C
+q_C,q_1_C,q_2_C=shearFlowRib(cross_disc, z_bar, y_bar, P_1=0, P_2=p, F_z=Fz[1]*0.5, F_y=Fy[1]*0.5)
+#Rib D
+q_D,q_1_D,q_2_D=shearFlowRib(cross_disc, z_bar, y_bar, P_1=0, P_2=0, F_z=Fz[2], F_y=Fy[2])
 
 #Print info if enabled
 if printInfo:
