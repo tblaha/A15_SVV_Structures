@@ -35,12 +35,12 @@ plotBending=False #Plots the bending shape
 plotSpan=False #Plots the distribution of the points in which forces are calculated
 plotInternal=False #Plots the internal shear and moment diagrams
 plotAileron=True #Plot the displacements of the aileron
-plotDeflectionsTheta0=True
-plotDeflections=True
+plotDeflectionsTheta0=False
+plotDeflections=False
 printInfo=False #Prints all chosen variables
 printInputs=False #Prints actual input values for booms_between,span_nodes_between
 printOutputs=False #Prints the actual output of the program
-printReactionForces=True #Prints all reaction forces 
+printReactionForces=False #Prints all reaction forces 
 printMOI=True #Prints Moment of Inertia 
  
 
@@ -127,7 +127,7 @@ if plotInternal:
 dtdx=np.zeros(len(span_disc))
 for i in range(len(span_disc)):
     x=span_disc[i]
-    Qb_z, Qb_y,B_Distance,Line_Integral_qb_3,A,b,shear_vec,Shear_Final,dtdxG=baseShearFlows(I_zz,I_yy,SFIz[i],SFIy[i],cross_disc,MIx[i],z_bar)
+    Qb_z, Qb_y,B_Distance,Line_Integral_qb_3,A,b,shear_vec,Shear_Final=baseShearFlows(I_zz,I_yy,SFIz[i],SFIy[i],cross_disc,MIx[i],z_bar)
     dtdx[i]=shear_vec[2]/(G)
 
 ##Compute shape of aileron    
