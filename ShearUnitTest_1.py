@@ -62,10 +62,10 @@ def baseShearFlows(I_zz,I_yy,SFIz,SFIy,B_array,MIx,Z_bar):
     #Note q1 will be the represent the shear flow between boom 0 and 1 and so on
     
     #geometry:
-    Cell_Area1=232000
-    Cell_Area2=232000
-    l_skin_curved=300
-    h_a=200
+    Cell_Area1=300000
+    Cell_Area2=300000
+    l_skin_curved=700
+    h_a=100
     t_sk=1
     t_sp=1
     
@@ -180,13 +180,16 @@ def baseShearFlows(I_zz,I_yy,SFIz,SFIy,B_array,MIx,Z_bar):
                 Moment_qb_y_3=Moment_qb_y_3+Qb_y[i,1]*moment_arm
             
             #Note2: The area in B_array in y-direc and z-direc is almost the same
+            
+            qb_z = qb_z + (-(SFIz)/I_yy)*B_array[i,2]*B_array[i,1]
+            qb_y = qb_y+ (-(SFIy)/I_zz)*B_array[i,3]*B_array[i,0]
+           
             i=i+1
             if i==len(B_array[:,0]):
                 break
-            qb_z = qb_z + (-(SFIz)/I_yy)*B_array[i,2]*B_array[i,1]
-            qb_y = qb_y+ (-(SFIy)/I_zz)*B_array[i,3]*B_array[i,0]
             ID_new=B_array[i,4]
             
+                
            
         
         #Move on to next cell or spar
@@ -210,10 +213,10 @@ def baseShearFlows(I_zz,I_yy,SFIz,SFIy,B_array,MIx,Z_bar):
     External_Loads = MIx + SFIy*(abs(Z_bar))
     
     #Matrix Solving coefficients 
-    A_11 = (1./(2.*Cell_Area1))*(((l_skin_curved)/(t_sk))+((h_a/(t_sk))))
+    A_11 = (1./(2.*Cell_Area1))*(((l_skin_curved)/(t_sk))+((h_a/(t_sp))))
     A_12 = -(1./(2.*Cell_Area1))*((h_a)/(t_sp))    
     A_21 = -(1./(2.*Cell_Area2))*((h_a)/(t_sp))
-    A_22 = (1./(2.*Cell_Area2))*(((l_skin_curved)/(t_sk))+((h_a/(t_sk))))
+    A_22 = (1./(2.*Cell_Area2))*(((l_skin_curved)/(t_sk))+((h_a/(t_sp))))
     A_31=2*Cell_Area1
     A_32=2*Cell_Area2
     
@@ -253,10 +256,10 @@ def baseShearFlows(I_zz,I_yy,SFIz,SFIy,B_array,MIx,Z_bar):
 
 
 
-Shear_Final=baseShearFlows(15*10**6,60*10**6,10000,15000.,B_test,0.,0)[6]
-Qb_y=baseShearFlows(15*10**6,60*10**6,10000,15000.,B_test,0.,0)[1]
+Shear_Final=baseShearFlows(15*10**6,60*10**6,10000,10000.,B_test,0.,0)[6]
+Qb_y=baseShearFlows(15*10**6,60*10**6,10000,10000.,B_test,0.,0)[1]
 print (Qb_y)
-Qb_z=baseShearFlows(15*10**6,60*10**6,10000,15000.,B_test,0.,0)[0]
+Qb_z=baseShearFlows(15*10**6,60*10**6,10000,10000.,B_test,0.,0)[0]
 print (Qb_z)
 print(Shear_Final)
 

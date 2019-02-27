@@ -210,11 +210,12 @@ def baseShearFlows(I_zz,I_yy,SFIz,SFIy,B_array,l_Skin_Curved,MIx,Z_bar):
             
             #Note: -B_array. 
             #Note2: The area in B_array in y-direc and z-direc is almost the same
+            qb_z = qb_z + (-(SFIz)/I_yy)*B_array[i,2]*B_array[i,1]
+            qb_y = qb_y+ (-(SFIy)/I_zz)*B_array[i,3]*B_array[i,0]
+           
             i=i+1
             if i==len(B_array[:,0]):
                 break
-            qb_z = qb_z + (-(SFIz)/I_yy)*B_array[i,2]*B_array[i,1]
-            qb_y = qb_y+ (-(SFIy)/I_zz)*B_array[i,3]*B_array[i,0]
             ID_new=B_array[i,4]
             
            
@@ -240,7 +241,7 @@ def baseShearFlows(I_zz,I_yy,SFIz,SFIy,B_array,l_Skin_Curved,MIx,Z_bar):
     A_11 = (1./(2.*Cell_Area1))*(((1930)/(1.1512))+((406/(2.032))))
     A_12 = -(1./(2.*Cell_Area1))*((406)/(2.032))    
     A_21 = -(1./(2.*Cell_Area2))*((406)/(2.032))
-    A_22 = (1./(2.*Cell_Area2))*(((1930)/(0.7793))+((406/(2.032))))
+    A_22 = (1./(2.*Cell_Area2))*(((1932)/(0.7793))+((406/(2.032))))
     A_31=2*Cell_Area1
     A_32=2*Cell_Area2
     
