@@ -126,7 +126,7 @@ if plotInternal:
 dtdx=np.zeros(len(span_disc))
 for i in range(len(span_disc)):
     x=span_disc[i]
-    Qb_z, Qb_y,B_Distance,Line_Integral_qb_3,A,b,shear_vec,Shear_Final=baseShearFlows(I_zz,I_yy,SFIz[i],SFIy[i],cross_disc,MIx[i],z_bar)
+    Qb_z, Qb_y,B_Distance,Line_Integral_qb_3,A,b,shear_vec,Shear_Final,dtdx=baseShearFlows(I_zz,I_yy,SFIz[i],SFIy[i],cross_disc,MIx[i],z_bar)
     dtdx[i]=shear_vec[2]/(G)
 
 ##Compute shape of aileron    
