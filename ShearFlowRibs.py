@@ -51,7 +51,7 @@ def shearFlowRib(B, Z_bar, Y_bar, P_1=0., P_2=0., F_z=0., F_y=0.):
 	Defined positive counter-clockwise.
 	'''
 	
-	plot_q_sections = True
+	plot_q_sections = False
 	plot_cross_section = False
 	plot_cross_section_live = False
 	plot_matrix = False

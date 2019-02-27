@@ -11,7 +11,7 @@ import matplotlib.pyplot as plt
 
 
 def InterpretFEM(h_a, c_a):
-    plt.ioff()
+    
     ###########################
     ### Get nodal locations ###
     ###########################
@@ -45,211 +45,397 @@ def InterpretFEM(h_a, c_a):
     nodes_ribs[2,:] = nodes_ribC
     nodes_ribs[3,:] = nodes_ribD
     
-    nodes_ribs_sort = np.zeros(np.shape(nodes_ribs))
-    
-    # get and sort leading and trailing edge nodes
-    nodes_TE  = nodes[np.where(nodes[:,3] == -c_a+h_a/2), :][0]
-    nodes_TE  = nodes_TE[nodes_TE[:,1].argsort(),:]
-    nodes_LE  = nodes[np.where(nodes[:,3] == h_a/2), :][0]
-    nodes_LE  = nodes_LE[nodes_LE[:,1].argsort(),:]
-    
-    
-    
+
     
     ##############################
     ### Get von Mises Stresses ###
     ##############################
     
+    S_post_ribs    = np.zeros(( 2, 4, len(nodes_ribA) ))
+    arc_coords     = np.zeros(( 2, 4, len(nodes_ribA) ))
+    nodes_ribA_xyz = np.zeros(( 4, len(nodes_ribA), 4 ))
+    
+    # up loads
+    arc_coords[0,0], S_post_ribs[0,0], nodes_ribA_xyz[0] = getFEMSection(-1, h_a, c_a, 'FEMData/A320_SLC1.rpt', nodes, nodes_ribA)
+    arc_coords[0,1], S_post_ribs[0,1], nodes_ribA_xyz[1] = getFEMSection(-1, h_a, c_a, 'FEMData/A320_SLC1.rpt', nodes, nodes_ribB)
+    arc_coords[0,2], S_post_ribs[0,2], nodes_ribA_xyz[2] = getFEMSection(-1, h_a, c_a, 'FEMData/A320_SLC1.rpt', nodes, nodes_ribC)
+    arc_coords[0,3], S_post_ribs[0,3], nodes_ribA_xyz[3] = getFEMSection(-1, h_a, c_a, 'FEMData/A320_SLC1.rpt', nodes, nodes_ribD)
+    
+    # up no loads
+    arc_coords[1,0], S_post_ribs[1,0], nodes_ribA_xyz[0] = getFEMSection(-1, h_a, c_a, 'FEMData/A320_SR1.rpt', nodes, nodes_ribA)
+    arc_coords[1,1], S_post_ribs[1,1], nodes_ribA_xyz[1] = getFEMSection(-1, h_a, c_a, 'FEMData/A320_SR1.rpt', nodes, nodes_ribB)
+    arc_coords[1,2], S_post_ribs[1,2], nodes_ribA_xyz[2] = getFEMSection(-1, h_a, c_a, 'FEMData/A320_SR1.rpt', nodes, nodes_ribC)
+    arc_coords[1,3], S_post_ribs[1,3], nodes_ribA_xyz[3] = getFEMSection(-1, h_a, c_a, 'FEMData/A320_SR1.rpt', nodes, nodes_ribD)
+    
+    
+    
+    ### plotting ###
+    for i in range(2):
+        for j in range(4):
+            if j == 0:
+                rib_name = 'A'
+            elif j == 1:
+                rib_name = 'B'
+            elif j == 2:
+                rib_name = 'C'
+            elif j == 3:
+                rib_name = 'D'
+            
+            if i == 0:
+                # loads
+                title = 'Validation -- von Mises Rib ' + rib_name + ' -- All Loads'
+                filename = 'vonMises_LC1_Rib' + rib_name + '_scatter'
+            else:
+                title = 'Validation -- von Mises Rib ' + rib_name + ' -- No loads'
+                filename = 'vonMises_R1_Rib' + rib_name + '_scatter'
+                
+            plotFEMSection(nodes_ribA_xyz[j], S_post_ribs[i,j], title, filename)
+    
+    
+    ##################
+    ### Deflection ###
+    ##################
+        
+    
+    ### plotting ###
+    U_LEs_FEM, U_TEs_FEM, LE_xlocs, TE_xlocs, correction_LE, correction_TE = getLETE(h_a, c_a, nodes, 'FEMData/A320_')
+    plotLETE(U_LEs_FEM, U_TEs_FEM, LE_xlocs, TE_xlocs, correction_LE, correction_TE, span_disc = [], U_LE_Model=[], U_TE_Model=[])
+    
+
+    return arc_coords, S_post_ribs
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+### helper functions ###
+    
+
+
+
+
+def getLETE(h_a, c_a, nodes, filename_pre):
+    
+    
+    numnodes = len(nodes)
+    ##################
+    ### Deflection ###
+    ##################
+    
+    # get and sort leading and trailing edge nodes
+    nodes_LE  = nodes[np.where(nodes[:,3] == h_a/2), :][0]
+    nodes_LE  = nodes_LE[nodes_LE[:,1].argsort(),:]
+    nodes_TE  = nodes[np.where(nodes[:,3] == -c_a+h_a/2), :][0]
+    nodes_TE  = nodes_TE[nodes_TE[:,1].argsort(),:]
+            
+    
+    
+    header_lines_U = 19
+    
+    # up, with loads
+    U_up_L = np.genfromtxt(filename_pre + 'ULC1.rpt', skip_header=header_lines_U, max_rows=numnodes)[:,[0,6,7,8]]
+    
+    # up, without loads
+    U_up_nL = np.genfromtxt(filename_pre + 'UR1.rpt',  skip_header=header_lines_U, max_rows=numnodes)[:,[0,6,7,8]]
+        
+    
+    
+    ### Trailing Edge ###
+    TE_xlocs = nodes_TE[:,1]
+    U_up_L_TE  = U_up_L [nodes_TE[:,0].astype('int')-1, :][:,[1,2,3]]
+    U_up_nL_TE = U_up_nL[nodes_TE[:,0].astype('int')-1, :][:,[1,2,3]]
+    
+    the_shape = np.shape(U_up_L_TE)
+    U_TEs_FEM = np.zeros((2, the_shape[0], the_shape[1]))
+    
+    U_TEs_FEM[0] = U_up_L_TE
+    U_TEs_FEM[1] = U_up_nL_TE
+    
+    
+    
+    
+    
+    ### Leading Edge ###
+    LE_xlocs = nodes_LE[:,1]
+    U_up_L_LE  = U_up_L [nodes_LE[:,0].astype('int')-1, :][:,[1,2,3]]
+    U_up_nL_LE = U_up_nL[nodes_LE[:,0].astype('int')-1, :][:,[1,2,3]]
+    
+    the_shape = np.shape(U_up_L_LE)
+    U_LEs_FEM = np.zeros((2, the_shape[0], the_shape[1]))
+    
+    U_LEs_FEM[0] = U_up_L_LE
+    U_LEs_FEM[1] = U_up_nL_LE
+    
+    correction_LE = 26/180*np.pi * (h_a/2)
+    correction_TE = -26/180*np.pi * (c_a-h_a/2)
+    
+    
+    
+    return U_LEs_FEM, U_TEs_FEM, LE_xlocs, TE_xlocs, correction_LE, correction_TE
+    
+
+
+
+def plotLETE(U_LEs_FEM, U_TEs_FEM, LE_xlocs, TE_xlocs, correction_LE, correction_TE, span_disc = [], U_LE_Model=[], U_TE_Model=[]):
+     ########################
+    ### Deflection Plots ###
+    ########################
+    
+    plt.ioff()
+    plt.clf()
+    
+    if len(span_disc):
+        
+        ### Leading Edge ###
+        plt.figure(14, figsize=(8, 6))
+        axs = plt.axes()
+        plt.subplot(211)
+        plt.title('Numerical and Validation Model -- Edge Deflection -- Max (Numerical): %.2f mm' % np.max(U_LE_Model[:,1]))
+        plt.ylabel('y-displacement [mm]')
+        plt.plot(LE_xlocs, U_LEs_FEM[1,:,1] + correction_LE, '-')
+        plt.plot(LE_xlocs, U_LEs_FEM[0,:,1] + correction_LE, '-.')
+        plt.plot(span_disc, U_LE_Model[:,1], '-x')
+        plt.legend(['without loads', 'with actuator and aero loads', 'Numerical Model with loads'])
+        
+        plt.subplot(212)
+        plt.xlabel('x location (spanwise) [mm]')
+        plt.ylabel('z-displacement [mm]')
+        plt.plot(LE_xlocs, U_LEs_FEM[1,:,2], '-')
+        plt.plot(LE_xlocs, U_LEs_FEM[0,:,2], '-.')
+        plt.plot(span_disc, U_LE_Model[:,2], '-x')
+        
+        plt.savefig('Plots/LC1_U_LE_Model_correction.eps', format='eps')
+        
+        
+        ### Trailing Edge ###
+        plt.figure(14, figsize=(8, 6))
+        axs = plt.axes()
+        plt.subplot(211)
+        plt.title('Numerical and Validation Model -- Edge Deflection -- Max (Numerical): %.2f mm' % np.max(U_LE_Model[:,1]))
+        plt.ylabel('y-displacement [mm]')
+        plt.plot(LE_xlocs, U_LEs_FEM[1,:,1] + correction_TE, '-')
+        plt.plot(LE_xlocs, U_LEs_FEM[0,:,1] + correction_TE, '-.')
+        plt.plot(span_disc, U_LE_Model[:,1], '-x')
+        plt.legend(['without loads', 'with actuator and aero loads', 'Numerical Model with loads'])
+        
+        plt.subplot(212)
+        plt.xlabel('x location (spanwise) [mm]')
+        plt.ylabel('z-displacement [mm]')
+        plt.plot(LE_xlocs, U_LEs_FEM[1,:,2], '-')
+        plt.plot(LE_xlocs, U_LEs_FEM[0,:,2], '-.')
+        plt.plot(span_disc, U_LE_Model[:,2], '-x')
+        
+        plt.savefig('Plots/LC1_U_TE_Model_correction.eps', format='eps')
+        
+    else:
+        ### Leading Edge ###
+        plt.figure(10, figsize=(8, 6))
+        axs = plt.axes()
+        plt.subplot(211)
+        plt.title('Validation Data -- Global Leading Edge Deflection -- Maximum: %.2f mm' % np.max(U_LEs_FEM[1,:,1]))
+        plt.ylabel('y-displacement [mm]')
+        plt.plot(LE_xlocs, U_LEs_FEM[1,:,1], '-')
+        plt.plot(LE_xlocs, U_LEs_FEM[0,:,1], '-.')
+        plt.legend(['without loads', 'with actuator and aero loads'])
+        
+        plt.subplot(212)
+        plt.xlabel('x location (spanwise) [mm]')
+        plt.ylabel('z-displacement [mm]')
+        plt.plot(LE_xlocs, U_LEs_FEM[1,:,2], '-')
+        plt.plot(LE_xlocs, U_LEs_FEM[0,:,2], '-.')
+        
+        plt.savefig('Plots/LC1_U_LE.eps', format='eps')
+        
+    
+        plt.figure(11, figsize=(8, 6))
+        axs = plt.axes()
+        plt.subplot(211)
+        plt.title('Validation Data -- Global Leading Edge Deflection -- Maximum: %.2f mm' % (np.max(U_LEs_FEM[1,:,1]) + correction_LE))
+        plt.ylabel('y-displacement [mm]')
+        plt.plot(LE_xlocs, U_LEs_FEM[1,:,1] + correction_LE, '-')
+        plt.plot(LE_xlocs, U_LEs_FEM[0,:,1] + correction_LE, '-.')
+        plt.legend(['without loads', 'with actuator and aero loads'])
+        
+        plt.subplot(212)
+        plt.xlabel('x location (spanwise) [mm]')
+        plt.ylabel('z-displacement [mm]')
+        plt.plot(LE_xlocs, U_LEs_FEM[1,:,2], '-')
+        plt.plot(LE_xlocs, U_LEs_FEM[0,:,2], '-.')
+        
+        plt.savefig('Plots/LC1_U_LE_corrected.eps', format='eps')
+        
+        
+        
+        ### Trailing Edge ###
+        plt.figure(12, figsize=(8, 6))
+        axs = plt.axes()
+        plt.subplot(211)
+        plt.title('Validation Data -- Global Trailing Edge Deflection -- Maximum: %.2f mm' % np.max(U_TEs_FEM[1,:,1]))
+        plt.ylabel('y-displacement [mm]')
+        plt.plot(TE_xlocs, U_TEs_FEM[1,:,1], '-')
+        plt.plot(TE_xlocs, U_TEs_FEM[0,:,1], '-.')
+        plt.legend(['without loads', 'with actuator and aero loads'])
+        
+        plt.subplot(212)
+        plt.xlabel('x location (spanwise) [mm]')
+        plt.ylabel('z-displacement [mm]')
+        plt.plot(TE_xlocs, U_TEs_FEM[1,:,2], '-')
+        plt.plot(TE_xlocs, U_TEs_FEM[0,:,2], '-.')
+        
+        plt.savefig('Plots/LC1_U_TE.eps', format='eps')
+        
+    
+        plt.figure(13, figsize=(8, 6))
+        axs = plt.axes()
+        plt.subplot(211)
+        plt.title('Validation Data -- Global Trailing Edge Deflection -- Maximum: %.2f mm' % (np.max(U_TEs_FEM[1,:,1]) + correction_TE))
+        plt.ylabel('y-displacement [mm]')
+        plt.plot(TE_xlocs, U_TEs_FEM[1,:,1] + correction_TE, '-')
+        plt.plot(TE_xlocs, U_TEs_FEM[0,:,1] + correction_TE, '-.')
+        plt.legend(['without loads', 'with actuator and aero loads'])
+        
+        plt.subplot(212)
+        plt.xlabel('x location (spanwise) [mm]')
+        plt.ylabel('z-displacement [mm]')
+        plt.plot(TE_xlocs, U_TEs_FEM[1,:,2], '-')
+        plt.plot(TE_xlocs, U_TEs_FEM[0,:,2], '-.')
+        
+        plt.savefig('Plots/LC1_U_TE_corrected.eps', format='eps')
+    
+    
+    plt.ion()
+    
+    
+
+    
+
+    
+    
+    
+    
+
+def getFEMSection(xloc, h_a, c_a, filename, all_nodes, rib_nodes=[]):
+
+    nodes     = all_nodes[all_nodes[:,1].argsort(),:]
+    numnodes  = len(nodes)
+    
+    if len(rib_nodes):
+        nodes_slice = rib_nodes
+    else:
+        unique_x  = np.unique(nodes[:,1])
+        
+        nodes_slice_idx = np.argmin(abs(unique_x - xloc))
+        nodes_x_loc     = unique_x[nodes_slice_idx]
+        nodes_slice     = nodes[np.where(nodes[:,1] == nodes_x_loc), 0][0]
+    
+    ### read stresses
     line_ranges = np.array([[24, 8087], [8109, 12140], [12162, 18433], [18455, 26518]])
     diff_lines  = (np.diff(line_ranges,1,1)+1)
     cum_lines   = np.cumsum(diff_lines)
     total_lines = np.sum(diff_lines)
     
     # prealloc
-    S_up_L    = np.zeros((total_lines, 3))
-    S_up_nL   = np.zeros((total_lines, 3))
-    S_down_L  = np.zeros((total_lines, 3))
-    S_down_nL = np.zeros((total_lines, 3))
+    S = np.zeros((total_lines, 3))
     
-    # up, with loads
-    S_up_L[0:cum_lines[0]]            = np.genfromtxt('FEMData/A320_SLC1.rpt', skip_header=line_ranges[0,0]-1, max_rows=diff_lines[0,0])[:,[1,2,3]]
-    S_up_L[cum_lines[0]:cum_lines[1]] = np.genfromtxt('FEMData/A320_SLC1.rpt', skip_header=line_ranges[1,0]-1, max_rows=diff_lines[1,0])[:,[1,2,3]]
-    S_up_L[cum_lines[1]:cum_lines[2]] = np.genfromtxt('FEMData/A320_SLC1.rpt', skip_header=line_ranges[2,0]-1, max_rows=diff_lines[2,0])[:,[1,2,3]]
-    S_up_L[cum_lines[2]:]             = np.genfromtxt('FEMData/A320_SLC1.rpt', skip_header=line_ranges[3,0]-1, max_rows=diff_lines[3,0])[:,[1,2,3]]
-    S_up_L = S_up_L[S_up_L[:,0].argsort(),:]
-    
-    # up, without loads
-    S_up_nL[0:cum_lines[0]]            = np.genfromtxt('FEMData/A320_SR1.rpt', skip_header=line_ranges[0,0]-1, max_rows=diff_lines[0,0])[:,[1,2,3]]
-    S_up_nL[cum_lines[0]:cum_lines[1]] = np.genfromtxt('FEMData/A320_SR1.rpt', skip_header=line_ranges[1,0]-1, max_rows=diff_lines[1,0])[:,[1,2,3]]
-    S_up_nL[cum_lines[1]:cum_lines[2]] = np.genfromtxt('FEMData/A320_SR1.rpt', skip_header=line_ranges[2,0]-1, max_rows=diff_lines[2,0])[:,[1,2,3]]
-    S_up_nL[cum_lines[2]:]             = np.genfromtxt('FEMData/A320_SR1.rpt', skip_header=line_ranges[3,0]-1, max_rows=diff_lines[3,0])[:,[1,2,3]]
-    S_up_nL = S_up_nL[S_up_nL[:,0].argsort(),:]
-    
-    # down, with loads
-    S_down_L[0:cum_lines[0]]            = np.genfromtxt('FEMData/A320_SLC2.rpt', skip_header=line_ranges[0,0]-1, max_rows=diff_lines[0,0])[:,[1,2,3]]
-    S_down_L[cum_lines[0]:cum_lines[1]] = np.genfromtxt('FEMData/A320_SLC2.rpt', skip_header=line_ranges[1,0]-1, max_rows=diff_lines[1,0])[:,[1,2,3]]
-    S_down_L[cum_lines[1]:cum_lines[2]] = np.genfromtxt('FEMData/A320_SLC2.rpt', skip_header=line_ranges[2,0]-1, max_rows=diff_lines[2,0])[:,[1,2,3]]
-    S_down_L[cum_lines[2]:]             = np.genfromtxt('FEMData/A320_SLC2.rpt', skip_header=line_ranges[3,0]-1, max_rows=diff_lines[3,0])[:,[1,2,3]]
-    S_down_L = S_down_L[S_down_L[:,0].argsort(),:]
-    
-    # down, without loads
-    S_down_nL[0:cum_lines[0]]            = np.genfromtxt('FEMData/A320_SR2.rpt', skip_header=line_ranges[0,0]-1, max_rows=diff_lines[0,0])[:,[1,2,3]]
-    S_down_nL[cum_lines[0]:cum_lines[1]] = np.genfromtxt('FEMData/A320_SR2.rpt', skip_header=line_ranges[1,0]-1, max_rows=diff_lines[1,0])[:,[1,2,3]]
-    S_down_nL[cum_lines[1]:cum_lines[2]] = np.genfromtxt('FEMData/A320_SR2.rpt', skip_header=line_ranges[2,0]-1, max_rows=diff_lines[2,0])[:,[1,2,3]]
-    S_down_nL[cum_lines[2]:]             = np.genfromtxt('FEMData/A320_SR2.rpt', skip_header=line_ranges[3,0]-1, max_rows=diff_lines[3,0])[:,[1,2,3]]
-    S_down_nL = S_down_nL[S_down_nL[:,0].argsort(),:]
-    
-    
-    
-    
-    
-    
-    #############################
-    ### Get displacement data ###
-    #############################
-    
-    header_lines_U = 19
-    
-    # up, with loads
-    U_up_L = np.genfromtxt('FEMData/A320_ULC1.rpt', skip_header=header_lines_U, max_rows=numnodes)[:,[0,6,7,8]]
-    
-    # up, without loads
-    U_up_nL = np.genfromtxt('FEMData/A320_UR1.rpt',  skip_header=header_lines_U, max_rows=numnodes)[:,[0,6,7,8]]
-    
-    # down, with loads
-    U_down_L = np.genfromtxt('FEMData/A320_ULC2.rpt',  skip_header=header_lines_U, max_rows=numnodes)[:,[0,6,7,8]]
-    
-    # down, without loads
-    U_down_nL = np.genfromtxt('FEMData/A320_UR2.rpt',  skip_header=header_lines_U, max_rows=numnodes)[:,[0,6,7,8]]
-    
-    
-    
-    
-    
-    
-    
-    
+    # get stresses
+    S[0:cum_lines[0]]            = np.genfromtxt(filename, skip_header=line_ranges[0,0]-1, max_rows=diff_lines[0,0])[:,[1,2,3]]
+    S[cum_lines[0]:cum_lines[1]] = np.genfromtxt(filename, skip_header=line_ranges[1,0]-1, max_rows=diff_lines[1,0])[:,[1,2,3]]
+    S[cum_lines[1]:cum_lines[2]] = np.genfromtxt(filename, skip_header=line_ranges[2,0]-1, max_rows=diff_lines[2,0])[:,[1,2,3]]
+    S[cum_lines[2]:]             = np.genfromtxt(filename, skip_header=line_ranges[3,0]-1, max_rows=diff_lines[3,0])[:,[1,2,3]]
+    S                            = S[S[:,0].argsort(),:]
     
     
     ##########################
     ### Post proc stresses ###
     ##########################
     
-    S_up_L_post    = np.zeros((numnodes, 2))
-    S_up_nL_post   = np.zeros((numnodes, 2))
-    S_down_L_post  = np.zeros((numnodes, 2))
-    S_down_nL_post = np.zeros((numnodes, 2))
-    
-    S_up_L_post[:,0]    = range(1, 1+numnodes)
-    S_up_nL_post[:,0]   = range(1, 1+numnodes)
-    S_down_L_post[:,0]  = range(1, 1+numnodes)
-    S_down_nL_post[:,0] = range(1, 1+numnodes)
+    S_post    = np.zeros((numnodes, 2))
+    S_post[:,0]    = range(1, 1+numnodes)
     
     for i in range(1, 1+numnodes):
-        S_up_L_post[i-1,1]    = np.mean(S_up_L   [np.where(S_up_L   [:,0] == i), 1:][0])*1e3
-        S_up_nL_post[i-1,1]   = np.mean(S_up_nL  [np.where(S_up_nL  [:,0] == i), 1:][0])*1e3
-        S_down_L_post[i-1,1]  = np.mean(S_down_L [np.where(S_down_L [:,0] == i), 1:][0])*1e3
-        S_down_nL_post[i-1,1] = np.mean(S_down_nL[np.where(S_down_nL[:,0] == i), 1:][0])*1e3
+        S_post[i-1,1]    = np.mean(S   [np.where(S[:,0] == i), 1:][0])*1e3
         
     
     ### assign to ribs ###
     
-    arc_coords = np.zeros(np.shape(nodes_ribs))
+    arc_coords = np.zeros(len(nodes_slice))
     
     # sort ribs
-    i = 0
-    for nodes_rib in nodes_ribs:
-        nodes_rib_tmp = nodes[nodes_rib.astype('int')-1]
-        num           = len(nodes_rib_tmp[:,0])
-        
-        cutoff = 1e-12
+    nodes_slice_tmp = all_nodes[nodes_slice.astype('int')-1]
+    num             = len(nodes_slice_tmp[:,0])
     
-        left = nodes_rib_tmp[:,3] > cutoff*np.ones((num))
-        right = nodes_rib_tmp[:,3] < -cutoff*np.ones((num))
-        top = nodes_rib_tmp[:,2] > cutoff*np.ones((num))
-        bottom = nodes_rib_tmp[:,2] < -cutoff*np.ones((num))
-        in_spar=  abs(nodes_rib_tmp[:,3]) < 1e-12*np.ones((num))
+    cutoff = 1e-12
+
+    left = nodes_slice_tmp[:,3] > cutoff*np.ones((num))
+    right = nodes_slice_tmp[:,3] < -cutoff*np.ones((num))
+    top = nodes_slice_tmp[:,2] > cutoff*np.ones((num))
+    bottom = nodes_slice_tmp[:,2] < -cutoff*np.ones((num))
+    in_spar=  abs(nodes_slice_tmp[:,3]) < 1e-12*np.ones((num))
+
+    left         = nodes_slice_tmp[left]
+    left         = np.flipud(left[left[:,2].argsort(),:])
+    right_bottom = nodes_slice_tmp[right * bottom]
+    right_bottom = right_bottom[right_bottom[:,2].argsort(),:]
+    right_top    = nodes_slice_tmp[right * top]
+    right_top    = right_top[right_top[:,2].argsort(),:]
+    spar         = nodes_slice_tmp[in_spar]
+    spar         = np.flipud(spar[spar[:,2].argsort(),:])
+
+    nodes_slice_sort = np.zeros(num)
+    nodes_amounts = [len(left), len(right_bottom), len(right_top), len(spar)]
+    cum_nodes     = np.cumsum(nodes_amounts)    
     
-        left         = nodes_rib_tmp[left]
-        left         = np.flipud(left[left[:,2].argsort(),:])
-        right_bottom = nodes_rib_tmp[right * bottom]
-        right_bottom = right_bottom[right_bottom[:,2].argsort(),:]
-        right_top    = nodes_rib_tmp[right * top]
-        right_top    = right_top[right_top[:,2].argsort(),:]
-        spar         = nodes_rib_tmp[in_spar]
-        spar         = np.flipud(spar[spar[:,2].argsort(),:])
-    
-        nodes_rib_sort = np.zeros(num)
-        nodes_amounts = [len(left), len(right_bottom), len(right_top), len(spar)]
-        cum_nodes     = np.cumsum(nodes_amounts)    
+    nodes_slice_sort[0           :cum_nodes[0]] = left[:,0]
+    nodes_slice_sort[cum_nodes[0]:cum_nodes[1]] = right_bottom[:,0]
+    nodes_slice_sort[cum_nodes[1]:cum_nodes[2]] = right_top[:,0]
+    nodes_slice_sort[cum_nodes[2]:cum_nodes[3]] = spar[:,0]
+    nodes_slice_sort = nodes_slice_sort.astype('int')
         
-        nodes_rib_sort[0           :cum_nodes[0]] = left[:,0]
-        nodes_rib_sort[cum_nodes[0]:cum_nodes[1]] = right_bottom[:,0]
-        nodes_rib_sort[cum_nodes[1]:cum_nodes[2]] = right_top[:,0]
-        nodes_rib_sort[cum_nodes[2]:cum_nodes[3]] = spar[:,0]
-        nodes_rib_sort = nodes_rib_sort.astype('int')
+    j = 0
+    for node in nodes_slice_sort:
+        if j < len(left):
+            # circular section
+            arc_coords[j] = h_a/2 * np.arctan2(nodes[node-1, 3], nodes[node-1, 2])
+        elif j < len(left) + len(right_bottom):
+            arc_coords[j] = np.pi * h_a/2 + np.linalg.norm(nodes[node-1, 2:] - np.array([-h_a/2, 0]))
+        elif j < len(left) + len(right_bottom) + len(right_top):
+            arc_coords[j] = np.pi * h_a/2 + np.linalg.norm(np.array([h_a/2, c_a-h_a/2]))\
+                                            + np.linalg.norm(nodes[node-1, 2:] - np.array([0, -c_a+h_a/2]))
+        else:
+            arc_coords[j] = np.pi * h_a/2 + np.linalg.norm(np.array([h_a/2, c_a-h_a/2]))*2\
+                                            - nodes[node-1, 2] + h_a/2
         
-        nodes_ribs_sort[i] = nodes_rib_sort
+        j = j + 1
         
-        j = 0
-        for node in nodes_rib_sort:
-            if j < len(left):
-                # circular section
-                arc_coords[i,j] = h_a/2 * np.arctan2(nodes[node-1, 3], nodes[node-1, 2])
-            elif j < len(left) + len(right_bottom):
-                arc_coords[i,j] = np.pi * h_a/2 + np.linalg.norm(nodes[node-1, 2:] - np.array([-h_a/2, 0]))
-            elif j < len(left) + len(right_bottom) + len(right_top):
-                arc_coords[i,j] = np.pi * h_a/2 + np.linalg.norm(np.array([h_a/2, c_a-h_a/2]))\
-                                                + np.linalg.norm(nodes[node-1, 2:] - np.array([0, -c_a+h_a/2]))
-            else:
-                arc_coords[i,j] = np.pi * h_a/2 + np.linalg.norm(np.array([h_a/2, c_a-h_a/2]))*2\
-                                                - nodes[node-1, 2] + h_a/2
-            
-            j = j + 1
-            
-        
-        i = i + 1
     
         
-    S_up_L_post_ribA = S_up_L_post[nodes_ribs_sort[0].astype('int')-1, 1]
-    S_up_L_post_ribB = S_up_L_post[nodes_ribs_sort[1].astype('int')-1, 1]
-    S_up_L_post_ribC = S_up_L_post[nodes_ribs_sort[2].astype('int')-1, 1]
-    S_up_L_post_ribD = S_up_L_post[nodes_ribs_sort[3].astype('int')-1, 1]
-    S_up_L_post_ribs = np.zeros((4,num))
-    S_up_L_post_ribs[0,:] = S_up_L_post_ribA
-    S_up_L_post_ribs[1,:] = S_up_L_post_ribB
-    S_up_L_post_ribs[2,:] = S_up_L_post_ribC
-    S_up_L_post_ribs[3,:] = S_up_L_post_ribD
+    S_post_slice = S_post[nodes_slice_sort.astype('int')-1, 1]
+
+
+    return arc_coords, S_post_slice, all_nodes[nodes_slice_sort-1]
+
+
+
+def plotFEMSection(nodes, stresses, title, filename):
     
-    S_up_nL_post_ribA = S_up_nL_post[nodes_ribs_sort[0].astype('int')-1, 1]
-    S_up_nL_post_ribB = S_up_nL_post[nodes_ribs_sort[1].astype('int')-1, 1]
-    S_up_nL_post_ribC = S_up_nL_post[nodes_ribs_sort[2].astype('int')-1, 1]
-    S_up_nL_post_ribD = S_up_nL_post[nodes_ribs_sort[3].astype('int')-1, 1]
-    
-    S_down_L_post_ribA = S_down_L_post[nodes_ribs_sort[0].astype('int')-1, 1]
-    S_down_L_post_ribB = S_down_L_post[nodes_ribs_sort[1].astype('int')-1, 1]
-    S_down_L_post_ribC = S_down_L_post[nodes_ribs_sort[2].astype('int')-1, 1]
-    S_down_L_post_ribD = S_down_L_post[nodes_ribs_sort[3].astype('int')-1, 1]
-    
-    S_down_nL_post_ribA = S_down_nL_post[nodes_ribs_sort[0].astype('int')-1, 1]
-    S_down_nL_post_ribB = S_down_nL_post[nodes_ribs_sort[1].astype('int')-1, 1]
-    S_down_nL_post_ribC = S_down_nL_post[nodes_ribs_sort[2].astype('int')-1, 1]
-    S_down_nL_post_ribD = S_down_nL_post[nodes_ribs_sort[3].astype('int')-1, 1]
-    
-    
-    
-    
-    
-    #######################
-    ### von Mises plots ###
-    #######################
-    
+    plt.ioff()
     
     # scatters
     plt.figure(0, figsize=(7.5, 4.5))
+    plt.clf()
+    
     axs = plt.axes()
-    plt.scatter(nodes[nodes_ribs_sort[0].astype('int')-1,3], nodes[nodes_ribs_sort[0].astype('int')-1,2], c=S_up_L_post_ribA, cmap='jet')
-    plt.title('Validation Data -- von Mises Rib A -- Maximum: %.2f MPa' % np.max(S_up_L_post_ribA))
+    plt.scatter(nodes[:,3], nodes[:,2], c=stresses, cmap='jet')
+    plt.title(title + '-- Maximum: %.2f MPa' % np.max(stresses))
     plt.axis('equal')
     plt.xlabel('z location [mm]')
     plt.ylabel('y location [mm]')
@@ -257,186 +443,9 @@ def InterpretFEM(h_a, c_a):
     plt.tight_layout
     cbar = plt.colorbar()
     cbar.set_label('von Mises stress [MPa]', rotation=90)
-    plt.savefig('Plots/LC1_RibA_scatter.eps', format='eps')
-    
-    plt.figure(1, figsize=(7.5, 4.5))
-    axs = plt.axes()
-    plt.scatter(nodes[nodes_ribs_sort[1].astype('int')-1,3], nodes[nodes_ribs_sort[1].astype('int')-1,2], c=S_up_L_post_ribB, cmap='jet')
-    plt.title('Validation Data -- von Mises Rib B -- Maximum: %.2f MPa' % np.max(S_up_L_post_ribB))
-    plt.axis('equal')
-    plt.xlabel('z location [mm]')
-    plt.ylabel('y location [mm]')
-    axs.invert_xaxis()
-    plt.tight_layout
-    cbar = plt.colorbar()
-    cbar.set_label('von Mises stress [MPa]', rotation=90)
-    plt.savefig('Plots/LC1_RibB_scatter.eps', format='eps')
-    
-    plt.figure(2, figsize=(7.5, 4.5))
-    axs = plt.axes()
-    plt.scatter(nodes[nodes_ribs_sort[2].astype('int')-1,3], nodes[nodes_ribs_sort[2].astype('int')-1,2], c=S_up_L_post_ribC, cmap='jet')
-    plt.title('Validation Data -- von Mises Rib C -- Maximum: %.2f MPa' % np.max(S_up_L_post_ribC))
-    plt.axis('equal')
-    plt.xlabel('z location [mm]')
-    plt.ylabel('y location [mm]')
-    axs.invert_xaxis()
-    plt.tight_layout
-    cbar = plt.colorbar()
-    cbar.set_label('von Mises stress [MPa]', rotation=90)
-    plt.savefig('Plots/LC1_RibC_scatter.eps', format='eps')
-    
-    plt.figure(3, figsize=(7.5, 4.5))
-    axs = plt.axes()
-    plt.scatter(nodes[nodes_ribs_sort[3].astype('int')-1,3], nodes[nodes_ribs_sort[3].astype('int')-1,2], c=S_up_L_post_ribD, cmap='jet')
-    plt.title('Validation Data -- von Mises Rib D -- Maximum: %.2f MPa' % np.max(S_up_L_post_ribD))
-    plt.axis('equal')
-    plt.xlabel('z location [mm]')
-    plt.ylabel('y location [mm]')
-    axs.invert_xaxis()
-    plt.tight_layout
-    cbar = plt.colorbar()
-    cbar.set_label('von Mises stress [MPa]', rotation=90)
-    plt.savefig('Plots/LC1_RibD_scatter.eps', format='eps')
-    
-    
-    #plt.figure(4)
-    #axs = plt.axes()
-    #plt.plot(arc_coords[0], S_up_L_post_ribA, '-x')
-    #plt.xlabel('Tangential Coordinate (traversing CCW) [mm]')
-    #plt.ylabel('Von Mises Stress [MPa]')
-    #plt.title('Rib A: Maximum von Mises: %.2f MPa' % np.max(S_up_L_post_ribA))
-    #plt.tight_layout
-    
-    
-    # lines
-    
-    
-    
-    ########################
-    ### Deflection Plots ###
-    ########################
-    
-    
-    ### Trailing Edge ###
-    
-    TE_xlocs = nodes_TE[:,1]
-    U_up_L_TE  = U_up_L [nodes_TE[:,0].astype('int')-1, :][:,[1,2,3]]
-    U_up_nL_TE = U_up_nL[nodes_TE[:,0].astype('int')-1, :][:,[1,2,3]]
-    
-    U_down_L_TE  = U_down_L [nodes_TE[:,0].astype('int')-1, :][:,[1,2,3]]
-    U_down_nL_TE = U_down_nL[nodes_TE[:,0].astype('int')-1, :][:,[1,2,3]]
-    
-    
-    plt.figure(10, figsize=(8, 6))
-    axs = plt.axes()
-    plt.subplot(211)
-    plt.title('Validation Data -- Global Trailing Edge Deflection -- Maximum: %.2f mm' % np.max(U_up_nL_TE[:,1]))
-    plt.ylabel('y-displacement [mm]')
-    plt.plot(TE_xlocs, U_up_nL_TE[:,1], '-')
-    plt.plot(TE_xlocs, U_up_L_TE[:,1], '-.')
-    plt.legend(['without loads', 'with actuator and aero loads'])
-    
-    plt.subplot(212)
-    plt.xlabel('x location (spanwise) [mm]')
-    plt.ylabel('z-displacement [mm]')
-    plt.plot(TE_xlocs, U_up_nL_TE[:,2])
-    plt.plot(TE_xlocs, U_up_L_TE[:,2], '-.')
-    
-    plt.savefig('Plots/LC1_U_TE.eps', format='eps')
-    
-    
-    correction_up = -26/180*np.pi * (c_a-h_a/2)
-    
-    plt.figure(11, figsize=(8, 6))
-    axs = plt.axes()
-    plt.subplot(211)
-    plt.ylabel('y-displacement [mm]')
-    plt.title('De-rotated Validation Data -- Global Trailing Edge Deflection -- Maximum: %.2f mm' % (np.max(U_up_nL_TE[:,1]) + correction_up))
-    plt.plot(TE_xlocs, U_up_nL_TE[:,1] + correction_up)
-    plt.plot(TE_xlocs, U_up_L_TE[:,1] + correction_up, '-.')
-    plt.legend(['without loads', 'with actuator and aero loads'])
-    
-    plt.subplot(212)
-    plt.xlabel('x location (spanwise) [mm]')
-    plt.ylabel('z-displacement [mm]')
-    plt.plot(TE_xlocs, U_up_nL_TE[:,2])
-    plt.plot(TE_xlocs, U_up_L_TE[:,2], '-.')
-    
-    plt.savefig('Plots/LC1_U_TE_derot.eps', format='eps')
-    
-    
-    
-    ### Leading Edge ###
-    
-    LE_xlocs = nodes_LE[:,1]
-    U_up_L_LE  = U_up_L [nodes_LE[:,0].astype('int')-1, :][:,[1,2,3]]
-    U_up_nL_LE = U_up_nL[nodes_LE[:,0].astype('int')-1, :][:,[1,2,3]]
-    
-    U_down_L_LE  = U_down_L [nodes_LE[:,0].astype('int')-1, :][:,[1,2,3]]
-    U_down_nL_LE = U_down_nL[nodes_LE[:,0].astype('int')-1, :][:,[1,2,3]]
-    
-    
-    plt.figure(12, figsize=(8, 6))
-    axs = plt.axes()
-    plt.subplot(211)
-    plt.ylabel('y-displacement [mm]')
-    plt.title('Validation Data -- Global Leading Edge Deflection -- Maximum: %.2f mm' % np.max(U_up_nL_LE[:,1]))
-    plt.plot(LE_xlocs, U_up_nL_LE[:,1])
-    plt.plot(LE_xlocs, U_up_L_LE[:,1], '-.')
-    plt.legend(['without loads', 'with actuator and aero loads'])
-    
-    plt.subplot(212)
-    plt.xlabel('x location (spanwise) [mm]')
-    plt.ylabel('z-displacement [mm]')
-    plt.plot(LE_xlocs, U_up_nL_LE[:,2])
-    plt.plot(LE_xlocs, U_up_L_LE[:,2], '-.')
-    
-    plt.savefig('Plots/LC1_U_LE.eps', format='eps')
-    
-    #plt.subplot(222)
-    #plt.plot(TE_xlocs, U_down_nL_TE[:,1])
-    #plt.plot(TE_xlocs, U_down_L_TE[:,1])
-    #
-    #plt.subplot(224)
-    #plt.plot(TE_xlocs, U_down_nL_TE[:,2])
-    #plt.plot(TE_xlocs, U_down_L_TE[:,2])
-    
-    correction_up = 26/180*np.pi * (h_a/2)
-    
-    plt.figure(13, figsize=(8, 6))
-    axs = plt.axes()
-    plt.subplot(211)
-    plt.ylabel('y-displacement [mm]')
-    plt.title('De-rotated Validation Data -- Global Leading Edge Deflection -- Maximum: %.2f mm' % (np.max(U_up_nL_LE[:,1]) + correction_up))
-    plt.plot(LE_xlocs, U_up_nL_LE[:,1] + correction_up)
-    plt.plot(LE_xlocs, U_up_L_LE[:,1] + correction_up, '-.')
-    plt.legend(['without loads', 'with actuator and aero loads'])
-    
-    plt.subplot(212)
-    plt.xlabel('x location (spanwise) [mm]')
-    plt.ylabel('z-displacement [mm]')
-    plt.plot(LE_xlocs, U_up_nL_LE[:,2])
-    plt.plot(LE_xlocs, U_up_L_LE[:,2], '-.')
-    
-    
-    plt.savefig('Plots/LC1_U_LE_derot.eps', format='eps')
-    
-    
+    plt.savefig('Plots/'+filename+'.eps', format='eps')
     
     plt.ion()
-
-    return arc_coords, S_up_L_post_ribs
-
-
-
-arc_coordinates, vonMises_ribs = InterpretFEM(h_a, c_a)
-
-
-
-
-
-
-
 
 
 

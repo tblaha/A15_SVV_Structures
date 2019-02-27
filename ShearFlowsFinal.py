@@ -231,7 +231,7 @@ def baseShearFlows(I_zz,I_yy,SFIz,SFIy,B_array,MIx,Z_bar):
                 Shear_Final[i,1]=Qb_y[i,1]+Qb_z[i,1]+x[1]
         
             else:
-                Shear_Final[i,1]=Qb_y[i,1]+Qb_z[i,1]-x[1]+x[0]
+                Shear_Final[i,1]=Qb_y[i,1]+Qb_z[i,1]+x[1]-x[0]
 
         return Shear_Final
             

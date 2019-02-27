@@ -1,0 +1,783 @@
+1
+
+   Abaqus 3DEXPERIENCE R2016x                                  Date 27-Feb-2019   Time 17:25:53
+   For use at FORMULA STUDENT TEAM DELFT under license from Dassault Systemes or its subsidiary.
+
+
+
+                         The Abaqus Software is a product of:
+
+                           Dassault Systemes SIMULIA Corp.
+                           1301 Atwood Avenue, Suite 101W
+                              Johnston, RI 02919, USA
+ 
+
+
+                   Available for internal use at FORMULA STUDENT TEAM DELFT. 
+                   The Abaqus Online Support System is accessible
+                   through the "My Support" section of the SIMULIA
+                   Home Page at http://www.simulia.com.
+
+                   Support policies for academic licenses are described
+                   on the SIMULIA web site at
+                   http://www.3ds.com/products/simulia/academics/
+ 
+                          On machine TillZBookG1 
+                          you are authorized to run
+                          Abaqus/Standard until 02-Sep-2019
+
+                          Your site id is: 200000000059142 
+
+
+ 
+                    For assistance or any other information you may
+                    obtain contact information for your local office
+                    from the world wide web at:
+
+                      http://www.3ds.com/products/simulia/locations/
+
+ 
+                * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 
+                *                                                         * 
+                *                   *****************                     * 
+                *                   *  N O T I C E  *                     * 
+                *                   *****************                     * 
+                *                                                         * 
+                *                                                         * 
+                *                    Abaqus 3DEXPERIENCE R2016x                                   * 
+                *                                                         * 
+                *          BUILD ID: 2015_09_24-22.31.09 126547           * 
+                *                                                         * 
+                *                                                         * 
+                *  Please make sure you are using release 3DEXPERIENCE R2016x manuals    * 
+                *  plus the notes accompanying this release.              * 
+                *                                                         * 
+                *                                                         * 
+                *                                                         * 
+                *                                                         * 
+                *                                                         * 
+                *   This program may not be used for commercial purposes  * 
+                *           without payment of a commercial fee.          * 
+                *                                                         * 
+                * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 
+
+
+ 
+
+
+
+     PROCESSING PART, INSTANCE, AND ASSEMBLY INFORMATION
+   *******************************************************
+
+
+     END PROCESSING PART, INSTANCE, AND ASSEMBLY INFORMATION
+   ***********************************************************
+
+
+
+
+     OPTIONS BEING PROCESSED
+   ***************************
+
+
+  *Heading
+  *Node
+  *Element, type=S4R
+  *Nset, nset=ASSEMBLY_A320-1_SKIN
+  *Nset, nset=ASSEMBLY_A320-1_SPAR
+  *Elset, elset=ASSEMBLY_A320-1_SKIN
+  *Elset, elset=ASSEMBLY_A320-1_SPAR
+  *Node
+  *Nset, nset=ASSEMBLY_HINGE_2
+  *Nset, nset=ASSEMBLY_HINGE_2_CNS_
+  *Nset, nset=ASSEMBLY_M_SET-17
+  *Nset, nset=ASSEMBLY_M_SET-18
+  *Nset, nset=ASSEMBLY_M_SET-19
+  *Nset, nset=ASSEMBLY_M_SET-20
+  *Nset, nset=ASSEMBLY_M_SET-21
+  *Nset, nset=ASSEMBLY_M_SET-22
+  *Nset, nset=ASSEMBLY_M_SET-23
+  *Nset, nset=ASSEMBLY_M_SET-24
+  *Nset, nset=ASSEMBLY_M_SET-25
+  *Nset, nset=ASSEMBLY_M_SET-26
+  *Nset, nset=ASSEMBLY_M_SET-27
+  *Nset, nset=ASSEMBLY_M_SET-28
+  *Nset, nset=ASSEMBLY_M_SET-29
+  *Nset, nset=ASSEMBLY_M_SET-30
+  *Nset, nset=ASSEMBLY_M_SET-31
+  *Nset, nset=ASSEMBLY_M_SET-32
+  *Nset, nset=ASSEMBLY_POINT_10
+  *Nset, nset=ASSEMBLY_POINT_10_CNS_
+  *Nset, nset=ASSEMBLY_POINT_11
+  *Nset, nset=ASSEMBLY_POINT_11_CNS_
+  *Nset, nset=ASSEMBLY_POINT_12
+  *Nset, nset=ASSEMBLY_POINT_12_CNS_
+  *Nset, nset=ASSEMBLY_POINT_13
+  *Nset, nset=ASSEMBLY_POINT_13_CNS_
+  *Nset, nset=ASSEMBLY_POINT_14
+  *Nset, nset=ASSEMBLY_POINT_14_CNS_
+  *Nset, nset=ASSEMBLY_POINT_15
+  *Nset, nset=ASSEMBLY_POINT_15_CNS_
+  *Nset, nset=ASSEMBLY_POINT_16
+  *Nset, nset=ASSEMBLY_POINT_16_CNS_
+  *Nset, nset=ASSEMBLY_POINT_6
+  *Nset, nset=ASSEMBLY_POINT_6_CNS_
+  *Nset, nset=ASSEMBLY_POINT_7
+  *Nset, nset=ASSEMBLY_POINT_7_CNS_
+  *Nset, nset=ASSEMBLY_POINT_8
+  *Nset, nset=ASSEMBLY_POINT_8_CNS_
+  *Nset, nset=ASSEMBLY_POINT_9
+  *Nset, nset=ASSEMBLY_POINT_9_CNS_
+  *Nset, nset=ASSEMBLY_RIB_A
+  *Nset, nset=ASSEMBLY_RIB_A_CNS_
+  *Nset, nset=ASSEMBLY_RIB_B
+  *Nset, nset=ASSEMBLY_RIB_B_CNS_
+  *Nset, nset=ASSEMBLY_RIB_C
+  *Nset, nset=ASSEMBLY_RIB_C_CNS_
+  *Nset, nset=ASSEMBLY_RIB_D
+  *Nset, nset=ASSEMBLY_RIB_D_CNS_
+  *Nset, nset=ASSEMBLY_SET-33
+  *Nset, nset=ASSEMBLY_SET-34
+  *Nset, nset=ASSEMBLY_SET-35
+  *Nset, nset=ASSEMBLY_SET-36
+  *Nset, nset=ASSEMBLY_SET-37
+  *Nset, nset=ASSEMBLY_SET-38
+  *Nset, nset=ASSEMBLY_SET-39
+  *Nset, nset=ASSEMBLY_SET-40
+  *Nset, nset=ASSEMBLY_SET-41
+  *Nset, nset=ASSEMBLY_SET-42
+  *Nset, nset=ASSEMBLY_SET-43
+  *Nset, nset=ASSEMBLY_SET-44
+  *Nset, nset=ASSEMBLY_SET-45
+  *Nset, nset=ASSEMBLY_SET-46
+  *Nset, nset=ASSEMBLY_SET-47
+  *Nset, nset=ASSEMBLY_SET-48
+  *Nset, nset=ASSEMBLY_SET-49
+  *Nset, nset=ASSEMBLY_SET-50
+  *Nset, nset=ASSEMBLY_SET-51
+  *Nset, nset=ASSEMBLY_SET-52
+  *Nset, nset=ASSEMBLY_SET-53
+  *Nset, nset=ASSEMBLY_SET-54
+  *Nset, nset=ASSEMBLY_SET-55
+  *Nset, nset=ASSEMBLY_SET-56
+  *Nset, nset=ASSEMBLY_SET-57
+  *Nset, nset=ASSEMBLY_SET-58
+  *Nset, nset=ASSEMBLY_SET-59
+  *Nset, nset=ASSEMBLY_SET-60
+  *Nset, nset=ASSEMBLY_SET-61
+  *Nset, nset=ASSEMBLY_SET-62
+  *Nset, nset=ASSEMBLY_SET-63
+  *material, name=ALUMINIUM
+  *elastic
+  *shellsection, elset=ASSEMBLY_A320-1_SKIN, material=ALUMINIUM
+  *shellsection, elset=ASSEMBLY_A320-1_SPAR, material=ALUMINIUM
+  *shellsection, elset=ASSEMBLY_A320-1_SKIN, material=ALUMINIUM
+  *shellsection, elset=ASSEMBLY_A320-1_SPAR, material=ALUMINIUM
+  *surface, type=NODE, name=ASSEMBLY_RIB_A_CNS_
+  *surface, type=NODE, name=ASSEMBLY_RIB_B_CNS_
+  *surface, type=NODE, name=ASSEMBLY_HINGE_2_CNS_
+  *surface, type=NODE, name=ASSEMBLY_RIB_C_CNS_
+  *surface, type=NODE, name=ASSEMBLY_RIB_D_CNS_
+  *surface, type=NODE, name=ASSEMBLY_POINT_6_CNS_
+  *surface, type=NODE, name=ASSEMBLY_POINT_7_CNS_
+  *surface, type=NODE, name=ASSEMBLY_POINT_8_CNS_
+  *surface, type=NODE, name=ASSEMBLY_POINT_9_CNS_
+  *surface, type=NODE, name=ASSEMBLY_POINT_10_CNS_
+  *surface, type=NODE, name=ASSEMBLY_POINT_11_CNS_
+  *surface, type=NODE, name=ASSEMBLY_POINT_12_CNS_
+  *surface, type=NODE, name=ASSEMBLY_POINT_13_CNS_
+  *surface, type=NODE, name=ASSEMBLY_POINT_14_CNS_
+  *surface, type=NODE, name=ASSEMBLY_POINT_15_CNS_
+  *surface, type=NODE, name=ASSEMBLY_POINT_16_CNS_
+  *surface, type=NODE, name=ASSEMBLY_RIB_A_CNS_
+  *surface, type=NODE, name=ASSEMBLY_RIB_B_CNS_
+  *surface, type=NODE, name=ASSEMBLY_HINGE_2_CNS_
+  *surface, type=NODE, name=ASSEMBLY_RIB_C_CNS_
+  *surface, type=NODE, name=ASSEMBLY_RIB_D_CNS_
+  *surface, type=NODE, name=ASSEMBLY_POINT_6_CNS_
+  *surface, type=NODE, name=ASSEMBLY_POINT_7_CNS_
+  *surface, type=NODE, name=ASSEMBLY_POINT_8_CNS_
+  *surface, type=NODE, name=ASSEMBLY_POINT_9_CNS_
+  *surface, type=NODE, name=ASSEMBLY_POINT_10_CNS_
+  *surface, type=NODE, name=ASSEMBLY_POINT_11_CNS_
+  *surface, type=NODE, name=ASSEMBLY_POINT_12_CNS_
+  *surface, type=NODE, name=ASSEMBLY_POINT_13_CNS_
+  *surface, type=NODE, name=ASSEMBLY_POINT_14_CNS_
+  *surface, type=NODE, name=ASSEMBLY_POINT_15_CNS_
+  *surface, type=NODE, name=ASSEMBLY_POINT_16_CNS_
+  *boundary
+  *boundary
+  *boundary
+  *boundary
+  *boundary
+  *boundary
+  *boundary
+  *boundary, op=NEW
+  *boundary, op=NEW
+  *boundary, op=NEW
+  *boundary, op=NEW
+  *boundary, op=NEW
+  *boundary, op=NEW
+  *boundary, op=NEW
+  *boundary, op=NEW
+  *boundary, op=NEW
+  *boundary, op=NEW
+  *boundary, op=NEW
+  *boundary, fixed
+  *boundary, op=NEW
+  *boundary, op=NEW
+  *boundary, op=NEW
+  *boundary, op=NEW
+  *boundary, op=NEW
+  *boundary, op=NEW
+  *boundary, op=NEW
+  *boundary, op=NEW
+  *boundary, op=NEW
+  *boundary, op=NEW
+  *boundary, op=NEW
+  *boundary, op=NEW
+  *boundary, op=NEW
+  *boundary, op=NEW
+  *boundary, op=NEW
+  *boundary, op=NEW
+  *boundary, op=NEW
+  *boundary, fixed
+  *boundary
+  *boundary
+  *boundary
+  *boundary
+  *boundary
+  *boundary
+  *boundary
+  *boundary, op=NEW
+  *boundary, op=NEW
+  *boundary, op=NEW
+  *boundary, op=NEW
+  *boundary, op=NEW
+  *boundary, op=NEW
+  *boundary, op=NEW
+  *boundary, op=NEW
+  *boundary, op=NEW
+  *boundary, op=NEW
+  *boundary, op=NEW
+  *mpc
+  *mpc
+  *mpc
+  *mpc
+  *mpc
+  *mpc
+  *mpc
+  *mpc
+  *mpc
+  *mpc
+  *mpc
+  *mpc
+  *mpc
+  *mpc
+  *mpc
+  *mpc
+  *surface, type=NODE, name=ASSEMBLY_RIB_A_CNS_
+  *surface, type=NODE, name=ASSEMBLY_RIB_B_CNS_
+
+ ***NOTE: DUE TO EXCESSIVE REPORTING, THE ECHO OF THE *SURFACE OPTION IS BEING 
+          SUPPRESSED.
+  *output, field
+  *output, history, variable=PRESELECT
+  *output, field
+  *output, history, variable=PRESELECT
+  *output, field
+  *output, history, variable=PRESELECT
+  *output, field
+  *output, history, variable=PRESELECT
+  *elementoutput, directions=YES
+  *elementoutput, directions=YES
+  *elementoutput, directions=YES
+  *elementoutput, directions=YES
+  *output, field
+  *output, history, variable=PRESELECT
+  *output, field
+  *output, history, variable=PRESELECT
+  *output, field
+  *output, history, variable=PRESELECT
+  *output, field
+  *output, history, variable=PRESELECT
+  *elementoutput, directions=YES
+  *elementoutput, directions=YES
+  *elementoutput, directions=YES
+  *elementoutput, directions=YES
+  *output, field
+  *output, history, variable=PRESELECT
+  *output, field
+  *output, history, variable=PRESELECT
+  *output, field
+  *output, history, variable=PRESELECT
+  *output, field
+  *output, history, variable=PRESELECT
+  *elementoutput, directions=YES
+  *elementoutput, directions=YES
+  *elementoutput, directions=YES
+  *elementoutput, directions=YES
+
+ ***WARNING: MPCS (EXTERNAL or INTERNAL, including those generated from rigid 
+             body definitions), KINEMATIC COUPLINGS, AND/OR EQUATIONS WILL 
+             ACTIVATE ADDITIONAL DEGREES OF FREEDOM
+  *Step, name=RotationUp, nlgeom=NO
+  *output, field
+  *output, history, variable=PRESELECT
+  *Step, name=Jam1, nlgeom=NO
+  *output, field
+  *output, history, variable=PRESELECT
+  *Step, name=RotationDown, nlgeom=NO
+  *output, field
+  *output, history, variable=PRESELECT
+  *Step, name=Jam2, nlgeom=NO
+  *output, field
+  *output, history, variable=PRESELECT
+  *Step, name=RotationUp, nlgeom=NO
+  *Step, name=Jam1, nlgeom=NO
+  *Step, name=RotationDown, nlgeom=NO
+  *Step, name=Jam2, nlgeom=NO
+  *Step, name=RotationUp, nlgeom=NO
+  *static
+  *boundary, op=NEW
+  *boundary, op=NEW
+  *boundary, op=NEW
+  *boundary, op=NEW
+  *boundary, op=NEW
+  *boundary, op=NEW
+  *boundary, op=NEW
+  *boundary, op=NEW
+  *boundary, op=NEW
+  *boundary, op=NEW
+  *boundary, op=NEW
+  *output, field
+  *contactoutput
+  *nodeoutput
+  *elementoutput, directions=YES
+  *output, history, variable=PRESELECT
+  *endstep
+
+ ***WARNING: STRAIN OUTPUT REQUEST LE IS NOT VALID FOR SOME ELEMENTS IN THIS 
+             ANALYSIS. THIS REQUEST IS SWITCHED TO THE STRAIN MEASURE, E.
+  *Step, name=Jam1, nlgeom=NO
+  *static
+  *boundary, fixed
+  *output, field
+  *contactoutput
+  *nodeoutput
+  *elementoutput, directions=YES
+  *output, history, variable=PRESELECT
+  *endstep
+
+ ***WARNING: THE REQUEST FOR MISES OUTPUT WILL BE REPLACED BY A REQUEST FOR S 
+             OUTPUT
+
+ ***WARNING: STRAIN OUTPUT REQUEST LE IS NOT VALID FOR SOME ELEMENTS IN THIS 
+             ANALYSIS. THIS REQUEST IS SWITCHED TO THE STRAIN MEASURE, E.
+  *Step, name=RotationDown, nlgeom=NO
+  *static
+  *boundary, op=NEW
+  *boundary, op=NEW
+  *boundary, op=NEW
+  *boundary, op=NEW
+  *boundary, op=NEW
+  *boundary, op=NEW
+  *boundary, op=NEW
+  *boundary, op=NEW
+  *boundary, op=NEW
+  *boundary, op=NEW
+  *boundary, op=NEW
+  *boundary, op=NEW
+  *boundary, op=NEW
+  *boundary, op=NEW
+  *boundary, op=NEW
+  *boundary, op=NEW
+  *boundary, op=NEW
+  *output, field
+  *contactoutput
+  *nodeoutput
+  *elementoutput, directions=YES
+  *output, history, variable=PRESELECT
+  *endstep
+
+ ***WARNING: THE REQUEST FOR MISES OUTPUT WILL BE REPLACED BY A REQUEST FOR S 
+             OUTPUT
+
+ ***WARNING: STRAIN OUTPUT REQUEST LE IS NOT VALID FOR SOME ELEMENTS IN THIS 
+             ANALYSIS. THIS REQUEST IS SWITCHED TO THE STRAIN MEASURE, E.
+  *Step, name=Jam2, nlgeom=NO
+  *static
+  *boundary, fixed
+  *output, field
+  *contactoutput
+  *nodeoutput
+  *elementoutput, directions=YES
+  *output, history, variable=PRESELECT
+  *endstep
+
+ ***WARNING: THE REQUEST FOR MISES OUTPUT WILL BE REPLACED BY A REQUEST FOR S 
+             OUTPUT
+
+ ***WARNING: STRAIN OUTPUT REQUEST LE IS NOT VALID FOR SOME ELEMENTS IN THIS 
+             ANALYSIS. THIS REQUEST IS SWITCHED TO THE STRAIN MEASURE, E.
+  *boundary
+  *boundary
+  *boundary
+  *boundary
+  *boundary
+  *boundary
+  *boundary
+  *Step, name=RotationUp, nlgeom=NO
+  *static
+  *boundary, op=NEW
+  *boundary, op=NEW
+  *boundary, op=NEW
+  *boundary, op=NEW
+  *boundary, op=NEW
+  *boundary, op=NEW
+  *boundary, op=NEW
+  *boundary, op=NEW
+  *boundary, op=NEW
+  *boundary, op=NEW
+  *boundary, op=NEW
+  *endstep
+  *Step, name=Jam1, nlgeom=NO
+  *static
+  *boundary, fixed
+  *cload
+  *cload
+  *cload
+  *cload
+  *cload
+  *cload
+  *cload
+  *cload
+  *cload
+  *cload
+  *cload
+  *cload
+  *endstep
+  *Step, name=RotationDown, nlgeom=NO
+  *static
+  *boundary, op=NEW
+  *boundary, op=NEW
+  *boundary, op=NEW
+  *boundary, op=NEW
+  *boundary, op=NEW
+  *boundary, op=NEW
+  *boundary, op=NEW
+  *boundary, op=NEW
+  *boundary, op=NEW
+  *boundary, op=NEW
+  *boundary, op=NEW
+  *boundary, op=NEW
+  *boundary, op=NEW
+  *boundary, op=NEW
+  *boundary, op=NEW
+  *boundary, op=NEW
+  *boundary, op=NEW
+  *cload, op=NEW
+  *cload, op=NEW
+  *cload, op=NEW
+  *cload, op=NEW
+  *cload, op=NEW
+  *cload, op=NEW
+  *cload, op=NEW
+  *cload, op=NEW
+  *cload, op=NEW
+  *cload, op=NEW
+  *cload, op=NEW
+  *cload, op=NEW
+  *endstep
+  *Step, name=Jam2, nlgeom=NO
+  *static
+  *boundary, fixed
+  *cload
+  *cload
+  *cload
+  *cload
+  *cload
+  *cload
+  *cload
+  *cload
+  *cload
+  *cload
+  *cload
+  *cload
+  *endstep
+
+
+
+                            P R O B L E M   S I Z E
+
+
+          NUMBER OF ELEMENTS IS                                  6608
+          NUMBER OF NODES IS                                     6570
+          NUMBER OF NODES DEFINED BY THE USER                    6570
+          TOTAL NUMBER OF VARIABLES IN THE MODEL                39420
+          (DEGREES OF FREEDOM PLUS MAX NO. OF ANY LAGRANGE MULTIPLIER
+           VARIABLES. INCLUDE *PRINT,SOLVE=YES TO GET THE ACTUAL NUMBER.)
+
+
+
+                              END OF USER INPUT PROCESSING
+
+
+
+     JOB TIME SUMMARY
+       USER TIME (SEC)      =  0.60000    
+       SYSTEM TIME (SEC)    =  0.30000    
+       TOTAL CPU TIME (SEC) =  0.90000    
+       WALLCLOCK TIME (SEC) =          2
+1
+
+   Abaqus 3DEXPERIENCE R2016x                                  Date 27-Feb-2019   Time 17:25:58
+   For use at FORMULA STUDENT TEAM DELFT under license from Dassault Systemes or its subsidiary.
+
+                                                                                               STEP    1  INCREMENT    1
+                                                                                          TIME COMPLETED IN THIS STEP   0.00    
+
+
+                        S T E P       1     S T A T I C   A N A L Y S I S
+
+
+                                                                                          
+
+     AUTOMATIC TIME CONTROL WITH -
+          A SUGGESTED INITIAL TIME INCREMENT OF                 1.00    
+          AND A TOTAL TIME PERIOD OF                            1.00    
+          THE MINIMUM TIME INCREMENT ALLOWED IS                1.000E-05
+          THE MAXIMUM TIME INCREMENT ALLOWED IS                 1.00    
+
+     LINEAR EQUATION SOLVER TYPE         DIRECT SPARSE
+  
+                   M E M O R Y   E S T I M A T E
+  
+ PROCESS      FLOATING PT       MINIMUM MEMORY        MEMORY TO
+              OPERATIONS           REQUIRED          MINIMIZE I/O
+             PER ITERATION           (MB)               (MB)
+  
+     1         4.19E+008               28                 90
+  
+ NOTE:
+      (1) SINCE ABAQUS DOES NOT PRE-ALLOCATE MEMORY AND ONLY ALLOCATES MEMORY AS NEEDED DURING THE ANALYSIS,
+          THE MEMORY REQUIREMENT PRINTED HERE CAN ONLY BE VIEWED AS A GENERAL GUIDELINE BASED ON THE BEST
+          KNOWLEDGE AVAILABLE AT THE BEGINNING OF A STEP BEFORE THE SOLUTION PROCESS HAS BEGUN.
+      (2) THE ESTIMATE IS NORMALLY UPDATED AT THE BEGINNING OF EVERY STEP. IT IS THE MAXIMUM VALUE OF THE
+          ESTIMATE FROM THE CURRENT STEP TO THE LAST STEP OF THE ANALYSIS, WITH UNSYMMETRIC SOLUTION TAKEN
+          INTO ACCOUNT IF APPLICABLE. 
+      (3) SINCE THE ESTIMATE IS BASED ON THE ACTIVE DEGREES OF FREEDOM IN THE FIRST ITERATION OF THE 
+          CURRENT STEP, THE MEMORY ESTIMATE MIGHT BE SIGNIFICANTLY DIFFERENT THAN ACTUAL USAGE FOR 
+          PROBLEMS WITH SUBSTANTIAL CHANGES IN ACTIVE DEGREES OF FREEDOM BETWEEN STEPS (OR EVEN WITHIN
+          THE SAME STEP). EXAMPLES ARE: PROBLEMS WITH SIGNIFICANT CONTACT CHANGES, PROBLEMS WITH MODEL
+          CHANGE, PROBLEMS WITH BOTH STATIC STEP AND STEADY STATE DYNAMIC PROCEDURES WHERE ACOUSTIC 
+          ELEMENTS WILL ONLY BE ACTIVATED IN THE STEADY STATE DYNAMIC STEPS.
+      (4) FOR MULTI-PROCESS EXECUTION, THE ESTIMATED VALUE OF FLOATING POINT OPERATIONS FOR EACH PROCESS
+          IS BASED ON AN INITIAL SCHEDULING OF OPERATIONS AND MIGHT NOT REFLECT THE ACTUAL FLOATING 
+          POINT OPERATIONS COMPLETED ON EACH PROCESS. OPERATIONS ARE DYNAMICALLY BALANCED DURING EXECUTION, 
+          SO THE ACTUAL BALANCE OF OPERATIONS BETWEEN PROCESSES IS EXPECTED TO BE BETTER THAN THE ESTIMATE
+          PRINTED HERE.
+      (5) THE UPPER LIMIT OF MEMORY THAT CAN BE ALLOCATED BY ABAQUS WILL IN GENERAL DEPEND ON THE VALUE OF
+          THE "MEMORY" PARAMETER AND THE AMOUNT OF PHYSICAL MEMORY AVAILABLE ON THE MACHINE. PLEASE SEE
+          THE "ABAQUS ANALYSIS USER'S MANUAL" FOR MORE DETAILS. THE ACTUAL USAGE OF MEMORY AND OF DISK
+          SPACE FOR SCRATCH DATA WILL DEPEND ON THIS UPPER LIMIT AS WELL AS THE MEMORY REQUIRED TO MINIMIZE
+          I/O. IF THE MEMORY UPPER LIMIT IS GREATER THAN THE MEMORY REQUIRED TO MINIMIZE I/O, THEN THE ACTUAL
+          MEMORY USAGE WILL BE CLOSE TO THE ESTIMATED "MEMORY TO MINIMIZE I/O" VALUE, AND THE SCRATCH DISK
+          USAGE WILL BE CLOSE-TO-ZERO; OTHERWISE, THE ACTUAL MEMORY USED WILL BE CLOSE TO THE PREVIOUSLY
+          MENTIONED MEMORY LIMIT, AND THE SCRATCH DISK USAGE WILL BE ROUGHLY PROPORTIONAL TO THE DIFFERENCE
+          BETWEEN THE ESTIMATED "MEMORY TO MINIMIZE I/O" AND THE MEMORY UPPER LIMIT. HOWEVER ACCURATE
+          ESTIMATE OF THE SCRATCH DISK SPACE IS NOT POSSIBLE.
+      (6) USING "*RESTART, WRITE" CAN GENERATE A LARGE AMOUNT OF DATA WRITTEN IN THE WORK DIRECTORY.
+1
+
+   Abaqus 3DEXPERIENCE R2016x                                  Date 27-Feb-2019   Time 17:26:00
+   For use at FORMULA STUDENT TEAM DELFT under license from Dassault Systemes or its subsidiary.
+
+                                                                                               STEP    2  INCREMENT    1
+                                                                                          TIME COMPLETED IN THIS STEP   0.00    
+
+
+                        S T E P       2     S T A T I C   A N A L Y S I S
+
+
+                                                                                          
+
+     AUTOMATIC TIME CONTROL WITH -
+          A SUGGESTED INITIAL TIME INCREMENT OF                 1.00    
+          AND A TOTAL TIME PERIOD OF                            1.00    
+          THE MINIMUM TIME INCREMENT ALLOWED IS                1.000E-05
+          THE MAXIMUM TIME INCREMENT ALLOWED IS                 1.00    
+
+     LINEAR EQUATION SOLVER TYPE         DIRECT SPARSE
+  
+                   M E M O R Y   E S T I M A T E
+  
+ PROCESS      FLOATING PT       MINIMUM MEMORY        MEMORY TO
+              OPERATIONS           REQUIRED          MINIMIZE I/O
+             PER ITERATION           (MB)               (MB)
+  
+     1         4.19E+008               28                 90
+  
+ NOTE:
+      (1) SINCE ABAQUS DOES NOT PRE-ALLOCATE MEMORY AND ONLY ALLOCATES MEMORY AS NEEDED DURING THE ANALYSIS,
+          THE MEMORY REQUIREMENT PRINTED HERE CAN ONLY BE VIEWED AS A GENERAL GUIDELINE BASED ON THE BEST
+          KNOWLEDGE AVAILABLE AT THE BEGINNING OF A STEP BEFORE THE SOLUTION PROCESS HAS BEGUN.
+      (2) THE ESTIMATE IS NORMALLY UPDATED AT THE BEGINNING OF EVERY STEP. IT IS THE MAXIMUM VALUE OF THE
+          ESTIMATE FROM THE CURRENT STEP TO THE LAST STEP OF THE ANALYSIS, WITH UNSYMMETRIC SOLUTION TAKEN
+          INTO ACCOUNT IF APPLICABLE. 
+      (3) SINCE THE ESTIMATE IS BASED ON THE ACTIVE DEGREES OF FREEDOM IN THE FIRST ITERATION OF THE 
+          CURRENT STEP, THE MEMORY ESTIMATE MIGHT BE SIGNIFICANTLY DIFFERENT THAN ACTUAL USAGE FOR 
+          PROBLEMS WITH SUBSTANTIAL CHANGES IN ACTIVE DEGREES OF FREEDOM BETWEEN STEPS (OR EVEN WITHIN
+          THE SAME STEP). EXAMPLES ARE: PROBLEMS WITH SIGNIFICANT CONTACT CHANGES, PROBLEMS WITH MODEL
+          CHANGE, PROBLEMS WITH BOTH STATIC STEP AND STEADY STATE DYNAMIC PROCEDURES WHERE ACOUSTIC 
+          ELEMENTS WILL ONLY BE ACTIVATED IN THE STEADY STATE DYNAMIC STEPS.
+      (4) FOR MULTI-PROCESS EXECUTION, THE ESTIMATED VALUE OF FLOATING POINT OPERATIONS FOR EACH PROCESS
+          IS BASED ON AN INITIAL SCHEDULING OF OPERATIONS AND MIGHT NOT REFLECT THE ACTUAL FLOATING 
+          POINT OPERATIONS COMPLETED ON EACH PROCESS. OPERATIONS ARE DYNAMICALLY BALANCED DURING EXECUTION, 
+          SO THE ACTUAL BALANCE OF OPERATIONS BETWEEN PROCESSES IS EXPECTED TO BE BETTER THAN THE ESTIMATE
+          PRINTED HERE.
+      (5) THE UPPER LIMIT OF MEMORY THAT CAN BE ALLOCATED BY ABAQUS WILL IN GENERAL DEPEND ON THE VALUE OF
+          THE "MEMORY" PARAMETER AND THE AMOUNT OF PHYSICAL MEMORY AVAILABLE ON THE MACHINE. PLEASE SEE
+          THE "ABAQUS ANALYSIS USER'S MANUAL" FOR MORE DETAILS. THE ACTUAL USAGE OF MEMORY AND OF DISK
+          SPACE FOR SCRATCH DATA WILL DEPEND ON THIS UPPER LIMIT AS WELL AS THE MEMORY REQUIRED TO MINIMIZE
+          I/O. IF THE MEMORY UPPER LIMIT IS GREATER THAN THE MEMORY REQUIRED TO MINIMIZE I/O, THEN THE ACTUAL
+          MEMORY USAGE WILL BE CLOSE TO THE ESTIMATED "MEMORY TO MINIMIZE I/O" VALUE, AND THE SCRATCH DISK
+          USAGE WILL BE CLOSE-TO-ZERO; OTHERWISE, THE ACTUAL MEMORY USED WILL BE CLOSE TO THE PREVIOUSLY
+          MENTIONED MEMORY LIMIT, AND THE SCRATCH DISK USAGE WILL BE ROUGHLY PROPORTIONAL TO THE DIFFERENCE
+          BETWEEN THE ESTIMATED "MEMORY TO MINIMIZE I/O" AND THE MEMORY UPPER LIMIT. HOWEVER ACCURATE
+          ESTIMATE OF THE SCRATCH DISK SPACE IS NOT POSSIBLE.
+      (6) USING "*RESTART, WRITE" CAN GENERATE A LARGE AMOUNT OF DATA WRITTEN IN THE WORK DIRECTORY.
+1
+
+   Abaqus 3DEXPERIENCE R2016x                                  Date 27-Feb-2019   Time 17:26:01
+   For use at FORMULA STUDENT TEAM DELFT under license from Dassault Systemes or its subsidiary.
+
+                                                                                               STEP    3  INCREMENT    1
+                                                                                          TIME COMPLETED IN THIS STEP   0.00    
+
+
+                        S T E P       3     S T A T I C   A N A L Y S I S
+
+
+                                                                                          
+
+     AUTOMATIC TIME CONTROL WITH -
+          A SUGGESTED INITIAL TIME INCREMENT OF                 1.00    
+          AND A TOTAL TIME PERIOD OF                            1.00    
+          THE MINIMUM TIME INCREMENT ALLOWED IS                1.000E-05
+          THE MAXIMUM TIME INCREMENT ALLOWED IS                 1.00    
+
+     LINEAR EQUATION SOLVER TYPE         DIRECT SPARSE
+  
+                   M E M O R Y   E S T I M A T E
+  
+ PROCESS      FLOATING PT       MINIMUM MEMORY        MEMORY TO
+              OPERATIONS           REQUIRED          MINIMIZE I/O
+             PER ITERATION           (MB)               (MB)
+  
+     1         4.19E+008               28                 90
+  
+ NOTE:
+      (1) SINCE ABAQUS DOES NOT PRE-ALLOCATE MEMORY AND ONLY ALLOCATES MEMORY AS NEEDED DURING THE ANALYSIS,
+          THE MEMORY REQUIREMENT PRINTED HERE CAN ONLY BE VIEWED AS A GENERAL GUIDELINE BASED ON THE BEST
+          KNOWLEDGE AVAILABLE AT THE BEGINNING OF A STEP BEFORE THE SOLUTION PROCESS HAS BEGUN.
+      (2) THE ESTIMATE IS NORMALLY UPDATED AT THE BEGINNING OF EVERY STEP. IT IS THE MAXIMUM VALUE OF THE
+          ESTIMATE FROM THE CURRENT STEP TO THE LAST STEP OF THE ANALYSIS, WITH UNSYMMETRIC SOLUTION TAKEN
+          INTO ACCOUNT IF APPLICABLE. 
+      (3) SINCE THE ESTIMATE IS BASED ON THE ACTIVE DEGREES OF FREEDOM IN THE FIRST ITERATION OF THE 
+          CURRENT STEP, THE MEMORY ESTIMATE MIGHT BE SIGNIFICANTLY DIFFERENT THAN ACTUAL USAGE FOR 
+          PROBLEMS WITH SUBSTANTIAL CHANGES IN ACTIVE DEGREES OF FREEDOM BETWEEN STEPS (OR EVEN WITHIN
+          THE SAME STEP). EXAMPLES ARE: PROBLEMS WITH SIGNIFICANT CONTACT CHANGES, PROBLEMS WITH MODEL
+          CHANGE, PROBLEMS WITH BOTH STATIC STEP AND STEADY STATE DYNAMIC PROCEDURES WHERE ACOUSTIC 
+          ELEMENTS WILL ONLY BE ACTIVATED IN THE STEADY STATE DYNAMIC STEPS.
+      (4) FOR MULTI-PROCESS EXECUTION, THE ESTIMATED VALUE OF FLOATING POINT OPERATIONS FOR EACH PROCESS
+          IS BASED ON AN INITIAL SCHEDULING OF OPERATIONS AND MIGHT NOT REFLECT THE ACTUAL FLOATING 
+          POINT OPERATIONS COMPLETED ON EACH PROCESS. OPERATIONS ARE DYNAMICALLY BALANCED DURING EXECUTION, 
+          SO THE ACTUAL BALANCE OF OPERATIONS BETWEEN PROCESSES IS EXPECTED TO BE BETTER THAN THE ESTIMATE
+          PRINTED HERE.
+      (5) THE UPPER LIMIT OF MEMORY THAT CAN BE ALLOCATED BY ABAQUS WILL IN GENERAL DEPEND ON THE VALUE OF
+          THE "MEMORY" PARAMETER AND THE AMOUNT OF PHYSICAL MEMORY AVAILABLE ON THE MACHINE. PLEASE SEE
+          THE "ABAQUS ANALYSIS USER'S MANUAL" FOR MORE DETAILS. THE ACTUAL USAGE OF MEMORY AND OF DISK
+          SPACE FOR SCRATCH DATA WILL DEPEND ON THIS UPPER LIMIT AS WELL AS THE MEMORY REQUIRED TO MINIMIZE
+          I/O. IF THE MEMORY UPPER LIMIT IS GREATER THAN THE MEMORY REQUIRED TO MINIMIZE I/O, THEN THE ACTUAL
+          MEMORY USAGE WILL BE CLOSE TO THE ESTIMATED "MEMORY TO MINIMIZE I/O" VALUE, AND THE SCRATCH DISK
+          USAGE WILL BE CLOSE-TO-ZERO; OTHERWISE, THE ACTUAL MEMORY USED WILL BE CLOSE TO THE PREVIOUSLY
+          MENTIONED MEMORY LIMIT, AND THE SCRATCH DISK USAGE WILL BE ROUGHLY PROPORTIONAL TO THE DIFFERENCE
+          BETWEEN THE ESTIMATED "MEMORY TO MINIMIZE I/O" AND THE MEMORY UPPER LIMIT. HOWEVER ACCURATE
+          ESTIMATE OF THE SCRATCH DISK SPACE IS NOT POSSIBLE.
+      (6) USING "*RESTART, WRITE" CAN GENERATE A LARGE AMOUNT OF DATA WRITTEN IN THE WORK DIRECTORY.
+1
+
+   Abaqus 3DEXPERIENCE R2016x                                  Date 27-Feb-2019   Time 17:26:02
+   For use at FORMULA STUDENT TEAM DELFT under license from Dassault Systemes or its subsidiary.
+
+                                                                                               STEP    4  INCREMENT    1
+                                                                                          TIME COMPLETED IN THIS STEP   0.00    
+
+
+                        S T E P       4     S T A T I C   A N A L Y S I S
+
+
+                                                                                          
+
+     AUTOMATIC TIME CONTROL WITH -
+          A SUGGESTED INITIAL TIME INCREMENT OF                 1.00    
+          AND A TOTAL TIME PERIOD OF                            1.00    
+          THE MINIMUM TIME INCREMENT ALLOWED IS                1.000E-05
+          THE MAXIMUM TIME INCREMENT ALLOWED IS                 1.00    
+
+     LINEAR EQUATION SOLVER TYPE         DIRECT SPARSE
+  
+                   M E M O R Y   E S T I M A T E
+  
+ PROCESS      FLOATING PT       MINIMUM MEMORY        MEMORY TO
+              OPERATIONS           REQUIRED          MINIMIZE I/O
+             PER ITERATION           (MB)               (MB)
+  
+     1         4.19E+008               26                 90
+  
+ NOTE:
+      (1) SINCE ABAQUS DOES NOT PRE-ALLOCATE MEMORY AND ONLY ALLOCATES MEMORY AS NEEDED DURING THE ANALYSIS,
+          THE MEMORY REQUIREMENT PRINTED HERE CAN ONLY BE VIEWED AS A GENERAL GUIDELINE BASED ON THE BEST
+          KNOWLEDGE AVAILABLE AT THE BEGINNING OF A STEP BEFORE THE SOLUTION PROCESS HAS BEGUN.
+      (2) THE ESTIMATE IS NORMALLY UPDATED AT THE BEGINNING OF EVERY STEP. IT IS THE MAXIMUM VALUE OF THE
+          ESTIMATE FROM THE CURRENT STEP TO THE LAST STEP OF THE ANALYSIS, WITH UNSYMMETRIC SOLUTION TAKEN
+          INTO ACCOUNT IF APPLICABLE. 
+      (3) SINCE THE ESTIMATE IS BASED ON THE ACTIVE DEGREES OF FREEDOM IN THE FIRST ITERATION OF THE 
+          CURRENT STEP, THE MEMORY ESTIMATE MIGHT BE SIGNIFICANTLY DIFFERENT THAN ACTUAL USAGE FOR 
+          PROBLEMS WITH SUBSTANTIAL CHANGES IN ACTIVE DEGREES OF FREEDOM BETWEEN STEPS (OR EVEN WITHIN
+          THE SAME STEP). EXAMPLES ARE: PROBLEMS WITH SIGNIFICANT CONTACT CHANGES, PROBLEMS WITH MODEL
+          CHANGE, PROBLEMS WITH BOTH STATIC STEP AND STEADY STATE DYNAMIC PROCEDURES WHERE ACOUSTIC 
+          ELEMENTS WILL ONLY BE ACTIVATED IN THE STEADY STATE DYNAMIC STEPS.
+      (4) FOR MULTI-PROCESS EXECUTION, THE ESTIMATED VALUE OF FLOATING POINT OPERATIONS FOR EACH PROCESS
+          IS BASED ON AN INITIAL SCHEDULING OF OPERATIONS AND MIGHT NOT REFLECT THE ACTUAL FLOATING 
+          POINT OPERATIONS COMPLETED ON EACH PROCESS. OPERATIONS ARE DYNAMICALLY BALANCED DURING EXECUTION, 
+          SO THE ACTUAL BALANCE OF OPERATIONS BETWEEN PROCESSES IS EXPECTED TO BE BETTER THAN THE ESTIMATE
+          PRINTED HERE.
+      (5) THE UPPER LIMIT OF MEMORY THAT CAN BE ALLOCATED BY ABAQUS WILL IN GENERAL DEPEND ON THE VALUE OF
+          THE "MEMORY" PARAMETER AND THE AMOUNT OF PHYSICAL MEMORY AVAILABLE ON THE MACHINE. PLEASE SEE
+          THE "ABAQUS ANALYSIS USER'S MANUAL" FOR MORE DETAILS. THE ACTUAL USAGE OF MEMORY AND OF DISK
+          SPACE FOR SCRATCH DATA WILL DEPEND ON THIS UPPER LIMIT AS WELL AS THE MEMORY REQUIRED TO MINIMIZE
+          I/O. IF THE MEMORY UPPER LIMIT IS GREATER THAN THE MEMORY REQUIRED TO MINIMIZE I/O, THEN THE ACTUAL
+          MEMORY USAGE WILL BE CLOSE TO THE ESTIMATED "MEMORY TO MINIMIZE I/O" VALUE, AND THE SCRATCH DISK
+          USAGE WILL BE CLOSE-TO-ZERO; OTHERWISE, THE ACTUAL MEMORY USED WILL BE CLOSE TO THE PREVIOUSLY
+          MENTIONED MEMORY LIMIT, AND THE SCRATCH DISK USAGE WILL BE ROUGHLY PROPORTIONAL TO THE DIFFERENCE
+          BETWEEN THE ESTIMATED "MEMORY TO MINIMIZE I/O" AND THE MEMORY UPPER LIMIT. HOWEVER ACCURATE
+          ESTIMATE OF THE SCRATCH DISK SPACE IS NOT POSSIBLE.
+      (6) USING "*RESTART, WRITE" CAN GENERATE A LARGE AMOUNT OF DATA WRITTEN IN THE WORK DIRECTORY.
+
+
+          THE ANALYSIS HAS BEEN COMPLETED
+
+
+
+                              ANALYSIS COMPLETE
+                              WITH      8 WARNING MESSAGES ON THE DAT FILE
+
+
+
+     JOB TIME SUMMARY
+       USER TIME (SEC)      =   4.8000    
+       SYSTEM TIME (SEC)    =  0.70000    
+       TOTAL CPU TIME (SEC) =   5.5000    
+       WALLCLOCK TIME (SEC) =          6
