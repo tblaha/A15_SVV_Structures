@@ -263,7 +263,7 @@ def shearFlowRib(B, Z_bar, Y_bar, P_1=0., P_2=0., F_z=0., F_y=0.):
 	### END ###
 	
 	return q, q_1, q_2
-
+'''
 # This bit was used for testing.
 import Stiffeners as s
 import Centroid as C
@@ -304,3 +304,4 @@ plt.plot(booms_between_list, q_2_list, 'g-o', label='q_2')
 plt.grid()
 plt.tight_layout()
 plt.show()
+'''

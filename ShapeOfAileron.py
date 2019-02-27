@@ -321,6 +321,9 @@ def shapeOfAileron(x_coords, displ_na, d_theta, Z_bar, plot_aileron=False, plot_
 		plt.plot(x_coords, displ_te[0], label='TE y deflection', marker='^')
 		plt.plot(x_coords, displ_te[1], label='TE z deflection', marker='>')
 		
+		plt.plot(x_coords, displ_na[0], label='NA y deflection', marker='+')
+		plt.plot(x_coords, displ_na[1], label='NA z deflection', marker='x')
+		
 		# Include the legend.
 		plt.legend()
 		
@@ -397,7 +400,7 @@ def shapeOfAileronTest():
 	
 	# And here we run the shapeOfAileron() function and print its outputs.
 	#disp_le_y_max, disp_te_y_max, disp_le_max_x, disp_te_max_x = shapeOfAileron(x_coords, displ_na, d_theta, theta, x_h2, d_a, h_a, c_a, plot=True)
-	disp_le_y_max, disp_te_y_max, disp_le_max_x, disp_te_max_x = shapeOfAileron(x_coords, displ_na, d_theta, Z_bar, plot=True)
+	disp_le_y_max, disp_te_y_max, disp_le_max_x, disp_te_max_x = shapeOfAileron(x_coords, displ_na, d_theta, Z_bar, plot_aileron=True, plot_deflections_theta_0=True, plot_deflections=True)
 	print(disp_le_y_max)
 	print(disp_te_y_max)
 	print(disp_le_max_x)
