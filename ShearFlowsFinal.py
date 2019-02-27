@@ -249,10 +249,9 @@ def baseShearFlows(I_zz,I_yy,SFIz,SFIy,B_array,MIx,Z_bar):
             
     Shear_Final=getFinalShearFlow()
         
-    return Qb_z, Qb_y,B_Distance,Line_Integral_qb_3,A,b,x,Shear_Final
+    return Qb_z, Qb_y,B_Distance,Line_Integral_qb_3,A,b,x,Shear_Final,x[2]
 
 
 
 Shear_Final=baseShearFlows(214.3*10**6,0.00001,0,44500.,B_test,0.,84.)[7]
-print(Shear_Final)
-
+dthetadz=baseShearFlows(214.3*10**6,0.00001,0,44500.,B_test,0.,84.)[8]
