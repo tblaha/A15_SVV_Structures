@@ -18,7 +18,9 @@ from ShapeOfAileron import shapeOfAileron
 from ShearFlowsFinal import baseShearFlows
 from ShearFlowRibs import shearFlowRib
 from Stiffeners import generateStiffeners
-from UniversalConstants import *
+from UniversalConstants import \
+h_a,c_a,n_st,A_st,t_sk,t_sp,Ybar_st,x_h1,x_h2,x_h3,l_a,d_a,p,q,theta,d_1,d_3,E,G 
+from VerInternalLoads import getVerInternalLoads
 from vonMises import *
 from InterpretFEMData import *
 
@@ -32,19 +34,23 @@ span_offset=30 #How concentrated should the points be (Lower is higher concentra
 booms_between=200 #The amount of booms between each centre
 cg_cor_stiffeners=1 #Correct for the stiffeners centroid or not
 
-#Extra outputs
+#plots
 plotBending=False #Plots the bending shape
 plotSpan=False #Plots the distribution of the points in which forces are calculated
 plotInternal=False #Plots the internal shear and moment diagrams
-plotAileron=True #Plots a simplified version of the aileron.
-plotDeflectionsTheta0=True	#Plots the displacements of the LE and TE compared to where they would be if theta was 0 and there was no loading.
-plotDeflections=True #Plots the displacements of the LE and TE compared to where they would be if there was no loading.
+plotVerInternal=True #Plots Internal loads in a diagram with the analytical internal loads
+plotAileron=False #Plots a simplified version of the aileron.
+plotDeflectionsTheta0=False	#Plots the displacements of the LE and TE compared to where they would be if theta was 0 and there was no loading.
+plotDeflections=False #Plots the displacements of the LE and TE compared to where they would be if there was no loading.
+
+
+#prints
 printInfo=False #Prints all chosen variables
 printInputs=False #Prints actual input values for booms_between,span_nodes_between
-printOutputs=True #Prints the actual output of the program
+printOutputs=False #Prints the actual output of the program
 printReactionForces=False #Prints all reaction forces 
-printMOI=True #Prints Moment of Inertia 
- 
+printMOI=False #Prints Moment of Inertia 
+
 
 #Generate stiffener locations
 S_uncor = generateStiffeners(h_a, c_a, n_st, A_st, t_sk, t_sp, Ybar_st, 0)
@@ -125,6 +131,61 @@ if plotInternal:
     
     plt.show ()
 
+if plotVerInternal:
+    if theta==26:
+        case=1
+    elif theta==0:
+        case=0
+    else:
+        case=2
+    xVer,VzVer,VyVer,MyVer,MzVer,MxVer=getVerInternalLoads(case)
+    titleFontSize=14
+    axisFontSize=12
+    plt.subplot(231)
+    plt.plot(span_disc,SFIx,'b')
+    plt.plot(xVer,xVer*[0],'r')
+    plt.xlabel('x-position [mm]', fontsize=axisFontSize)
+    plt.ylabel('Internal force [N]', fontsize=axisFontSize)
+    plt.title('Internal normal force x', fontsize=titleFontSize)
+    
+    plt.subplot(232)
+    plt.plot(span_disc,SFIy,'b')
+    plt.plot(xVer,VyVer,'r')
+    plt.xlabel('x-position [mm]', fontsize=axisFontSize)
+    plt.ylabel('Internal shear force [N]', fontsize=axisFontSize)
+    plt.title('Internal shear force y', fontsize=titleFontSize)
+    
+    plt.subplot(233)
+    plt.plot(span_disc,SFIz,'b')
+    plt.plot(xVer,VzVer,'r')
+    plt.xlabel('x-position [mm]', fontsize=axisFontSize)
+    plt.ylabel('Internal shear force [N]', fontsize=axisFontSize)
+    plt.title('Internal shear force z', fontsize=titleFontSize)
+    
+    plt.subplot(234)
+    plt.plot(span_disc,MIx,'b')
+    plt.plot(xVer,MxVer,'r')
+    plt.xlabel('x-position [mm]', fontsize=axisFontSize)
+    plt.ylabel('Moment [N/mm]', fontsize=axisFontSize)
+    plt.title('Internal moment x', fontsize=titleFontSize)
+    
+    plt.subplot(235)
+    plt.plot(span_disc,MIy,'b',label='Numerical model result')
+    plt.plot(xVer,MyVer,'r',label='Analytical model result')
+    plt.xlabel('x-position [mm]', fontsize=axisFontSize)
+    plt.ylabel('Moment [N/mm]', fontsize=axisFontSize)
+    plt.title('Internal moment y', fontsize=titleFontSize)
+    plt.legend(loc=8)
+    
+    plt.subplot(236)
+    plt.plot(span_disc,MIz,'b')
+    plt.plot(xVer,MzVer,'r')
+    plt.xlabel('x-position [mm]', fontsize=axisFontSize)
+    plt.ylabel('Moment [N/mm]', fontsize=axisFontSize)
+    plt.title('Internal moment z', fontsize=titleFontSize)
+    
+    plt.show ()
+
 ##Compute dtheta dx
 dtdx=np.zeros(len(span_disc))
 for i in range(len(span_disc)):
@@ -148,14 +209,15 @@ Fy[0] = 22.9*1e3
 Fy[2] = 19.4*1e3
 
 ##Compute the shear flow in the ribs
+systemOfEquationsForShearRib = shearFlowRib(cross_disc, z_bar, y_bar)
 #Rib A, Fy1,Fz1
-q_A,q_1_A,q_2_A=shearFlowRib(cross_disc, z_bar, y_bar, P_1=0, P_2=0, F_z=Fz[0], F_y=Fy[0])
+q_A,q_1_A,q_2_A=systemOfEquationsForShearRib.solve(P_1=0, P_2=0, F_z=Fz[0], F_y=Fy[0])
 #Rib B
 q_B,q_1_B,q_2_B=shearFlowRib(cross_disc, z_bar, y_bar, P_1=P_1, P_2=0, F_z=0*Fz[1]*0.5, F_y=0*Fy[1]*0.5)
 #Rib C
 q_C,q_1_C,q_2_C=shearFlowRib(cross_disc, z_bar, y_bar, P_1=0, P_2=p, F_z=0*Fz[1]*0.5, F_y=0*Fy[1]*0.5)
 #Rib D
-q_D,q_1_D,q_2_D=shearFlowRib(cross_disc, z_bar, y_bar, P_1=0, P_2=0, F_z=Fz[2], F_y=Fy[2])
+q_D,q_1_D,q_2_D=systemOfEquationsForShearRib.solve(P_1=0, P_2=0, F_z=Fz[2], F_y=Fy[2])
 
 
 
@@ -189,48 +251,6 @@ for idx in range(len(vM_locs)):
 
 
 
-
-
-
-
-
-#
-#
-#
-#
-###Compute von Mises stresses around the Ribs
-#ribA_idx = sum((span_disc - x_h1-80)         < 0)-1
-#ribB_idx = sum((span_disc - (x_h2-d_a/2)) < 0)-1
-#ribC_idx = sum((span_disc - (x_h2+d_a/2)) < 0)-1
-#ribD_idx = sum((span_disc - x_h3)         < 0)-1
-#
-#dum1,dum2,dum3,dum4,dum5,dum6,dum7,Shear_Final_A = baseShearFlows(I_zz,I_yy,SFIz[ribA_idx],SFIy[ribA_idx],cross_disc,MIx[ribA_idx],z_bar)
-#dum1,dum2,dum3,dum4,dum5,dum6,dum7,Shear_Final_B = baseShearFlows(I_zz,I_yy,SFIz[ribB_idx],SFIy[ribB_idx],cross_disc,MIx[ribB_idx],z_bar)
-#dum1,dum2,dum3,dum4,dum5,dum6,dum7,Shear_Final_C = baseShearFlows(I_zz,I_yy,SFIz[ribC_idx],SFIy[ribC_idx],cross_disc,MIx[ribC_idx],z_bar)
-#dum1,dum2,dum3,dum4,dum5,dum6,dum7,Shear_Final_D = baseShearFlows(I_zz,I_yy,SFIz[ribD_idx],SFIy[ribD_idx],cross_disc,MIx[ribD_idx],z_bar)
-#
-#vonMises_ribA = getVonMises(cross_disc, MIy[ribA_idx], MIz[ribA_idx], I_yy, I_zz, 0*Shear_Final_A[:,1], 0*q_A, t_sk, t_sp)
-#vonMises_ribB = getVonMises(cross_disc, 0*MIy[ribB_idx], 0*MIz[ribB_idx], I_yy, I_zz, Shear_Final_B[:,1], 0*q_B, t_sk, t_sp)
-#vonMises_ribC = getVonMises(cross_disc, 0*MIy[ribC_idx], 0*MIz[ribC_idx], I_yy, I_zz, Shear_Final_C[:,1], 0*q_C, t_sk, t_sp)
-#vonMises_ribD = getVonMises(cross_disc, 0*MIy[ribD_idx], 0*MIz[ribD_idx], I_yy, I_zz, Shear_Final_D[:,1], 0*q_D, t_sk, t_sp)
-#
-#plotVonMises(100, cross_disc, vonMises_ribA, 'A') # only saves plots, doesn't show
-#plotVonMises(101, cross_disc, vonMises_ribB, 'B')
-#plotVonMises(102, cross_disc, vonMises_ribC, 'C')
-#plotVonMises(103, cross_disc, vonMises_ribD, 'D')
-#
-#Qbz,Qby,dum3,dum4,dum5,dum6,dum7,Shear_Final_A = baseShearFlows(I_zz,I_yy,SFIz[ribB_idx],SFIy[ribB_idx],cross_disc,MIx[ribB_idx],z_bar)
-#vonMises_ribB_Qbz = getVonMises(cross_disc, 0*MIy[ribA_idx], 0*MIz[ribA_idx], I_yy, I_zz, Qbz[:,1], 0*q_A, t_sk, t_sp)
-#vonMises_ribB_Qby = getVonMises(cross_disc, 0*MIy[ribA_idx], 0*MIz[ribA_idx], I_yy, I_zz, Qby[:,1], 0*q_A, t_sk, t_sp)
-#plotVonMises(104, cross_disc, vonMises_ribB_Qbz, 'B_Qbz') # only saves plots, doesn't show
-#plotVonMises(105, cross_disc, vonMises_ribB_Qby, 'B_Qby')
-
-
-# basic FEM post processing
-InterpretFEM(h_a, c_a)
-
-
-
 #Print info if enabled
 if printInfo:
     print('The following run had a total of', len(span_disc),\
@@ -254,8 +274,6 @@ if printOutputs:
     print('Magnitude of the maximum shear flow in rib C: ', max(abs(q_C)), '[N/mm]')
     print('Magnitude of the maximum shear flow in rib D: ', max(abs(q_D)), '[N/mm]')
     
-if printReactionForces==True: #Prints all reaction forces 
-    print('Fyh1,2,3,Fzh1,2,3,P_1',Fy,Fz,P_1) 
      
 if printMOI==True: #Prints Moment of Inertia 
     print('Iyy=', I_yy) 
