@@ -254,15 +254,15 @@ def plotCrossSection(B, Balt):
     # show
     plt.show()
       
-    
-S_uncor = generateStiffeners(h_a, c_a, n_st, A_st, t_sk, t_sp, Ybar_st, 0)
-S_cor   = generateStiffeners(h_a, c_a, n_st, A_st, t_sk, t_sp, Ybar_st, 1)
-#
-#for i in range(32,-1,-4):
-bib = 32
-B = discretizeCrossSection(S_cor, S_uncor, h_a, c_a, n_st, A_st, t_sk, t_sp, 0, -98, bib, Ybar_st, 0)
-Balt = discretizeCrossSection(S_cor, S_uncor, h_a, c_a, n_st, A_st, t_sk, t_sp, 0, -98, bib, Ybar_st, 1)
-plotCrossSection(B, Balt)
+#    
+#S_uncor = generateStiffeners(h_a, c_a, n_st, A_st, t_sk, t_sp, Ybar_st, 0)
+#S_cor   = generateStiffeners(h_a, c_a, n_st, A_st, t_sk, t_sp, Ybar_st, 1)
+##
+##for i in range(32,-1,-4):
+#bib = 32
+#B = discretizeCrossSection(S_cor, S_uncor, h_a, c_a, n_st, A_st, t_sk, t_sp, 0, -98, bib, Ybar_st, 0)
+#Balt = discretizeCrossSection(S_cor, S_uncor, h_a, c_a, n_st, A_st, t_sk, t_sp, 0, -98, bib, Ybar_st, 1)
+#plotCrossSection(B, Balt)
 
 def discretizeSpan(x_h1, x_h2, x_h3, d_a, l_a, nodes_between=50,ec=0.0001,offset=30):
     # Takes the spanwise characteristics of the aileron and computes a
