@@ -18,8 +18,9 @@ from ShapeOfAileron import shapeOfAileron
 from ShearFlowsFinal import baseShearFlows
 from ShearFlowRibs import shearFlowRib
 from Stiffeners import generateStiffeners
-from UniversalConstants import \ 
+from UniversalConstants import \
 h_a,c_a,n_st,A_st,t_sk,t_sp,Ybar_st,x_h1,x_h2,x_h3,l_a,d_a,p,q,theta,d_1,d_3,E,G 
+from VerInternalLoads import getVerInternalLoads
 
 #Verification
 VerificationAssumptions=True #Adjusts the program so that the program matches the analytical model as closely as possible.
@@ -31,16 +32,20 @@ span_offset=30 #How concentrated should the points be (Lower is higher concentra
 booms_between=200 #The amount of booms between each centre
 cg_cor_stiffeners=1 #Correct for the stiffeners centroid or not
 
-#Extra outputs
+#plots
 plotBending=False #Plots the bending shape
 plotSpan=False #Plots the distribution of the points in which forces are calculated
-plotInternal=False #Plots the internal shear and moment diagrams
-plotAileron=True #Plots a simplified version of the aileron.
-plotDeflectionsTheta0=True	#Plots the displacements of the LE and TE compared to where they would be if theta was 0 and there was no loading.
-plotDeflections=True #Plots the displacements of the LE and TE compared to where they would be if there was no loading.
+plotInternal=True #Plots the internal shear and moment diagrams
+plotVerInternal=True #Plots Internal loads in a diagram with the analytical internal loads
+plotAileron=False #Plots a simplified version of the aileron.
+plotDeflectionsTheta0=False	#Plots the displacements of the LE and TE compared to where they would be if theta was 0 and there was no loading.
+plotDeflections=False #Plots the displacements of the LE and TE compared to where they would be if there was no loading.
+
+
+#prints
 printInfo=False #Prints all chosen variables
 printInputs=False #Prints actual input values for booms_between,span_nodes_between
-printOutputs=True #Prints the actual output of the program
+printOutputs=False #Prints the actual output of the program
 printReactionForces=False #Prints all reaction forces 
 printMOI=True #Prints Moment of Inertia 
  
@@ -124,25 +129,65 @@ if plotInternal:
     
     plt.show ()
 
-##Compute dtheta dx
-dtdx=np.zeros(len(span_disc))
-for i in range(len(span_disc)):
-    x=span_disc[i]
-    Qb_z, Qb_y,B_Distance,Line_Integral_qb_3,A,b,shear_vec,Shear_Final=baseShearFlows(I_zz,I_yy,SFIz[i],SFIy[i],cross_disc,MIx[i],z_bar)
-    dtdx[i]=shear_vec[2]/(G)
-
-##Compute shape of aileron    
-disp_le_y_max, disp_te_y_max, disp_le_max_x, disp_te_max_x=shapeOfAileron(span_disc, d_yz_vec, dtdx, z_bar, plot_aileron=plotAileron, plot_deflections_theta_0=plotDeflectionsTheta0, plot_deflections=plotDeflections)
-
-##Compute the shear flow in the ribs
-#Rib A, Fy1,Fz1
-q_A,q_1_A,q_2_A=shearFlowRib(cross_disc, z_bar, y_bar, P_1=0, P_2=0, F_z=Fz[0], F_y=Fy[0])
-#Rib B
-q_B,q_1_B,q_2_B=shearFlowRib(cross_disc, z_bar, y_bar, P_1=P_1, P_2=0, F_z=Fz[1]*0.5, F_y=Fy[1]*0.5)
-#Rib C
-q_C,q_1_C,q_2_C=shearFlowRib(cross_disc, z_bar, y_bar, P_1=0, P_2=p, F_z=Fz[1]*0.5, F_y=Fy[1]*0.5)
-#Rib D
-q_D,q_1_D,q_2_D=shearFlowRib(cross_disc, z_bar, y_bar, P_1=0, P_2=0, F_z=Fz[2], F_y=Fy[2])
+if plotVerInternal:
+    if theta==26:
+        case=1
+    elif theta==0:
+        case=0
+    else:
+        case=2
+    xVer,VzVer,VyVer,MyVer,MzVer,MxVer=getVerInternalLoads(case)
+    plt.subplot(231)
+    plt.plot(span_disc,SFIx,'b')
+    plt.title('Internal normal force x')
+    
+    plt.subplot(232)
+    plt.plot(span_disc,SFIy,'b')
+    plt.plot(xVer,VyVer,'r')
+    plt.title('Internal shear force y')
+    
+    plt.subplot(233)
+    plt.plot(span_disc,SFIz,'b')
+    plt.plot(xVer,VzVer,'r')
+    plt.title('Internal shear force z')
+    
+    plt.subplot(234)
+    plt.plot(span_disc,MIx,'b')
+    plt.plot(xVer,MxVer,'r')
+    plt.title('Internal moment x')
+    
+    plt.subplot(235)
+    plt.plot(span_disc,MIz,'b')
+    plt.plot(xVer,MzVer,'r')
+    plt.title('Internal moment z')
+    
+    plt.subplot(236)
+    plt.plot(span_disc,MIy,'b')
+    plt.plot(xVer,MyVer,'r')
+    plt.title('Internal moment y')
+    
+    plt.legend(['b','r'],['Numerical model result','Analytical model result'])
+    plt.show ()
+#
+###Compute dtheta dx
+#dtdx=np.zeros(len(span_disc))
+#for i in range(len(span_disc)):
+#    x=span_disc[i]
+#    Qb_z, Qb_y,B_Distance,Line_Integral_qb_3,A,b,shear_vec,Shear_Final=baseShearFlows(I_zz,I_yy,SFIz[i],SFIy[i],cross_disc,MIx[i],z_bar)
+#    dtdx[i]=shear_vec[2]/(G)
+#
+###Compute shape of aileron    
+#disp_le_y_max, disp_te_y_max, disp_le_max_x, disp_te_max_x=shapeOfAileron(span_disc, d_yz_vec, dtdx, z_bar, plot_aileron=plotAileron, plot_deflections_theta_0=plotDeflectionsTheta0, plot_deflections=plotDeflections)
+#
+###Compute the shear flow in the ribs
+##Rib A, Fy1,Fz1
+#q_A,q_1_A,q_2_A=shearFlowRib(cross_disc, z_bar, y_bar, P_1=0, P_2=0, F_z=Fz[0], F_y=Fy[0])
+##Rib B
+#q_B,q_1_B,q_2_B=shearFlowRib(cross_disc, z_bar, y_bar, P_1=P_1, P_2=0, F_z=Fz[1]*0.5, F_y=Fy[1]*0.5)
+##Rib C
+#q_C,q_1_C,q_2_C=shearFlowRib(cross_disc, z_bar, y_bar, P_1=0, P_2=p, F_z=Fz[1]*0.5, F_y=Fy[1]*0.5)
+##Rib D
+#q_D,q_1_D,q_2_D=shearFlowRib(cross_disc, z_bar, y_bar, P_1=0, P_2=0, F_z=Fz[2], F_y=Fy[2])
 
 #Print info if enabled
 if printInfo:
