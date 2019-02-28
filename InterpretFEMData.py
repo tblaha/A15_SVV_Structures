@@ -186,7 +186,7 @@ def getLETE(h_a, c_a, nodes, filename_pre, version=''):
 
 
 def plotLETE(U_LEs_FEM, U_TEs_FEM, LE_xlocs, TE_xlocs, correction_LE, correction_TE, version = '', span_disc = [], U_LE_Model=[], U_TE_Model=[]):
-     ########################
+    ########################
     ### Deflection Plots ###
     ########################
     
@@ -199,10 +199,10 @@ def plotLETE(U_LEs_FEM, U_TEs_FEM, LE_xlocs, TE_xlocs, correction_LE, correction
         plt.figure(14, figsize=(8, 6))
         axs = plt.axes()
         plt.subplot(211)
-        plt.title('Numerical and Validation Model -- LE Deflection -- Max (Numerical): %.2f mm' % np.max(U_LE_Model[:,1]))
+        plt.title('Numerical and Validation Model -- LE Deflection -- Max (Numerical): %.2f mm' % np.max(U_LE_Model[0,:]))
         plt.ylabel('y-displacement [mm]')
-        plt.plot(LE_xlocs, U_LEs_FEM[1,:,1] + correction_LE, '-')
-        plt.plot(LE_xlocs, U_LEs_FEM[0,:,1] + correction_LE, '-.')
+        plt.plot(LE_xlocs, U_LEs_FEM[1,:,1] + (version != '_V2') * correction_LE, '-')
+        plt.plot(LE_xlocs, U_LEs_FEM[0,:,1] + (version != '_V2') * correction_LE, '-.')
         plt.plot(span_disc, U_LE_Model[0,:], '-x')
         plt.legend(['without loads', 'with actuator and aero loads', 'Numerical Model with loads'])
         
@@ -220,10 +220,10 @@ def plotLETE(U_LEs_FEM, U_TEs_FEM, LE_xlocs, TE_xlocs, correction_LE, correction
         plt.figure(14, figsize=(8, 6))
         axs = plt.axes()
         plt.subplot(211)
-        plt.title('Numerical and Validation Model -- TE Deflection -- Max (Numerical): %.2f mm' % np.max(U_LE_Model[:,1]))
+        plt.title('Numerical and Validation Model -- TE Deflection -- Max (Numerical): %.2f mm' % np.max(U_TE_Model[0,:]))
         plt.ylabel('y-displacement [mm]')
-        plt.plot(TE_xlocs, U_TEs_FEM[1,:,1] + correction_TE, '-')
-        plt.plot(TE_xlocs, U_TEs_FEM[0,:,1] + correction_TE, '-.')
+        plt.plot(TE_xlocs, U_TEs_FEM[1,:,1] + (version != '_V2') * correction_TE, '-')
+        plt.plot(TE_xlocs, U_TEs_FEM[0,:,1] + (version != '_V2') * correction_TE, '-.')
         plt.plot(span_disc, U_TE_Model[0,:], '-x')
         plt.legend(['without loads', 'with actuator and aero loads', 'Numerical Model with loads'])
         

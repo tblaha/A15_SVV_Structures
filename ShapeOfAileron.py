@@ -175,6 +175,58 @@ def shapeOfAileron(x_coords, displ_na, d_theta, Z_bar, plot_aileron=False, plot_
 	# Now we correct the angles we previously calculated by adding the correction.
 	section_thetas = section_thetas + correction_angle
 	
+	displ_le_local = np.zeros((2, len(x_coords)))
+	displ_te_local = np.zeros((2, len(x_coords)))
+	displ_le_global_norot = np.zeros((2, len(x_coords)))
+	displ_te_global_norot = np.zeros((2, len(x_coords)))
+	displ_le_global = np.zeros((2, len(x_coords)))
+	displ_te_global = np.zeros((2, len(x_coords)))
+    
+    # This bit is for rotation about the centroid.
+	if rotate_about == 'centroid':
+        # For the displacements of the LE and TE we use the displacement of the NA and
+    	# add/subtract the displacement of the LE/TE with respect to the NA. For this, we'll also assume that
+    	# the displacement of the hinge line is the same as the displacement of the NA.
+    	# As the angles are taken with respect to the positive z axis, the displacements in the
+    	# z direction are calculated with the cos of the angles times the distance between the
+    	# LE/TE and the NA. The sin is used for the displacements in the y direction.
+    	# The distance between the hinge line and the LE is half the height of the airfoil.
+    	# For a positive angle the LE of the aileron goes down in the y direction. Thus, the
+    	# displacement of the LE in the y direction needs to be subtracted from the displacement
+    	# of the NA in the y direction.
+		displ_le_local[0] = displ_na[0] + np.sin(section_thetas)*((h_a/2.)-Z_bar)
+    	
+    	# As the LE is in fron of the hinge line, the displacement of the LE with respect to the hinge line
+    	# in the z direction should be added to the displacement of the NA in the z direction.
+		displ_le_local[1] = displ_na[1] - (1+np.cos(section_thetas))*((h_a/2.)-Z_bar)
+        
+        # same for TE
+		displ_te_local[0] = displ_na[0] + np.sin(section_thetas)*((c_a - h_a/2.)-Z_bar)
+		displ_te_local[1] = displ_na[1] + (1+np.cos(section_thetas))*((c_a - h_a/2.)-Z_bar)
+	
+	# This bit is for rotation about the hinge.
+	elif rotate_about == 'hinge':
+        # For the displacements of the LE and TE we use the displacement of the NA and
+    	# add/subtract the displacement of the LE/TE with respect to the NA. For this, we'll also assume that
+    	# the displacement of the hinge line is the same as the displacement of the NA.
+    	# As the angles are taken with respect to the positive z axis, the displacements in the
+    	# z direction are calculated with the cos of the angles times the distance between the
+    	# LE/TE and the NA. The sin is used for the displacements in the y direction.
+    	# The distance between the hinge line and the LE is half the height of the airfoil.
+    	# For a positive angle the LE of the aileron goes down in the y direction. Thus, the
+    	# displacement of the LE in the y direction needs to be subtracted from the displacement
+    	# of the NA in the y direction.
+		displ_le_local[0] = displ_na[0] - np.sin(section_thetas)*((h_a/2.))
+    	
+    	# As the LE is in fron of the hinge line, the displacement of the LE with respect to the hinge line
+    	# in the z direction should be added to the displacement of the NA in the z direction.
+		displ_le_local[1] = displ_na[1] - (1-np.cos(section_thetas))*((h_a/2.))
+    
+        # same for TE
+		displ_te_local[0] = displ_na[0] + np.sin(section_thetas)*((c_a - h_a/2.))
+		displ_te_local[1] = displ_na[1] + (1-np.cos(section_thetas))*((c_a - h_a/2.))
+    
+    
 	# The displacements of the NA have been calculated relative to the aileron coordinate system
 	# (centered on the hinge line with the y axis pointing upward, the z axis pointing toward the LE
 	# and the x axis going to the rigth when looking at the aileron head on). As we want to know
@@ -184,76 +236,39 @@ def shapeOfAileron(x_coords, displ_na, d_theta, Z_bar, plot_aileron=False, plot_
 	# angle by adding the angle theta that the NA needs to be rotated with. Do note that this theta
 	# is the nose down angle, which is negative in our coordinate system so we need to change the
 	# sign. Then we'll convert the corrected polar coordinates back in to cartesian coordinates.
-	for i in range(len(displ_na[0])):
+	for i in range(len(displ_le_local[0])):
 		# We calculate the radius by taking the Euclidian norm of the cartesian coordinates.
-		r = np.sqrt(displ_na[0][i]**2 + displ_na[1][i]**2)
+		r_te = np.sqrt(displ_te_local[0][i]**2 + displ_te_local[1][i]**2)
+		r_le = np.sqrt(displ_le_local[0][i]**2 + displ_le_local[1][i]**2)
 		
 		# And calculate the angle by simply using trigonometry. Note that for numpy's arctan2 function,
 		# the y coordinate is passed first and then the z coordinate. This function also takes into account
 		# the signs of the y and z coordinate to get an angle between -pi and pi.
-		angle = np.arctan2(displ_na[0][i], displ_na[1][i])
+		angle_te = np.arctan2(displ_te_local[1][i], displ_te_local[0][i])
+		angle_le = np.arctan2(displ_le_local[1][i], displ_le_local[0][i])
 		
 		# Then we correct the angle by adding theta. Again, mind the sign of theta.
-		angle += -theta_radians
+		angle_te += theta_radians
+		angle_le += theta_radians
 		
 		# And we convert back to cartesian coordinates by using simple trigonometry.
-		displ_na[0][i] = r*np.sin(angle)
-		displ_na[1][i] = r*np.cos(angle)
+		displ_te_global_norot[0][i] = r_te*np.cos(angle_te)
+		displ_te_global_norot[1][i] = r_te*np.sin(angle_te)
+		displ_le_global_norot[0][i] = r_le*np.cos(angle_le)
+		displ_le_global_norot[1][i] = r_le*np.sin(angle_le)
 	
-	# For the displacements of the LE and TE we use the displacement of the NA and
-	# add/subtract the displacement of the LE/TE with respect to the NA. For this, we'll also assume that
-	# the displacement of the hinge line is the same as the displacement of the NA.
-	# As the angles are taken with respect to the positive z axis, the displacements in the
-	# z direction are calculated with the cos of the angles times the distance between the
-	# LE/TE and the NA. The sin is used for the displacements in the y direction.
-	# The distance between the hinge line and the LE is half the height of the airfoil.
-	# For a positive angle the LE of the aileron goes down in the y direction. Thus, the
-	# displacement of the LE in the y direction needs to be subtracted from the displacement
-	# of the NA in the y direction.
-	le_y_coords = displ_na[0] + np.sin(section_thetas)*((h_a/2.)-Z_bar)
 	
-	# As the LE is in fron of the hinge line, the displacement of the LE with respect to the hinge line
-	# in the z direction should be added to the displacement of the NA in the z direction.
-	le_z_coords = displ_na[1] + np.cos(section_thetas)*((h_a/2.)-Z_bar)
-	
-	# The y and z coordinates are then put together in an array.
-	le_coords = np.array([le_y_coords, le_z_coords])
-	
-	# The distance between the hinge line and the TE is the chord length minus the distance
-	# between the LE and hinge line.
-	# The TE will go up in the y direction for a positive angle so we need to add the displacement
-	# in the y direction.
-	te_y_coords = displ_na[0] + np.sin(section_thetas+np.pi)*(c_a - (h_a/2.) + Z_bar)
-	
-	# As the TE is behind the hinge line, the displacement of the TE with respect to the hinge line
-	# in the z direction should be subtracted from the displacement of the NA in the z direction.
-	te_z_coords = displ_na[1] + np.cos(section_thetas+np.pi)*(c_a - (h_a/2.) + Z_bar)
-	
-	# The y and z coordinates are then put together in an array.
-	te_coords = np.array([te_y_coords, te_z_coords])
-	
-	# Now we'll calculate the displacement of the LE/TE as compared to the case when there
+    
+    # Now we'll calculate the displacement of the LE/TE as compared to the case when there
 	# would be no loading. First we'll copy the coordinates array of the LE/TE coordinates
 	# to get the right format of array. Then we'll subtract the coordinates of the LE/TE coordinates
 	# Were there no load.
-	displ_le = le_coords.copy()
-	displ_te = te_coords.copy()
+    
+	displ_le_global[0] = displ_le_global_norot[0] - np.sin(theta_radians)*((h_a/2.))
+	displ_le_global[1] = displ_le_global_norot[1] - (1-np.cos(theta_radians))*((h_a/2.))
 	
-	# This bit is for rotation about the centroid.
-	if rotate_about == 'centroid':
-		displ_le[0] = le_coords[0] - np.sin(-theta_radians)*((h_a/2.)-Z_bar)
-		displ_le[1] = le_coords[1] - np.cos(-theta_radians)*((h_a/2.)-Z_bar)
-		
-		displ_te[0] = te_coords[0] - np.sin(-theta_radians+np.pi)*(c_a - (h_a/2.) + Z_bar)
-		displ_te[1] = te_coords[1] - np.cos(-theta_radians+np.pi)*(c_a - (h_a/2.) + Z_bar)
-	
-	# This bit is for rotation about the hinge.
-	elif rotate_about == 'hinge':
-		displ_le[0] = le_coords[0] - np.sin(-theta_radians)*((h_a/2.))
-		displ_le[1] = le_coords[1] - np.cos(-theta_radians)*((h_a/2.))
-		
-		displ_te[0] = te_coords[0] - np.sin(-theta_radians+np.pi)*(c_a - (h_a/2.))
-		displ_te[1] = te_coords[1] - np.cos(-theta_radians+np.pi)*(c_a - (h_a/2.))
+	displ_te_global[0] = displ_te_global_norot[0] + np.sin(theta_radians)*((c_a-h_a/2.))
+	displ_te_global[1] = displ_te_global_norot[1] - (1-np.cos(theta_radians))*((c_a-h_a/2.))
 	
 	
 	# Here I plot the NA, LE and TE if so desired (if plot is set to True).
@@ -375,15 +390,15 @@ def shapeOfAileron(x_coords, displ_na, d_theta, Z_bar, plot_aileron=False, plot_
 	#The maximum displacement is found by simply taking the maximum of all the y
 	# displacements of the LE/TE. Note that we need to add the abs key to the max()
 	# function to have it take the absolute maximum.
-	disp_le_y_max = max(displ_le[0], key=abs)
-	disp_te_y_max = max(displ_te[0], key=abs)
+	disp_le_y_max = max(displ_le_global[0], key=abs)
+	disp_te_y_max = max(displ_te_global[0], key=abs)
 	
 	# Now the corresponding x coordinate. We find this by looking at the index
 	# that the disp_le_y_max and disp_te_y_max variables have in there cooresponding
 	# arrays. As there is no function to get there index for arrays, we first convert them
 	# into lists.
-	disp_le_max_x_index = list(displ_le[0]).index(disp_le_y_max)
-	disp_te_max_x_index = list(displ_te[0]).index(disp_te_y_max)
+	disp_le_max_x_index = list(displ_le_global[0]).index(disp_le_y_max)
+	disp_te_max_x_index = list(displ_te_global[0]).index(disp_te_y_max)
 	
 	# The index is then used to get the x coordinates.
 	disp_le_max_x = x_coords[disp_le_max_x_index]
@@ -391,7 +406,7 @@ def shapeOfAileron(x_coords, displ_na, d_theta, Z_bar, plot_aileron=False, plot_
 	
 	# Now we return the maximum displacement of the LE and TE in the y direction and the
 	# x coordinates of the corresponding cross-sections.
-	return disp_le_y_max, disp_te_y_max, disp_le_max_x, disp_te_max_x, displ_le, displ_te
+	return disp_le_y_max, disp_te_y_max, disp_le_max_x, disp_te_max_x, displ_le_global, displ_te_global, section_thetas
 
 def shapeOfAileronTest():
 	'''
@@ -420,3 +435,7 @@ def shapeOfAileronTest():
 	print(disp_le_max_x)
 	print(disp_te_max_x)
 #shapeOfAileronTest()
+    
+    
+    
+#disp_le_y_max, disp_te_y_max, disp_le_max_x, disp_te_max_x, displ_le, displ_te = shapeOfAileron(span_disc, d_yz_vec, dtdx, z_bar, plot_aileron=plotAileron, plot_deflections_theta_0=plotDeflectionsTheta0, plot_deflections=plotDeflections)
