@@ -270,7 +270,7 @@ if printInputs:
     print('span_ec=',span_ec)
     print('span_offset=',span_offset)
     print('booms_between=',booms_between)
-    
+    print('cg_cor_stiffeners=',cg_cor_stiffeners)
 #Print output
 if printOutputs:
     print('Maximum displacement in Y of the leading edge: ', disp_le_y_max, '[mm] at X coordinate: ', disp_le_max_x, '[mm]')
@@ -280,6 +280,8 @@ if printOutputs:
     print('Magnitude of the maximum shear flow in rib C: ', max(abs(q_C)), '[N/mm]')
     print('Magnitude of the maximum shear flow in rib D: ', max(abs(q_D)), '[N/mm]')
     
+if printReactionForces==True: #Prints all reaction forces  
+    print('Fyh1,2,3,Fzh1,2,3,P_1',Fy,Fz,P_1)  
           
 if printMOI==True: #Prints Moment of Inertia 
     print('Iyy=', I_yy) 
