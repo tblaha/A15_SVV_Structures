@@ -10,7 +10,7 @@ import matplotlib.pyplot as plt
 
 from Centroid import findCentroid
 from DiscretizationV2 import discretizeCrossSection, discretizeSpan
-from DiscretizationMOI import discretizeCrossSectionMOI #Calculates booms for the verification case
+from DiscretizationMOI import discretizeCrossSectionMOI #Calculates booms for the MOI in the verification case
 from InternalLoads import getInternalLoads
 from MomentOfInertia import momentOfInertia
 from ReactionForcesV2 import sampleBendingShape
@@ -84,7 +84,6 @@ else:
 I_zz,I_yy = momentOfInertia(cross_disc)
     
 ## Get bending and reaction forces
-## don't worry about the magic numbers at the end. I tried including Timoshenko shear deformations, but it doesnt make much of a difference
 d_yz_vec, F_2x, Fy, Fz, P_1 = sampleBendingShape(span_disc, x_h1, x_h2, x_h3, p, d_a, q, theta, c_a, h_a, l_a, d_1, d_3,  E,  I_yy, I_zz, 5/6, 2750e0, G)
 
 
@@ -103,7 +102,7 @@ if plotBending==False:
 
 SFIx, SFIy, SFIz, MIx, MIy, MIz = getInternalLoads(span_disc, F_2x, Fy, Fz, P_1)
 
-#Plot internal loads if enabled
+#Plot internal loads if enabled, 6 plots
 if plotInternal:
     plt.subplot(231)
     plt.plot(span_disc,SFIx)
@@ -131,6 +130,8 @@ if plotInternal:
     
     plt.show ()
 
+#Generates 6 plots, each containing both the Analytical model's values and the 
+#Numerical model's values
 if plotVerInternal:
     if theta==26:
         case=1
@@ -138,6 +139,8 @@ if plotVerInternal:
         case=0
     else:
         case=2
+    #NOTE: Order is not the same as that within VerInternalLoads.py
+    #this is due to an error in the analytical model, do not fix
     xVer,VzVer,VyVer,MyVer,MzVer,MxVer=getVerInternalLoads(case)
     titleFontSize=14
     axisFontSize=12
@@ -272,7 +275,7 @@ if printInputs:
     print('span_ec=',span_ec)
     print('span_offset=',span_offset)
     print('booms_between=',booms_between)
-    
+    print('cg_cor_stiffeners=',cg_cor_stiffeners)
 #Print output
 if printOutputs:
     print('Maximum displacement in Y of the leading edge: ', disp_le_y_max, '[mm] at X coordinate: ', disp_le_max_x, '[mm]')
@@ -282,6 +285,8 @@ if printOutputs:
     print('Magnitude of the maximum shear flow in rib C: ', max(abs(q_C)), '[N/mm]')
     print('Magnitude of the maximum shear flow in rib D: ', max(abs(q_D)), '[N/mm]')
     
+if printReactionForces==True: #Prints all reaction forces  
+    print('Fyh1,2,3,Fzh1,2,3,P_1',Fy,Fz,P_1)  
           
 if printMOI==True: #Prints Moment of Inertia 
     print('Iyy=', I_yy) 

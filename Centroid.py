@@ -16,10 +16,12 @@ def findCentroid(stiffeners):
     #Input is 2D numpy array having [y [mm], z[mm], area[mm2]] 
     #Area being 1 for being to the left of the spar, 2 for being to the right
     #Stiffeners coordinates are origins of the centroids.
+    #Sp=Spar, Sk=Skin, St=Stiffener. Useful abbreviations
     Y_bar=0
 
     #Equation to be used for z_bar is 
     #(Sum of Area*Distance)/(Sum of Area)
+    #Set up the variables to be used
     Area_Sum=0 #Area
     Area_Distance_Sum=0 #Area*Distance
     
@@ -54,7 +56,7 @@ def findCentroid(stiffeners):
     #Semi-circular area centroid is 4r/3pi
     skin_Curved_Z=(4*h)/(m.pi*3)
     
-    #    Add
+    #Add to the sums
     Area_Sum+=(skin_Curved_Area)
     Area_Distance_Sum+=(skin_Curved_Area*skin_Curved_Z)
 
@@ -72,26 +74,3 @@ def findCentroid(stiffeners):
     
     #output
     return Y_bar,Z_bar
-
-#Verifcation data
-#Stiffeners=[[ 109.71864543,  24.86099043,    1.        ],
-# [  70.21178169,   87.90082885,    1.        ],
-# [   0.,          112.5,           1.        ],
-# [ -70.21178169,   87.90082885,    1.        ],
-# [-109.71864543,   24.86099043,    1.        ],
-# [ -99.77801022,  -49.13515163,    2.        ],
-# [ -80.77267494, -122.53797989,    2.        ],
-# [ -61.76733966, -195.94080815,    2.        ],
-# [ -42.76200438, -269.34363641,    2.        ],
-# [ -23.7566691,  -342.74646467,    2.        ],
-# [  -4.75133382, -416.14929293,    2.        ],
-# [   4.75133382, -416.14929293,    2.        ],
-# [  23.7566691,  -342.74646467,    2.        ],
-# [  42.76200438, -269.34363641,    2.        ],
-# [  61.76733966, -195.94080815,    2.        ],
-# [  80.77267494, -122.53797989,    2.        ],
-# [  99.77801022,  -49.13515163,    2.        ]]
-#NoStiffeners=[[]]
-#EasyStiffeners=[[0,-50,0],
-#        [0,-200,0]]
-#print(findCentroid(EasyStiffeners))

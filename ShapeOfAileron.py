@@ -455,6 +455,6 @@ def shapeOfAileronTest():
     
     
     
-disp_le_y_max, disp_te_y_max, disp_le_max_x, disp_te_max_x, displ_le, displ_te, section_thetas = shapeOfAileron(span_disc, d_yz_vec, dtdx, z_bar, plot_aileron=True, plot_deflections_theta_0=True, plot_deflections=True)
+#disp_le_y_max, disp_te_y_max, disp_le_max_x, disp_te_max_x, displ_le, displ_te, section_thetas = shapeOfAileron(span_disc, d_yz_vec, dtdx, z_bar, plot_aileron=True, plot_deflections_theta_0=True, plot_deflections=True)
 
 
