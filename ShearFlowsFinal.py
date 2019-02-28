@@ -158,8 +158,8 @@ def baseShearFlows(I_zz,I_yy,SFIz,SFIy,B_array,MIx,Z_bar):
                 Line_Integral_qb_2_z=Line_Integral_qb_2_z + (np.multiply(Mult_Dist,Qb_z[i,1]))/t_sk
                 
                #Moment
-                Moment_qb_y_2=Moment_qb_y_2 + Qb_y[i,1]*np.cos(theta)*moment_arm_y+Qb_y[i,1]*np.sin(theta)*moment_arm_z
-                Moment_qb_z_2=Moment_qb_z_2 + Qb_z[i,1]*np.cos(theta)*moment_arm_y+Qb_z[i,1]*np.sin(theta)*moment_arm_z
+                Moment_qb_y_2=Moment_qb_y_2 + Qb_y[i,1]*np.cos(theta)*moment_arm_z+Qb_y[i,1]*np.sin(theta)*moment_arm_y
+                Moment_qb_z_2=Moment_qb_z_2 + Qb_z[i,1]*np.cos(theta)*moment_arm_z+Qb_z[i,1]*np.sin(theta)*moment_arm_y
                 
                 
             

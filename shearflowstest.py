@@ -244,14 +244,14 @@ def baseShearFlows(I_zz,I_yy,SFIz,SFIy,B_array,l_Skin_Curved,MIx,Z_bar):
         
         for i in range(len(B_array[:,0])):
             Shear_Final[i,0]=i+1
-            if B_array[i,4]==1:
+            if Qb_y[i,2]==1:
                 Shear_Final[i,1]=Qb_y[i,1]+Qb_z[i,1]+x[0]
             
-            elif B_array[i,4]==2:
+            elif Qb_y[i,2]==2:
                 Shear_Final[i,1]=Qb_y[i,1]+Qb_z[i,1]+x[1]
         
             else:
-                Shear_Final[i,1]=Qb_y[i,1]+Qb_z[i,1]-x[0]+x[1]
+                Shear_Final[i,1]=Qb_y[i,1]+Qb_z[i,1]-x[0]-x[1]
                 
         
         return Shear_Final
@@ -260,7 +260,7 @@ def baseShearFlows(I_zz,I_yy,SFIz,SFIy,B_array,l_Skin_Curved,MIx,Z_bar):
     
     return Qb_z, Qb_y,B_Distance,Line_Integral_qb_3,A,b,x,Shear_Final
 
-x=baseShearFlows(214.3*10**6,0.00001,0.,44500.,B_test,1524.,0.,84.)[6]
+x=baseShearFlows(214.3*10**6,0.00001,0.,44500.,B_test,1524.,0.,84.)[7]
 print(x)
 
 
