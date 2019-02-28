@@ -37,7 +37,7 @@ def getVonMises(xloc, span_disc, cross_disc, SFIz, SFIy, MIx, MIy, MIz, I_yy, I_
     #(xloc, h_a, c_a, filename, all_nodes, rib_nodes=[])
     
     # call shear flow function
-    Qb_z, Qb_y, B_Distance,Line_Integral_qb_3,A,b,shear_vec,Shear_Final=baseShearFlows(I_zz,I_yy,SFIz[x_idx],SFIy[x_idx],cross_disc,MIx[x_idx],z_bar)
+    Qb_z, Qb_y, B_Distance,Line_Integral_qb_3,A,b,shear_vec,Shear_Final=baseShearFlows(I_zz,I_yy,SFIz[x_idx],SFIy[x_idx],cross_disc,-MIx[x_idx],z_bar)
  
     
     # add the shear components
@@ -57,19 +57,17 @@ def getVonMises(xloc, span_disc, cross_disc, SFIz, SFIy, MIx, MIy, MIz, I_yy, I_
     
     # normal stresses do to bending
     Dy = cross_disc[:,0]
-    Dz = cross_disc[:,1]
+    Dz = cross_disc[:,1]-107
     
     i = 0
     for boom in range(len(cross_disc)):
         
         sigmas    = np.zeros(3)
         taus      = np.zeros(3)
-        sigmas[0] = MIy[x_idx] * Dy[i] / I_zz - MIy[x_idx] * Dz[i] / I_yy
+        sigmas[0] = -MIz[x_idx] * Dy[i] / I_zz + MIy[x_idx] * Dz[i] / I_yy
         taus[0]   = total_tau[i]
         
         vonMises_atx[i]      = vonMises(sigmas, taus)
-        vonMises_atx_Qb_y[i] = vonMises(np.zeros(3), np.array([Qb_y[i,1],0,0]))
-        vonMises_atx_Qb_z[i] = vonMises(np.zeros(3), np.array([Qb_z[i,1],0,0]))
         
         i = i + 1
         
@@ -87,16 +85,56 @@ def plotVonMises(B, vonMises_in_ribs, title, filename):
     plt.clf()
     axs = plt.axes()
     
-    plt.scatter(B[:,1], B[:,0], c=vonMises_in_ribs, cmap='jet')
+    plt.scatter(B[:,1], -B[:,0], c=vonMises_in_ribs, cmap='jet')
     plt.title('Numerical Model -- ' + title + ' -- Maximum: %.2f MPa' % np.max(vonMises_in_ribs))
     axs.invert_xaxis()
     plt.axis('equal')
     plt.xlabel('z location [mm]')
     plt.ylabel('y location [mm]')
     cbar = plt.colorbar()
+    plt.clim(-100, 100)
     cbar.set_label('von Mises stress [MPa]', rotation=90)
     
     plt.savefig('Plots/' + filename + '.eps', format='eps')
+    
+    plt.ion()
+    
+    
+def plotVonMisesBoth(B, FEMstresses, NUMstresses, xloc, nodes, title, filename):
+    
+    plt.ioff()
+    
+    plt.figure(200, figsize=(8.5, 4.5))
+    plt.clf()
+    axs = plt.axes()
+    
+    # limit of colorbar (to the next 100MPa)
+    maxcolor = round(50+(max(np.max(FEMstresses), np.max(NUMstresses)), -2))
+    
+    # Numerical
+    plt.subplot(121)
+    plt.title('Val. and Num. Model -- x = %d -- Maximum: %.2f MPa' % (xloc, np.max(NUMstresses)))
+    plt.scatter(B[:,1], -B[:,0], c=NUMstresses, cmap='jet')
+    axs.invert_xaxis()
+    plt.axis('equal')
+    plt.ylabel('y location [mm]')
+    cbar = plt.colorbar()
+    plt.clim(0, maxcolor)
+    cbar.set_label('von Mises stress [MPa]', rotation=90)
+    
+    # FEM
+    plt.subplot(122)
+    plt.scatter(nodes[:,3], nodes[:,2], c=FEMstresses, cmap='jet')
+    plt.axis('equal')
+    plt.xlabel('z location [mm]')
+    plt.ylabel('y location [mm]')
+    axs.invert_xaxis()
+    cbar = plt.colorbar()
+    plt.clim(0,maxcolor)
+    cbar.set_label('von Mises stress [MPa]', rotation=90)
+    
+    plt.tight_layout
+    plt.savefig('Plots/S_LC1_x_%d.eps' % xloc, format='eps')
     
     plt.ion()
     

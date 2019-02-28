@@ -84,10 +84,10 @@ def InterpretFEM(h_a, c_a, version=''):
             if i == 0:
                 # loads
                 title = 'Validation -- von Mises Rib ' + rib_name + ' -- All Loads'
-                filename = 'vonMises_LC1_Rib' + rib_name + version + '_scatter'
+                filename = 'S_LC1_Rib' + rib_name + version + '_scatter_FEM'
             else:
                 title = 'Validation -- von Mises Rib ' + rib_name + ' -- No loads'
-                filename = 'vonMises_R1_Rib' + rib_name + version + '_scatter'
+                filename = 'S_R1_Rib' + rib_name + version + '_scatter_FEM'
                 
             plotFEMSection(nodes_ribA_xyz[j], S_post_ribs[i,j], title, filename)
     
@@ -185,6 +185,9 @@ def getLETE(h_a, c_a, nodes, filename_pre, version=''):
 
 
 
+
+
+
 def plotLETE(U_LEs_FEM, U_TEs_FEM, LE_xlocs, TE_xlocs, correction_LE, correction_TE, version = '', span_disc = [], U_LE_Model=[], U_TE_Model=[]):
     ########################
     ### Deflection Plots ###
@@ -195,121 +198,73 @@ def plotLETE(U_LEs_FEM, U_TEs_FEM, LE_xlocs, TE_xlocs, correction_LE, correction
     
     if len(span_disc):
         
-        ### Leading Edge ###
+        ### Leading Edge comparison ### magnitude
         plt.figure(14, figsize=(8, 6))
+        plt.clf()
         axs = plt.axes()
-        plt.subplot(211)
-        plt.title('Numerical and Validation Model -- LE Deflection -- Max (Numerical): %.2f mm' % np.max(U_LE_Model[0,:]))
-        plt.ylabel('y-displacement [mm]')
-        plt.plot(LE_xlocs, U_LEs_FEM[1,:,1] + (version != '_V2') * correction_LE, '-')
-        plt.plot(LE_xlocs, U_LEs_FEM[0,:,1] + (version != '_V2') * correction_LE, '-.')
-        plt.plot(span_disc, U_LE_Model[0,:], '-x')
-        plt.legend(['without loads', 'with actuator and aero loads', 'Numerical Model with loads'])
+        plt.title('Num. and shifted Val. Model -- LE Deflection Magnitude -- Max (Num.): %.2f mm' % np.max( np.sqrt(U_LE_Model[0,:]**2 + U_LE_Model[1,:]**2) ) )
+        plt.ylabel('Displacement magnitude [mm]', fontsize=14)
+        plt.xlabel('x location (spanwise) [mm]', fontsize=14)
+        plt.plot(LE_xlocs, np.sqrt((U_LEs_FEM[1,:,1]+ (version != '_V2') * correction_LE)**2 + U_LEs_FEM[1,:,2]**2), '-')
+        plt.plot(LE_xlocs, np.sqrt((U_LEs_FEM[0,:,1]+ (version != '_V2') * correction_LE)**2 + U_LEs_FEM[0,:,2]**2), '-.')
+        plt.plot(span_disc, np.sqrt(U_LE_Model[0,:]**2 + U_LE_Model[1,:]**2), '-x')
+        plt.legend(['Val. w/out loads', 'Val. full load case', 'Num. Model full load case'])
+                
+        plt.savefig('Plots/LC1_UM_LE_Model_shifted' + version + '.eps', format='eps')
         
-        plt.subplot(212)
-        plt.xlabel('x location (spanwise) [mm]')
-        plt.ylabel('z-displacement [mm]')
-        plt.plot(LE_xlocs, U_LEs_FEM[1,:,2], '-')
-        plt.plot(LE_xlocs, U_LEs_FEM[0,:,2], '-.')
-        plt.plot(span_disc, U_LE_Model[1,:], '-x')
-        
-        plt.savefig('Plots/LC1_U_LE_Model_correction' + version + '.eps', format='eps')
-        
-        
-        ### Trailing Edge ###
-        plt.figure(14, figsize=(8, 6))
+        ### Trailing Edge comparison ### magnitude
+        plt.figure(15, figsize=(8, 6))
+        plt.clf()
         axs = plt.axes()
-        plt.subplot(211)
-        plt.title('Numerical and Validation Model -- TE Deflection -- Max (Numerical): %.2f mm' % np.max(U_TE_Model[0,:]))
-        plt.ylabel('y-displacement [mm]')
-        plt.plot(TE_xlocs, U_TEs_FEM[1,:,1] + (version != '_V2') * correction_TE, '-')
-        plt.plot(TE_xlocs, U_TEs_FEM[0,:,1] + (version != '_V2') * correction_TE, '-.')
-        plt.plot(span_disc, U_TE_Model[0,:], '-x')
-        plt.legend(['without loads', 'with actuator and aero loads', 'Numerical Model with loads'])
+        plt.title('Num. and shifted Val. Model -- TE Deflection Magnitude -- Max (Num.): %.2f mm' % np.max( np.sqrt(U_TE_Model[0,:]**2 + U_TE_Model[1,:]**2) ) )
+        plt.ylabel('Displacement magnitude [mm]', fontsize=14)
+        plt.xlabel('x location (spanwise) [mm]', fontsize=14)
+        plt.plot(TE_xlocs, np.sqrt((U_TEs_FEM[1,:,1]+ (version != '_V2') * correction_TE)**2 + U_TEs_FEM[1,:,2]**2), '-')
+        plt.plot(TE_xlocs, np.sqrt((U_TEs_FEM[0,:,1]+ (version != '_V2') * correction_TE)**2 + U_TEs_FEM[0,:,2]**2), '-.')
+        plt.plot(span_disc, np.sqrt(U_TE_Model[0,:]**2 + U_TE_Model[1,:]**2), '-x')
+        plt.legend(['Val. w/out loads', 'Val. full load case', 'Num. Model full load case'])
+                
+        plt.savefig('Plots/LC1_UM_TE_Val_Model_shifted' + version + '.eps', format='eps')
+
         
-        plt.subplot(212)
-        plt.xlabel('x location (spanwise) [mm]')
-        plt.ylabel('z-displacement [mm]')
-        plt.plot(TE_xlocs, U_TEs_FEM[1,:,2], '-')
-        plt.plot(TE_xlocs, U_TEs_FEM[0,:,2], '-.')
-        plt.plot(span_disc, U_TE_Model[1,:], '-x')
-        
-        plt.savefig('Plots/LC1_U_TE_Model_correction' + version + '.eps', format='eps')
-        
-    else:
-        ### Leading Edge ###
-        plt.figure(10, figsize=(8, 6))
-        axs = plt.axes()
-        plt.subplot(211)
-        plt.title('Validation Data -- Global Leading Edge Deflection -- Maximum: %.2f mm' % np.max(U_LEs_FEM[1,:,1]))
-        plt.ylabel('y-displacement [mm]')
-        plt.plot(LE_xlocs, U_LEs_FEM[1,:,1], '-')
-        plt.plot(LE_xlocs, U_LEs_FEM[0,:,1], '-.')
-        plt.legend(['without loads', 'with actuator and aero loads'])
-        
-        plt.subplot(212)
-        plt.xlabel('x location (spanwise) [mm]')
-        plt.ylabel('z-displacement [mm]')
-        plt.plot(LE_xlocs, U_LEs_FEM[1,:,2], '-')
-        plt.plot(LE_xlocs, U_LEs_FEM[0,:,2], '-.')
-        
-        plt.savefig('Plots/LC1_U_LE' + version + '.eps', format='eps')
-        
+    ### Leading Edge ###
+    plt.figure(10, figsize=(8, 6))
+    plt.clf()
+    axs = plt.axes()
+    plt.subplot(211)
+    plt.title('Validation Data -- Global LE Deflection -- Maximum: %.2f mm' % np.max(U_LEs_FEM[1,:,1]))
+    plt.ylabel('y-displacement [mm]')
+    plt.plot(LE_xlocs, U_LEs_FEM[1,:,1], '-')
+    plt.plot(LE_xlocs, U_LEs_FEM[0,:,1], '-.')
+    plt.legend(['Val. w/out loads', 'Val. full load case'])
     
-        plt.figure(11, figsize=(8, 6))
-        axs = plt.axes()
-        plt.subplot(211)
-        plt.title('Validation Data -- Global Leading Edge Deflection -- Maximum: %.2f mm' % (np.max(U_LEs_FEM[1,:,1]) + correction_LE))
-        plt.ylabel('y-displacement [mm]')
-        plt.plot(LE_xlocs, U_LEs_FEM[1,:,1] + correction_LE, '-')
-        plt.plot(LE_xlocs, U_LEs_FEM[0,:,1] + correction_LE, '-.')
-        plt.legend(['without loads', 'with actuator and aero loads'])
-        
-        plt.subplot(212)
-        plt.xlabel('x location (spanwise) [mm]')
-        plt.ylabel('z-displacement [mm]')
-        plt.plot(LE_xlocs, U_LEs_FEM[1,:,2], '-')
-        plt.plot(LE_xlocs, U_LEs_FEM[0,:,2], '-.')
-        
-        plt.savefig('Plots/LC1_U_LE_corrected' + version + '.eps', format='eps')
-        
-        
-        
-        ### Trailing Edge ###
-        plt.figure(12, figsize=(8, 6))
-        axs = plt.axes()
-        plt.subplot(211)
-        plt.title('Validation Data -- Global Trailing Edge Deflection -- Maximum: %.2f mm' % np.max(U_TEs_FEM[1,:,1]))
-        plt.ylabel('y-displacement [mm]')
-        plt.plot(TE_xlocs, U_TEs_FEM[1,:,1], '-')
-        plt.plot(TE_xlocs, U_TEs_FEM[0,:,1], '-.')
-        plt.legend(['without loads', 'with actuator and aero loads'])
-        
-        plt.subplot(212)
-        plt.xlabel('x location (spanwise) [mm]')
-        plt.ylabel('z-displacement [mm]')
-        plt.plot(TE_xlocs, U_TEs_FEM[1,:,2], '-')
-        plt.plot(TE_xlocs, U_TEs_FEM[0,:,2], '-.')
-        
-        plt.savefig('Plots/LC1_U_TE' + version + '.eps', format='eps')
-        
+    plt.subplot(212)
+    plt.xlabel('x location (spanwise) [mm]')
+    plt.ylabel('z-displacement [mm]')
+    plt.plot(LE_xlocs, U_LEs_FEM[1,:,2], '-')
+    plt.plot(LE_xlocs, U_LEs_FEM[0,:,2], '-.')
     
-        plt.figure(13, figsize=(8, 6))
-        axs = plt.axes()
-        plt.subplot(211)
-        plt.title('Validation Data -- Global Trailing Edge Deflection -- Maximum: %.2f mm' % (np.max(U_TEs_FEM[1,:,1]) + correction_TE))
-        plt.ylabel('y-displacement [mm]')
-        plt.plot(TE_xlocs, U_TEs_FEM[1,:,1] + correction_TE, '-')
-        plt.plot(TE_xlocs, U_TEs_FEM[0,:,1] + correction_TE, '-.')
-        plt.legend(['without loads', 'with actuator and aero loads'])
-        
-        plt.subplot(212)
-        plt.xlabel('x location (spanwise) [mm]')
-        plt.ylabel('z-displacement [mm]')
-        plt.plot(TE_xlocs, U_TEs_FEM[1,:,2], '-')
-        plt.plot(TE_xlocs, U_TEs_FEM[0,:,2], '-.')
-        
-        plt.savefig('Plots/LC1_U_TE_corrected' + version + '.eps', format='eps')
+    plt.savefig('Plots/LC1_UYZ_LE_Val' + version + '.eps', format='eps')
+    
+    
+    ### Trailing Edge ###
+    plt.figure(11, figsize=(8, 6))
+    plt.clf()
+    axs = plt.axes()
+    plt.subplot(211)
+    plt.title('Validation Data -- Global TE Deflection -- Maximum: %.2f mm' % np.max(U_TEs_FEM[1,:,1]))
+    plt.ylabel('y-displacement [mm]')
+    plt.plot(TE_xlocs, U_TEs_FEM[1,:,1], '-')
+    plt.plot(TE_xlocs, U_TEs_FEM[0,:,1], '-.')
+    plt.legend(['Val. w/out loads', 'Val. full load case'])
+    
+    plt.subplot(212)
+    plt.xlabel('x location (spanwise) [mm]')
+    plt.ylabel('z-displacement [mm]')
+    plt.plot(TE_xlocs, U_TEs_FEM[1,:,2], '-')
+    plt.plot(TE_xlocs, U_TEs_FEM[0,:,2], '-.')
+    
+    plt.savefig('Plots/LC1_UYZ_TE_Val' + version + '.eps', format='eps')
     
     
     plt.ion()
@@ -442,6 +397,7 @@ def plotFEMSection(nodes, stresses, title, filename):
     axs.invert_xaxis()
     plt.tight_layout
     cbar = plt.colorbar()
+    plt.clim(0,100)
     cbar.set_label('von Mises stress [MPa]', rotation=90)
     plt.savefig('Plots/'+filename+'.eps', format='eps')
     

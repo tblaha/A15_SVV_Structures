@@ -257,24 +257,34 @@ def shapeOfAileron(x_coords, displ_na, d_theta, Z_bar, plot_aileron=False, plot_
 		displ_le_global_norot[0][i] = r_le*np.cos(angle_le)
 		displ_le_global_norot[1][i] = r_le*np.sin(angle_le)
 	
-	
+    
     
     # Now we'll calculate the displacement of the LE/TE as compared to the case when there
 	# would be no loading. First we'll copy the coordinates array of the LE/TE coordinates
 	# to get the right format of array. Then we'll subtract the coordinates of the LE/TE coordinates
 	# Were there no load.
     
-	displ_le_global[0] = displ_le_global_norot[0] - np.sin(theta_radians)*((h_a/2.))
+	displ_le_global[0] = displ_le_global_norot[0] -    np.sin(theta_radians)*((h_a/2.))
 	displ_le_global[1] = displ_le_global_norot[1] - (1-np.cos(theta_radians))*((h_a/2.))
 	
-	displ_te_global[0] = displ_te_global_norot[0] + np.sin(theta_radians)*((c_a-h_a/2.))
+	displ_te_global[0] = displ_te_global_norot[0] +    np.sin(theta_radians)*((c_a-h_a/2.))
 	displ_te_global[1] = displ_te_global_norot[1] - (1-np.cos(theta_radians))*((c_a-h_a/2.))
 	
+    
+    # add natural coordinates of the leading and trailing edge to get the full coordinates
+	le_coords = np.zeros(np.shape(displ_le_global))
+	le_coords[0] = displ_le_global[0] + 0.
+	le_coords[1] = displ_le_global[1] + -h_a/2.
+	te_coords = np.zeros(np.shape(displ_te_global))
+	te_coords[0] = displ_te_global[0] + 0.
+	te_coords[1] = displ_te_global[1] + c_a-h_a/2.
+    
 	
 	# Here I plot the NA, LE and TE if so desired (if plot is set to True).
 	if plot_aileron:
 		# Make the figure and create a 3D axes object.
-		fig = plt.figure()
+		fig = plt.figure(301)
+		plt.clf()
 		ax = fig.add_subplot(111, projection='3d')
 		
 		# To make the aileron be oriented correctly in the plot, we need to
@@ -344,11 +354,14 @@ def shapeOfAileron(x_coords, displ_na, d_theta, Z_bar, plot_aileron=False, plot_
 	# the TE and LE as compared to there positions if there was no loading and
 	# theta was 0.
 	if plot_deflections_theta_0:
+		fig = plt.figure(302)
+		plt.clf()
+        
 		# Plot the LE/TE displacements.
-		plt.plot(x_coords, displ_le[0], label='LE y deflection', marker='v')
-		plt.plot(x_coords, displ_le[1], label='LE z deflection', marker='<')
-		plt.plot(x_coords, displ_te[0], label='TE y deflection', marker='^')
-		plt.plot(x_coords, displ_te[1], label='TE z deflection', marker='>')
+		plt.plot(x_coords, displ_le_global[0], label='LE y deflection', marker='v')
+		plt.plot(x_coords, displ_le_global[1], label='LE z deflection', marker='<')
+		plt.plot(x_coords, displ_te_global[0], label='TE y deflection', marker='^')
+		plt.plot(x_coords, displ_te_global[1], label='TE z deflection', marker='>')
 		
 		plt.plot(x_coords, displ_na[0], label='NA y deflection', marker='+')
 		plt.plot(x_coords, displ_na[1], label='NA z deflection', marker='x')
@@ -369,6 +382,9 @@ def shapeOfAileron(x_coords, displ_na, d_theta, Z_bar, plot_aileron=False, plot_
 	# This thing will make a plot of the displacements in z and y of
 	# the TE and LE as compared to there positions if there was no loading.
 	if plot_deflections:
+		fig = plt.figure(303)
+		plt.clf()
+        
 		# Plot the LE/TE coordinates.
 		plt.plot(x_coords, le_coords[0], label='LE y position', marker='v')
 		plt.plot(x_coords, le_coords[1], label='LE z position', marker='<')
@@ -438,4 +454,7 @@ def shapeOfAileronTest():
     
     
     
-#disp_le_y_max, disp_te_y_max, disp_le_max_x, disp_te_max_x, displ_le, displ_te = shapeOfAileron(span_disc, d_yz_vec, dtdx, z_bar, plot_aileron=plotAileron, plot_deflections_theta_0=plotDeflectionsTheta0, plot_deflections=plotDeflections)
+    
+disp_le_y_max, disp_te_y_max, disp_le_max_x, disp_te_max_x, displ_le, displ_te, section_thetas = shapeOfAileron(span_disc, d_yz_vec, dtdx, z_bar, plot_aileron=True, plot_deflections_theta_0=True, plot_deflections=True)
+
+

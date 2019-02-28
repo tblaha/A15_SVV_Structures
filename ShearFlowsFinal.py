@@ -160,8 +160,8 @@ def baseShearFlows(I_zz,I_yy,SFIz,SFIy,B_array,MIx,Z_bar):
                 Line_Integral_qb_2_z=Line_Integral_qb_2_z + (np.multiply(Mult_Dist,Qb_z[i,1]))/t_sk
                 
                #Moment
-                Moment_qb_y_2=Moment_qb_y_2 + Qb_y[i,1]*np.cos(theta)*moment_arm_y+Qb_y[i,1]*np.sin(theta)*moment_arm_z
-                Moment_qb_z_2=Moment_qb_z_2 + Qb_z[i,1]*np.cos(theta)*moment_arm_y+Qb_z[i,1]*np.sin(theta)*moment_arm_z
+                Moment_qb_y_2=Moment_qb_y_2 + Qb_y[i,1]*np.cos(theta)*moment_arm_z+Qb_y[i,1]*np.sin(theta)*moment_arm_y
+                Moment_qb_z_2=Moment_qb_z_2 + Qb_z[i,1]*np.cos(theta)*moment_arm_z+Qb_z[i,1]*np.sin(theta)*moment_arm_y
                 
                 
             
@@ -239,12 +239,16 @@ def baseShearFlows(I_zz,I_yy,SFIz,SFIy,B_array,MIx,Z_bar):
             Shear_Final[i,0]=i+1
             if B_array[i,4]==1:
                 Shear_Final[i,1]=Qb_y[i,1]+Qb_z[i,1]+x[0]
+#                Shear_Final[i,1]=Qb_y[i,1]+Qb_z[i,1]
             
             elif B_array[i,4]==2:
                 Shear_Final[i,1]=Qb_y[i,1]+Qb_z[i,1]+x[1]
+#                Shear_Final[i,1]=Qb_y[i,1]+Qb_z[i,1]
         
             else:
-                Shear_Final[i,1]=Qb_y[i,1]+Qb_z[i,1]+x[1]-x[0]
+                Shear_Final[i,1]=Qb_y[i,1]+Qb_z[i,1]-x[1]+x[0] # makes spar 0
+#                Shear_Final[i,1]=Qb_y[i,1]+Qb_z[i,1]+x[1]-x[0]
+#                Shear_Final[i,1]=Qb_y[i,1]+Qb_z[i,1]
 
         return Shear_Final
             
