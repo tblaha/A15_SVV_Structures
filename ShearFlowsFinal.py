@@ -119,10 +119,8 @@ def baseShearFlows(I_zz,I_yy,SFIz,SFIy,B_array,MIx,Z_bar):
             #Distance between each boom. 
             #FORMAT: / i number / y-direction / z-direction / ID /
             if i==len(B_array[:,0])-1:
-                B_Distance[i,1]=B_Distance[i,1]
                 B_Distance[i,2]=0.
-                midpoint_y=0
-                midpoint_z=0
+               
             else:
                 B_Distance[i+1,1]=abs(B_array[i+1,0]-B_array[i,0])
                 B_Distance[i+1,2]=abs(B_array[i+1,1]-B_array[i,1])
