@@ -69,7 +69,7 @@ plt.grid()
 plt.xlabel('Number of Booms')
 plt.ylabel('I_yy (mm^4)')
 plt.rc('font',size=40)    
-plt.rc('axes',size=40)
+plt.rc('axes',size=30)
 
 #plt.plot(range(max_booms),Iyyactual*np.ones((max_booms,1)))
 #plt.show()
