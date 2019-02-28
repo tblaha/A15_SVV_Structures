@@ -1215,3 +1215,15 @@ odb = session.odbs['D:/Documents/Studium/AA_Courses/Semester_6/SVV/A15_SVV_Struc
 session.writeFieldReport(fileName='A320_ULC1.rpt', append=OFF, 
     sortItem='Node Label', odb=odb, step=1, frame=1, outputPosition=NODAL, 
     variable=(('RF', NODAL), ('U', NODAL), ))
+session.viewports['Viewport: 1'].odbDisplay.setFrame(step=0, frame=1)
+odb = session.odbs['D:/Documents/Studium/AA_Courses/Semester_6/SVV/A15_SVV_Structures/FEMDataV2/Job-1.odb']
+session.writeFieldReport(fileName='A320_SR1_V2.rpt', append=OFF, 
+    sortItem='Node Label', odb=odb, step=0, frame=1, 
+    outputPosition=ELEMENT_NODAL, variable=(('S', INTEGRATION_POINT, ((
+    INVARIANT, 'Mises'), )), ))
+odb = session.odbs['D:/Documents/Studium/AA_Courses/Semester_6/SVV/A15_SVV_Structures/FEMDataV2/Job-1.odb']
+session.writeFieldReport(fileName='A320_UR1_V2.rpt', append=OFF, 
+    sortItem='Node Label', odb=odb, step=0, frame=1, outputPosition=NODAL, 
+    variable=(('RF', NODAL), ('U', NODAL), ))
+mdb.save()
+#: The model database has been saved to "D:\Documents\Studium\AA_Courses\Semester_6\SVV\A15_SVV_Structures\FEMDataV2\A320_V2.cae".

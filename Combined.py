@@ -196,11 +196,18 @@ for i in range(len(span_disc)):
 
 
 ##Interpret the FEM (saves plots without showing them)
-arc_coordinates, vonMises_ribs = InterpretFEM(h_a, c_a)
+arc_coords, S_post_ribs, U_LEs_FEM, U_TEs_FEM, LE_xlocs, TE_xlocs, correction_LE, correction_TE = InterpretFEM(h_a, c_a)
+#arc_coords, S_post_ribs, U_LEs_FEM, U_TEs_FEM, LE_xlocs, TE_xlocs, correction_LE, correction_TE = InterpretFEM(h_a, c_a, '_V2')
+
 
 
 ##Compute shape of aileron    
-disp_le_y_max, disp_te_y_max, disp_le_max_x, disp_te_max_x=shapeOfAileron(span_disc, d_yz_vec, dtdx, z_bar, plot_aileron=plotAileron, plot_deflections_theta_0=plotDeflectionsTheta0, plot_deflections=plotDeflections)
+disp_le_y_max, disp_te_y_max, disp_le_max_x, disp_te_max_x, displ_le, displ_te=shapeOfAileron(span_disc, d_yz_vec, dtdx, z_bar, plot_aileron=plotAileron, plot_deflections_theta_0=plotDeflectionsTheta0, plot_deflections=plotDeflections)
+plotLETE(U_LEs_FEM, U_TEs_FEM, LE_xlocs, TE_xlocs, correction_LE, correction_TE, '', span_disc, displ_le, displ_te)
+
+
+##compare deflection FEM to analytical
+
 
 
 ##Compute the shear flow in the ribs

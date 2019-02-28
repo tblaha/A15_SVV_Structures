@@ -10,7 +10,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 
-def InterpretFEM(h_a, c_a):
+def InterpretFEM(h_a, c_a, version=''):
     
     ###########################
     ### Get nodal locations ###
@@ -56,16 +56,16 @@ def InterpretFEM(h_a, c_a):
     nodes_ribA_xyz = np.zeros(( 4, len(nodes_ribA), 4 ))
     
     # up loads
-    arc_coords[0,0], S_post_ribs[0,0], nodes_ribA_xyz[0] = getFEMSection(-1, h_a, c_a, 'FEMData/A320_SLC1.rpt', nodes, nodes_ribA)
-    arc_coords[0,1], S_post_ribs[0,1], nodes_ribA_xyz[1] = getFEMSection(-1, h_a, c_a, 'FEMData/A320_SLC1.rpt', nodes, nodes_ribB)
-    arc_coords[0,2], S_post_ribs[0,2], nodes_ribA_xyz[2] = getFEMSection(-1, h_a, c_a, 'FEMData/A320_SLC1.rpt', nodes, nodes_ribC)
-    arc_coords[0,3], S_post_ribs[0,3], nodes_ribA_xyz[3] = getFEMSection(-1, h_a, c_a, 'FEMData/A320_SLC1.rpt', nodes, nodes_ribD)
+    arc_coords[0,0], S_post_ribs[0,0], nodes_ribA_xyz[0] = getFEMSection(-1, h_a, c_a, 'FEMData/A320_SLC1' + version + '.rpt', nodes, nodes_ribA)
+    arc_coords[0,1], S_post_ribs[0,1], nodes_ribA_xyz[1] = getFEMSection(-1, h_a, c_a, 'FEMData/A320_SLC1' + version + '.rpt', nodes, nodes_ribB)
+    arc_coords[0,2], S_post_ribs[0,2], nodes_ribA_xyz[2] = getFEMSection(-1, h_a, c_a, 'FEMData/A320_SLC1' + version + '.rpt', nodes, nodes_ribC)
+    arc_coords[0,3], S_post_ribs[0,3], nodes_ribA_xyz[3] = getFEMSection(-1, h_a, c_a, 'FEMData/A320_SLC1' + version + '.rpt', nodes, nodes_ribD)
     
     # up no loads
-    arc_coords[1,0], S_post_ribs[1,0], nodes_ribA_xyz[0] = getFEMSection(-1, h_a, c_a, 'FEMData/A320_SR1.rpt', nodes, nodes_ribA)
-    arc_coords[1,1], S_post_ribs[1,1], nodes_ribA_xyz[1] = getFEMSection(-1, h_a, c_a, 'FEMData/A320_SR1.rpt', nodes, nodes_ribB)
-    arc_coords[1,2], S_post_ribs[1,2], nodes_ribA_xyz[2] = getFEMSection(-1, h_a, c_a, 'FEMData/A320_SR1.rpt', nodes, nodes_ribC)
-    arc_coords[1,3], S_post_ribs[1,3], nodes_ribA_xyz[3] = getFEMSection(-1, h_a, c_a, 'FEMData/A320_SR1.rpt', nodes, nodes_ribD)
+    arc_coords[1,0], S_post_ribs[1,0], nodes_ribA_xyz[0] = getFEMSection(-1, h_a, c_a, 'FEMData/A320_SR1' + version + '.rpt', nodes, nodes_ribA)
+    arc_coords[1,1], S_post_ribs[1,1], nodes_ribA_xyz[1] = getFEMSection(-1, h_a, c_a, 'FEMData/A320_SR1' + version + '.rpt', nodes, nodes_ribB)
+    arc_coords[1,2], S_post_ribs[1,2], nodes_ribA_xyz[2] = getFEMSection(-1, h_a, c_a, 'FEMData/A320_SR1' + version + '.rpt', nodes, nodes_ribC)
+    arc_coords[1,3], S_post_ribs[1,3], nodes_ribA_xyz[3] = getFEMSection(-1, h_a, c_a, 'FEMData/A320_SR1' + version + '.rpt', nodes, nodes_ribD)
     
     
     
@@ -84,10 +84,10 @@ def InterpretFEM(h_a, c_a):
             if i == 0:
                 # loads
                 title = 'Validation -- von Mises Rib ' + rib_name + ' -- All Loads'
-                filename = 'vonMises_LC1_Rib' + rib_name + '_scatter'
+                filename = 'vonMises_LC1_Rib' + rib_name + version + '_scatter'
             else:
                 title = 'Validation -- von Mises Rib ' + rib_name + ' -- No loads'
-                filename = 'vonMises_R1_Rib' + rib_name + '_scatter'
+                filename = 'vonMises_R1_Rib' + rib_name + version + '_scatter'
                 
             plotFEMSection(nodes_ribA_xyz[j], S_post_ribs[i,j], title, filename)
     
@@ -98,11 +98,11 @@ def InterpretFEM(h_a, c_a):
         
     
     ### plotting ###
-    U_LEs_FEM, U_TEs_FEM, LE_xlocs, TE_xlocs, correction_LE, correction_TE = getLETE(h_a, c_a, nodes, 'FEMData/A320_')
-    plotLETE(U_LEs_FEM, U_TEs_FEM, LE_xlocs, TE_xlocs, correction_LE, correction_TE, span_disc = [], U_LE_Model=[], U_TE_Model=[])
+    U_LEs_FEM, U_TEs_FEM, LE_xlocs, TE_xlocs, correction_LE, correction_TE = getLETE(h_a, c_a, nodes, 'FEMData/A320_', version)
+    plotLETE(U_LEs_FEM, U_TEs_FEM, LE_xlocs, TE_xlocs, correction_LE, correction_TE, version, span_disc = [], U_LE_Model=[], U_TE_Model=[])
     
 
-    return arc_coords, S_post_ribs
+    return arc_coords, S_post_ribs, U_LEs_FEM, U_TEs_FEM, LE_xlocs, TE_xlocs, correction_LE, correction_TE
 
 
 
@@ -123,7 +123,7 @@ def InterpretFEM(h_a, c_a):
 
 
 
-def getLETE(h_a, c_a, nodes, filename_pre):
+def getLETE(h_a, c_a, nodes, filename_pre, version=''):
     
     
     numnodes = len(nodes)
@@ -142,10 +142,10 @@ def getLETE(h_a, c_a, nodes, filename_pre):
     header_lines_U = 19
     
     # up, with loads
-    U_up_L = np.genfromtxt(filename_pre + 'ULC1.rpt', skip_header=header_lines_U, max_rows=numnodes)[:,[0,6,7,8]]
+    U_up_L = np.genfromtxt(filename_pre + 'ULC1' + version + '.rpt', skip_header=header_lines_U, max_rows=numnodes)[:,[0,6,7,8]]
     
     # up, without loads
-    U_up_nL = np.genfromtxt(filename_pre + 'UR1.rpt',  skip_header=header_lines_U, max_rows=numnodes)[:,[0,6,7,8]]
+    U_up_nL = np.genfromtxt(filename_pre + 'UR1' + version + '.rpt',  skip_header=header_lines_U, max_rows=numnodes)[:,[0,6,7,8]]
         
     
     
@@ -185,7 +185,7 @@ def getLETE(h_a, c_a, nodes, filename_pre):
 
 
 
-def plotLETE(U_LEs_FEM, U_TEs_FEM, LE_xlocs, TE_xlocs, correction_LE, correction_TE, span_disc = [], U_LE_Model=[], U_TE_Model=[]):
+def plotLETE(U_LEs_FEM, U_TEs_FEM, LE_xlocs, TE_xlocs, correction_LE, correction_TE, version = '', span_disc = [], U_LE_Model=[], U_TE_Model=[]):
      ########################
     ### Deflection Plots ###
     ########################
@@ -199,11 +199,11 @@ def plotLETE(U_LEs_FEM, U_TEs_FEM, LE_xlocs, TE_xlocs, correction_LE, correction
         plt.figure(14, figsize=(8, 6))
         axs = plt.axes()
         plt.subplot(211)
-        plt.title('Numerical and Validation Model -- Edge Deflection -- Max (Numerical): %.2f mm' % np.max(U_LE_Model[:,1]))
+        plt.title('Numerical and Validation Model -- LE Deflection -- Max (Numerical): %.2f mm' % np.max(U_LE_Model[:,1]))
         plt.ylabel('y-displacement [mm]')
         plt.plot(LE_xlocs, U_LEs_FEM[1,:,1] + correction_LE, '-')
         plt.plot(LE_xlocs, U_LEs_FEM[0,:,1] + correction_LE, '-.')
-        plt.plot(span_disc, U_LE_Model[:,1], '-x')
+        plt.plot(span_disc, U_LE_Model[0,:], '-x')
         plt.legend(['without loads', 'with actuator and aero loads', 'Numerical Model with loads'])
         
         plt.subplot(212)
@@ -211,30 +211,30 @@ def plotLETE(U_LEs_FEM, U_TEs_FEM, LE_xlocs, TE_xlocs, correction_LE, correction
         plt.ylabel('z-displacement [mm]')
         plt.plot(LE_xlocs, U_LEs_FEM[1,:,2], '-')
         plt.plot(LE_xlocs, U_LEs_FEM[0,:,2], '-.')
-        plt.plot(span_disc, U_LE_Model[:,2], '-x')
+        plt.plot(span_disc, U_LE_Model[1,:], '-x')
         
-        plt.savefig('Plots/LC1_U_LE_Model_correction.eps', format='eps')
+        plt.savefig('Plots/LC1_U_LE_Model_correction' + version + '.eps', format='eps')
         
         
         ### Trailing Edge ###
         plt.figure(14, figsize=(8, 6))
         axs = plt.axes()
         plt.subplot(211)
-        plt.title('Numerical and Validation Model -- Edge Deflection -- Max (Numerical): %.2f mm' % np.max(U_LE_Model[:,1]))
+        plt.title('Numerical and Validation Model -- TE Deflection -- Max (Numerical): %.2f mm' % np.max(U_LE_Model[:,1]))
         plt.ylabel('y-displacement [mm]')
-        plt.plot(LE_xlocs, U_LEs_FEM[1,:,1] + correction_TE, '-')
-        plt.plot(LE_xlocs, U_LEs_FEM[0,:,1] + correction_TE, '-.')
-        plt.plot(span_disc, U_LE_Model[:,1], '-x')
+        plt.plot(TE_xlocs, U_TEs_FEM[1,:,1] + correction_TE, '-')
+        plt.plot(TE_xlocs, U_TEs_FEM[0,:,1] + correction_TE, '-.')
+        plt.plot(span_disc, U_TE_Model[0,:], '-x')
         plt.legend(['without loads', 'with actuator and aero loads', 'Numerical Model with loads'])
         
         plt.subplot(212)
         plt.xlabel('x location (spanwise) [mm]')
         plt.ylabel('z-displacement [mm]')
-        plt.plot(LE_xlocs, U_LEs_FEM[1,:,2], '-')
-        plt.plot(LE_xlocs, U_LEs_FEM[0,:,2], '-.')
-        plt.plot(span_disc, U_LE_Model[:,2], '-x')
+        plt.plot(TE_xlocs, U_TEs_FEM[1,:,2], '-')
+        plt.plot(TE_xlocs, U_TEs_FEM[0,:,2], '-.')
+        plt.plot(span_disc, U_TE_Model[1,:], '-x')
         
-        plt.savefig('Plots/LC1_U_TE_Model_correction.eps', format='eps')
+        plt.savefig('Plots/LC1_U_TE_Model_correction' + version + '.eps', format='eps')
         
     else:
         ### Leading Edge ###
@@ -253,7 +253,7 @@ def plotLETE(U_LEs_FEM, U_TEs_FEM, LE_xlocs, TE_xlocs, correction_LE, correction
         plt.plot(LE_xlocs, U_LEs_FEM[1,:,2], '-')
         plt.plot(LE_xlocs, U_LEs_FEM[0,:,2], '-.')
         
-        plt.savefig('Plots/LC1_U_LE.eps', format='eps')
+        plt.savefig('Plots/LC1_U_LE' + version + '.eps', format='eps')
         
     
         plt.figure(11, figsize=(8, 6))
@@ -271,7 +271,7 @@ def plotLETE(U_LEs_FEM, U_TEs_FEM, LE_xlocs, TE_xlocs, correction_LE, correction
         plt.plot(LE_xlocs, U_LEs_FEM[1,:,2], '-')
         plt.plot(LE_xlocs, U_LEs_FEM[0,:,2], '-.')
         
-        plt.savefig('Plots/LC1_U_LE_corrected.eps', format='eps')
+        plt.savefig('Plots/LC1_U_LE_corrected' + version + '.eps', format='eps')
         
         
         
@@ -291,7 +291,7 @@ def plotLETE(U_LEs_FEM, U_TEs_FEM, LE_xlocs, TE_xlocs, correction_LE, correction
         plt.plot(TE_xlocs, U_TEs_FEM[1,:,2], '-')
         plt.plot(TE_xlocs, U_TEs_FEM[0,:,2], '-.')
         
-        plt.savefig('Plots/LC1_U_TE.eps', format='eps')
+        plt.savefig('Plots/LC1_U_TE' + version + '.eps', format='eps')
         
     
         plt.figure(13, figsize=(8, 6))
@@ -309,7 +309,7 @@ def plotLETE(U_LEs_FEM, U_TEs_FEM, LE_xlocs, TE_xlocs, correction_LE, correction
         plt.plot(TE_xlocs, U_TEs_FEM[1,:,2], '-')
         plt.plot(TE_xlocs, U_TEs_FEM[0,:,2], '-.')
         
-        plt.savefig('Plots/LC1_U_TE_corrected.eps', format='eps')
+        plt.savefig('Plots/LC1_U_TE_corrected' + version + '.eps', format='eps')
     
     
     plt.ion()

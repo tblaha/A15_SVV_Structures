@@ -377,7 +377,7 @@ def shapeOfAileron(x_coords, displ_na, d_theta, Z_bar, plot_aileron=False, plot_
 	
 	# Now we return the maximum displacement of the LE and TE in the y direction and the
 	# x coordinates of the corresponding cross-sections.
-	return disp_le_y_max, disp_te_y_max, disp_le_max_x, disp_te_max_x
+	return disp_le_y_max, disp_te_y_max, disp_le_max_x, disp_te_max_x, displ_le, displ_te
 
 def shapeOfAileronTest():
 	'''

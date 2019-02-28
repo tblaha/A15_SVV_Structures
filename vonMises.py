@@ -4,6 +4,7 @@ Created on Wed Feb 27 10:56:53 2019
 
 @author: Till
 """
+
 from UniversalConstants import *
 import numpy as np
 import matplotlib.pyplot as plt
@@ -14,8 +15,9 @@ def vonMises(sigmas, taus):
     
     return np.sqrt( ((sigmas[0] - sigmas[1])**2 + (sigmas[1] - sigmas[2])**2 + (sigmas[2] - sigmas[0])**2\
             + 6*(taus[0]**2 + taus[1]**2 + taus[2]**2)) / 2 )
-    
-  
+
+
+
 def getVonMises(xloc, span_disc, cross_disc, SFIz, SFIy, MIx, MIy, MIz, I_yy, I_zz, t_sk, t_sp, z_bar, q_B = []):
     
     # always select the location just to left or coincident with the x location
