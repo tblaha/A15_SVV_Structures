@@ -21,4 +21,5 @@ def getVerInternalLoads(case):
     mz=vData[2:,4+case*5]
     my=vData[2:,5+case*5]
     mx=vData[2:,6+case*5]
+    #Factors applied to get proper units and orientation
     return x,vz*1000,vy*1000,-mz*1000000,my*1000000,mx*1000000

@@ -8,11 +8,9 @@ Created on Wed Feb 20 10:00:45 2019
 from UniversalConstants import *
 import numpy as np
 import matplotlib.pyplot as plt
-#Getting the values for the reaction forces
-#d_yz_vec, Fx2, Fy, Fz, P_1 = sampleBendingShape([0], x_h1, x_h2, x_h3, p, d_a, q, theta, c_a, h_a, l_a, d_1, d_3, E, 13850069.95, 95733446.4887)
 
-#Adapting the names of the reaction forces to this program
-
+#This program uses the EoMs in the report to find the internal force at any given
+#point which can then be used to find the internal force diagrams.
 
 #Define a macauly function to activate forces 
 def Macauly (x1, x2):
@@ -82,6 +80,7 @@ def InternalMomentz (xlocation,F_y_1,F_y_2,F_y_3,F_z_1,F_z_2,F_z_3,Fx2,P_1):
 
 #Calculation of the loads along the span extracting the forces from the reaction forces file. This is appened in a list. 
 def getInternalLoads(xvec,Fx, Fy, Fz, P_1 ):
+    #Convert input
     Fx2=Fx
     F_y_1 = Fy[0]
     F_y_2 = Fy[1]
@@ -90,13 +89,14 @@ def getInternalLoads(xvec,Fx, Fy, Fz, P_1 ):
     F_z_1 = Fz[0]
     F_z_2 = Fz[1]
     F_z_3 = Fz[2]
+    #Initialize lists
     SFIx=[]
     SFIy=[]
     SFIz=[]
     MIx=[]
     MIy=[]
     MIz=[]
-    
+    #Use all above functions for each position in X
     for i in xvec:
         SFIx.append(InternalShearForcex(i,F_y_1,F_y_2,F_y_3,F_z_1,F_z_2,F_z_3,Fx2,P_1))
         SFIy.append(InternalShearForcey(i,F_y_1,F_y_2,F_y_3,F_z_1,F_z_2,F_z_3,Fx2,P_1))

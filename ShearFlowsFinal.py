@@ -13,11 +13,6 @@ Created on Tue Feb 19 14:57:40 2019
 
 import numpy as np
 from UniversalConstants import *
-##from discretization import *
-#from Centroid import *
-#from InternalLoads import *
-#from Stiffeners import *
-
 import matplotlib.pyplot as plt
 
 
@@ -237,12 +232,16 @@ def baseShearFlows(I_zz,I_yy,SFIz,SFIy,B_array,MIx,Z_bar):
             Shear_Final[i,0]=i+1
             if B_array[i,4]==1:
                 Shear_Final[i,1]=Qb_y[i,1]+Qb_z[i,1]+x[0]
+#                Shear_Final[i,1]=Qb_y[i,1]+Qb_z[i,1]
             
             elif B_array[i,4]==2:
                 Shear_Final[i,1]=Qb_y[i,1]+Qb_z[i,1]+x[1]
+#                Shear_Final[i,1]=Qb_y[i,1]+Qb_z[i,1]
         
             else:
-                Shear_Final[i,1]=Qb_y[i,1]+Qb_z[i,1]+x[1]-x[0]
+                Shear_Final[i,1]=Qb_y[i,1]+Qb_z[i,1]-x[1]+x[0] # makes spar 0
+#                Shear_Final[i,1]=Qb_y[i,1]+Qb_z[i,1]+x[1]-x[0]
+#                Shear_Final[i,1]=Qb_y[i,1]+Qb_z[i,1]
 
         return Shear_Final
             

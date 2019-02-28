@@ -10,7 +10,7 @@ import matplotlib.pyplot as plt
 
 from Centroid import findCentroid
 from DiscretizationV2 import discretizeCrossSection, discretizeSpan
-from DiscretizationMOI import discretizeCrossSectionMOI #Calculates booms for the verification case
+from DiscretizationMOI import discretizeCrossSectionMOI #Calculates booms for the MOI in the verification case
 from InternalLoads import getInternalLoads
 from MomentOfInertia import momentOfInertia
 from ReactionForcesV2 import sampleBendingShape
@@ -84,8 +84,7 @@ else:
 I_zz,I_yy = momentOfInertia(cross_disc)
     
 ## Get bending and reaction forces
-## don't worry about the magic numbers at the end. I tried including Timoshenko shear deformations, but it doesnt make much of a difference
-d_yz_vec, F_2x, Fy, Fz, P_1 = sampleBendingShape(span_disc, x_h1, x_h2, x_h3, p, d_a, q, theta, c_a, h_a, l_a, d_1, d_3,  E,  I_yy, I_zz, 1, 2700e0, 27e3)
+d_yz_vec, F_2x, Fy, Fz, P_1 = sampleBendingShape(span_disc, x_h1, x_h2, x_h3, p, d_a, q, theta, c_a, h_a, l_a, d_1, d_3,  E,  I_yy, I_zz, 5/6, 2750e0, G)
 
 
 #Plot bending shape if enabled
@@ -101,9 +100,9 @@ if plotBending==False:
     
 ##Get Internal Loads
 
-SFIx, SFIy, SFIz, MIx, MIy, MIz = getInternalLoads(span_disc,F_2x, Fy, Fz, P_1)
+SFIx, SFIy, SFIz, MIx, MIy, MIz = getInternalLoads(span_disc, F_2x, Fy, Fz, P_1)
 
-#Plot internal loads if enabled
+#Plot internal loads if enabled, 6 plots
 if plotInternal:
     plt.subplot(231)
     plt.plot(span_disc,SFIx)
@@ -131,6 +130,8 @@ if plotInternal:
     
     plt.show ()
 
+#Generates 6 plots, each containing both the Analytical model's values and the 
+#Numerical model's values
 if plotVerInternal:
     if theta==26:
         case=1
@@ -138,6 +139,8 @@ if plotVerInternal:
         case=0
     else:
         case=2
+    #NOTE: Order is not the same as that within VerInternalLoads.py
+    #this is due to an error in the analytical model, do not fix
     xVer,VzVer,VyVer,MyVer,MzVer,MxVer=getVerInternalLoads(case)
     titleFontSize=14
     axisFontSize=12
@@ -210,19 +213,21 @@ arc_coords, S_post_ribs, U_LEs_FEM, U_TEs_FEM, LE_xlocs, TE_xlocs, correction_LE
 
 ##Compute shape of aileron    
 disp_le_y_max, disp_te_y_max, disp_le_max_x, disp_te_max_x, displ_le, displ_te, section_thetas=shapeOfAileron(span_disc, d_yz_vec, dtdx, z_bar, plot_aileron=plotAileron, plot_deflections_theta_0=plotDeflectionsTheta0, plot_deflections=plotDeflections)
-plotLETE(U_LEs_FEM, U_TEs_FEM, LE_xlocs, TE_xlocs, correction_LE, correction_TE, FEMversion, span_disc, displ_le, displ_te)
+plotLETE(U_LEs_FEM, U_TEs_FEM, LE_xlocs, TE_xlocs, correction_LE, correction_TE, FEMversion, span_disc, displ_le, displ_te) ## add arg!
+
+
 
 
 ####Compute the shear flow in the ribs
-#systemOfEquationsForShearRib = shearFlowRib(cross_disc, z_bar, y_bar)
-##Rib A, Fy1,Fz1
-#q_A,q_1_A,q_2_A=systemOfEquationsForShearRib.calculateShear(P_1=0, P_2=0, F_z=Fz[0], F_y=Fy[0])
-##Rib B
-#q_B,q_1_B,q_2_B=systemOfEquationsForShearRib.calculateShear(P_1=P_1, P_2=0, F_z=Fz[1]*0.5, F_y=Fy[1]*0.5)
-##Rib C
-#q_C,q_1_C,q_2_C=systemOfEquationsForShearRib.calculateShear(P_1=0, P_2=p, F_z=Fz[1]*0.5, F_y=Fy[1]*0.5)
-##Rib D
-#q_D,q_1_D,q_2_D=systemOfEquationsForShearRib.calculateShear(P_1=0, P_2=0, F_z=Fz[2], F_y=Fy[2])
+systemOfEquationsForShearRib = shearFlowRib(cross_disc, z_bar, y_bar)
+#Rib A, Fy1,Fz1
+q_A,q_1_A,q_2_A=systemOfEquationsForShearRib.calculateShear(P_1=0, P_2=0, F_z=Fz[0], F_y=Fy[0])
+#Rib B
+q_B,q_1_B,q_2_B=systemOfEquationsForShearRib.calculateShear(P_1=P_1, P_2=0, F_z=Fz[1]*0.5, F_y=Fy[1]*0.5)
+#Rib C
+q_C,q_1_C,q_2_C=systemOfEquationsForShearRib.calculateShear(P_1=0, P_2=p, F_z=Fz[1]*0.5, F_y=Fy[1]*0.5)
+#Rib D
+q_D,q_1_D,q_2_D=systemOfEquationsForShearRib.calculateShear(P_1=0, P_2=0, F_z=Fz[2], F_y=Fy[2])
 
 
 
@@ -239,22 +244,22 @@ plotVonMises(cross_disc, vonMises_D, 'von Mises Stress at Rib D', 'S_at_D_vM')
 
 
 
-#before Rib
-
 # von Mises at other locations (w/out ribs)
-vM_locs = [0,l_a/2,l_a, 600, 700, 200, 800]
+vM_locs = [0,1330,l_a, 400, 600, 700, 200, 800]
 vonMises_others = np.zeros((len(vM_locs), len(cross_disc)))
 Qb_y_others = np.zeros((len(vM_locs), len(cross_disc)))
 Qb_z_others = np.zeros((len(vM_locs), len(cross_disc)))
 
+all_nodes   = np.genfromtxt('FEMData/NodeLocations.txt', delimiter=',')
+    
 for idx in range(len(vM_locs)):
-    vonMises_others[idx], Qb_y_others[idx], Qb_z_others[idx] = getVonMises(vM_locs[idx], span_disc, cross_disc, SFIz, SFIy, MIx, MIy, MIz, I_yy, I_zz, t_sk, t_sp, z_bar, q_A)
-    plotVonMises(cross_disc, vonMises_others[idx], 'von Mises Skin Stress at x=%d' % vM_locs[idx], 'S_at_x_%d_vM'   % vM_locs[idx])
-    plotVonMises(cross_disc, Qb_y_others[idx]    , 'Qb_y at x=%d' % vM_locs[idx]                 , 'S_at_x_%d_qb_y' % vM_locs[idx])
-    plotVonMises(cross_disc, Qb_z_others[idx]    , 'Qb_z at x=%d' % vM_locs[idx]                 , 'S_at_x_%d_qb_z' % vM_locs[idx])
-
-
-
+    vonMises_others[idx], Qb_y_others[idx], Qb_z_others[idx] = getVonMises(vM_locs[idx], span_disc, cross_disc, SFIz, SFIy, MIx, MIy, MIz, I_yy, I_zz, t_sk, t_sp, z_bar)
+    plotVonMises(cross_disc, vonMises_others[idx], 'von Mises Skin Stress at x=%d' % vM_locs[idx], 'S_LC1_x_%d_vM'   % vM_locs[idx])
+    plotVonMises(cross_disc, Qb_y_others[idx]    , 'Qb_y at x=%d' % vM_locs[idx]                 , 'S_LC1_x_%d_qb_y' % vM_locs[idx])
+    plotVonMises(cross_disc, Qb_z_others[idx]    , 'Qb_z at x=%d' % vM_locs[idx]                 , 'S_LC1_x_%d_qb_z' % vM_locs[idx])
+    
+    arc_coords, vonMises_others_FEM, nodes_FEM = getFEMSection(vM_locs[idx], h_a, c_a, 'FEMData/A320_SLC1' + '_V2' + '.rpt', all_nodes, rib_nodes=[])
+    plotFEMSection(nodes_FEM, vonMises_others_FEM, 'Validation -- von Mises x=%d ' % vM_locs[idx], 'S_LC1_x_%d_scatter_FEM_V2' % vM_locs[idx])
 
 
 #Print info if enabled
