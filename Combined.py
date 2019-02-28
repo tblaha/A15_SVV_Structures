@@ -21,11 +21,9 @@ from Stiffeners import generateStiffeners
 from UniversalConstants import \
 h_a,c_a,n_st,A_st,t_sk,t_sp,Ybar_st,x_h1,x_h2,x_h3,l_a,d_a,p,q,theta,d_1,d_3,E,G 
 from VerInternalLoads import getVerInternalLoads
-from vonMises import *
-from InterpretFEMData import *
 
 #Verification
-VerificationAssumptions=False #Adjusts the program so that the program matches the analytical model as closely as possible.
+VerificationAssumptions=True #Adjusts the program so that the program matches the analytical model as closely as possible.
 
 #Variables to be chosen:
 span_nodes_between=20 #How many nodes between two points of interest
@@ -38,7 +36,7 @@ cg_cor_stiffeners=1 #Correct for the stiffeners centroid or not
 plotBending=False #Plots the bending shape
 plotSpan=False #Plots the distribution of the points in which forces are calculated
 plotInternal=False #Plots the internal shear and moment diagrams
-plotVerInternal=False #Plots Internal loads in a diagram with the analytical internal loads
+plotVerInternal=True #Plots Internal loads in a diagram with the analytical internal loads
 plotAileron=False #Plots a simplified version of the aileron.
 plotDeflectionsTheta0=False	#Plots the displacements of the LE and TE compared to where they would be if theta was 0 and there was no loading.
 plotDeflections=False #Plots the displacements of the LE and TE compared to where they would be if there was no loading.
@@ -78,7 +76,7 @@ if VerificationAssumptions:
     cross_disc=discretizeCrossSectionMOI(S_cor,S_uncor,h_a, c_a, n_st, A_st, t_sk, t_sp, y_bar, z_bar, booms_between, Ybar_st, cg_cor_stiffeners)
     z_bar=0 #done after the calculations for MOI to not upset the boom discretization
 else:
-    cross_disc=   discretizeCrossSection(S_cor,S_uncor,h_a, c_a, n_st, A_st, t_sk, t_sp, y_bar, z_bar, booms_between, Ybar_st, cg_cor_stiffeners)
+    cross_disc=discretizeCrossSection(S_cor,S_uncor,h_a, c_a, n_st, A_st, t_sk, t_sp, y_bar, z_bar, booms_between, Ybar_st, cg_cor_stiffeners)
 
 ##Calc MOI
 I_zz,I_yy = momentOfInertia(cross_disc)
@@ -192,59 +190,19 @@ for i in range(len(span_disc)):
     x=span_disc[i]
     Qb_z, Qb_y,B_Distance,Line_Integral_qb_3,A,b,shear_vec,Shear_Final=baseShearFlows(I_zz,I_yy,SFIz[i],SFIy[i],cross_disc,MIx[i],z_bar)
     dtdx[i]=shear_vec[2]/(G)
-
-
-
-##Interpret the FEM (saves plots without showing them)
-arc_coordinates, vonMises_ribs = InterpretFEM(h_a, c_a)
-
-
 ##Compute shape of aileron    
 disp_le_y_max, disp_te_y_max, disp_le_max_x, disp_te_max_x=shapeOfAileron(span_disc, d_yz_vec, dtdx, z_bar, plot_aileron=plotAileron, plot_deflections_theta_0=plotDeflectionsTheta0, plot_deflections=plotDeflections)
-
 
 ##Compute the shear flow in the ribs
 systemOfEquationsForShearRib = shearFlowRib(cross_disc, z_bar, y_bar)
 #Rib A, Fy1,Fz1
-q_A,q_1_A,q_2_A=systemOfEquationsForShearRib.solveSys(P_1=0, P_2=0, F_z=Fz[0], F_y=Fy[0])
+q_A,q_1_A,q_2_A=systemOfEquationsForShearRib.calculateShear(P_1=0, P_2=0, F_z=Fz[0], F_y=Fy[0])
 #Rib B
-q_B,q_1_B,q_2_B=systemOfEquationsForShearRib.solveSys(P_1=P_1, P_2=0, F_z=0*Fz[1]*0.5, F_y=0*Fy[1]*0.5)
+q_B,q_1_B,q_2_B=systemOfEquationsForShearRib.calculateShear(P_1=P_1, P_2=0, F_z=Fz[1]*0.5, F_y=Fy[1]*0.5)
 #Rib C
-q_C,q_1_C,q_2_C=systemOfEquationsForShearRib.solveSys(P_1=0, P_2=p, F_z=0*Fz[1]*0.5, F_y=0*Fy[1]*0.5)
+q_C,q_1_C,q_2_C=systemOfEquationsForShearRib.calculateShear(P_1=0, P_2=p, F_z=Fz[1]*0.5, F_y=Fy[1]*0.5)
 #Rib D
-q_D,q_1_D,q_2_D=systemOfEquationsForShearRib.solveSys(P_1=0, P_2=0, F_z=Fz[2], F_y=Fy[2])
-
-
-
-# von Mises in ribs (skin stress just before, then add the rib shear)
-vonMises_A, Qb_y_A, Qb_z_A = getVonMises(x_h1      , span_disc, cross_disc, SFIz, SFIy, MIx, MIy, MIz, I_yy, I_zz, t_sk, t_sp, z_bar, q_A)
-plotVonMises(cross_disc, vonMises_A, 'von Mises Stress at Rib A', 'S_at_A_vM')
-vonMises_B, Qb_y_B, Qb_z_B = getVonMises(x_h2-d_a/2, span_disc, cross_disc, SFIz, SFIy, MIx, MIy, MIz, I_yy, I_zz, t_sk, t_sp, z_bar, q_B)
-plotVonMises(cross_disc, vonMises_B, 'von Mises Stress at Rib B', 'S_at_B_vM')
-vonMises_C, Qb_y_C, Qb_z_C = getVonMises(x_h2+d_a/2, span_disc, cross_disc, SFIz, SFIy, MIx, MIy, MIz, I_yy, I_zz, t_sk, t_sp, z_bar, q_C)
-plotVonMises(cross_disc, vonMises_C, 'von Mises Stress at Rib C', 'S_at_C_vM')
-vonMises_D, Qb_y_D, Qb_z_D = getVonMises(x_h3      , span_disc, cross_disc, SFIz, SFIy, MIx, MIy, MIz, I_yy, I_zz, t_sk, t_sp, z_bar, q_D)
-plotVonMises(cross_disc, vonMises_D, 'von Mises Stress at Rib D', 'S_at_D_vM')
-
-
-
-#before Rib
-
-# von Mises at other locations (w/out ribs)
-vM_locs = [0,l_a/2,l_a, 600, 700, 200, 800]
-vonMises_others = np.zeros((len(vM_locs), len(cross_disc)))
-Qb_y_others = np.zeros((len(vM_locs), len(cross_disc)))
-Qb_z_others = np.zeros((len(vM_locs), len(cross_disc)))
-
-for idx in range(len(vM_locs)):
-    vonMises_others[idx], Qb_y_others[idx], Qb_z_others[idx] = getVonMises(vM_locs[idx], span_disc, cross_disc, SFIz, SFIy, MIx, MIy, MIz, I_yy, I_zz, t_sk, t_sp, z_bar, q_A)
-    plotVonMises(cross_disc, vonMises_others[idx], 'von Mises Skin Stress at x=%d' % vM_locs[idx], 'S_at_x_%d_vM'   % vM_locs[idx])
-    plotVonMises(cross_disc, Qb_y_others[idx]    , 'Qb_y at x=%d' % vM_locs[idx]                 , 'S_at_x_%d_qb_y' % vM_locs[idx])
-    plotVonMises(cross_disc, Qb_z_others[idx]    , 'Qb_z at x=%d' % vM_locs[idx]                 , 'S_at_x_%d_qb_z' % vM_locs[idx])
-
-
-
-
+q_D,q_1_D,q_2_D=systemOfEquationsForShearRib.calculateShear(P_1=0, P_2=0, F_z=Fz[2], F_y=Fy[2])
 
 #Print info if enabled
 if printInfo:
@@ -269,8 +227,4 @@ if printOutputs:
     print('Magnitude of the maximum shear flow in rib C: ', max(abs(q_C)), '[N/mm]')
     print('Magnitude of the maximum shear flow in rib D: ', max(abs(q_D)), '[N/mm]')
     
-     
-if printMOI==True: #Prints Moment of Inertia 
-    print('Iyy=', I_yy) 
-    print('Izz=', I_zz) 
      
