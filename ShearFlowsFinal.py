@@ -52,6 +52,7 @@ def baseShearFlows(I_zz,I_yy,SFIz,SFIy,B_array,MIx,Z_bar):
     h_a=225
     l_skin_curved=np.pi*(h_a/2.)    
     l_skin_2 = np.sqrt((c_a-h_a/2)**2+((h_a/2)**2))
+    theta=0.253355
     #Create output arrays which will have the same number of rows as input boom area array
     Qb_z = np.zeros((len(B_array[:,0]),3))
     Qb_y = np.zeros((len(B_array[:,0]),3))
@@ -85,6 +86,8 @@ def baseShearFlows(I_zz,I_yy,SFIz,SFIy,B_array,MIx,Z_bar):
     Line_Integral_qb_2_y=0.
     Line_Integral_qb_3=0.    
     
+    midpoints=np.zeros((len(B_array[:,0])+1,2))
+     
     while ID_current<=3:
         
         #Initialize base shear at 0 in each cell as this will start from the
@@ -121,14 +124,17 @@ def baseShearFlows(I_zz,I_yy,SFIz,SFIy,B_array,MIx,Z_bar):
                 midpoint_y=0
                 midpoint_z=0
             else:
-                B_Distance[i,1]=abs(B_array[i+1,0]-B_array[i,0])
-                B_Distance[i,2]=abs(B_array[i+1,1]-B_array[i,1])
+                B_Distance[i+1,1]=abs(B_array[i+1,0]-B_array[i,0])
+                B_Distance[i+1,2]=abs(B_array[i+1,1]-B_array[i,1])
                 midpoint_y=(B_array[i+1,0]+B_array[i,0])/2.
                 midpoint_z=(B_array[i+1,1]+B_array[i,1])/2.
+                midpoints[i+1,0]=midpoint_y
+                midpoints[i+1,1]=midpoint_z
                 
             
             #Distance to centroid is moment arm:
-            moment_arm=np.sqrt((midpoint_y)**2+((midpoint_z-Z_bar)**2))
+            moment_arm=np.sqrt((midpoints[i,0])**2+((midpoints[i,1]-Z_bar)**2))
+            #print ("Moment arm is", moment_arm)
             
             
             #Pythagorean distance along which each q acts
@@ -141,26 +147,33 @@ def baseShearFlows(I_zz,I_yy,SFIz,SFIy,B_array,MIx,Z_bar):
                 Line_Integral_qb_1_z=Line_Integral_qb_1_z + np.multiply(Mult_Dist,Qb_z[i,1])/t_sk
                 
                 #Moment
+                #print(moment_arm)
                 Moment_qb_y_1=Moment_qb_y_1 + Qb_y[i,1]*moment_arm
                 Moment_qb_z_1=Moment_qb_z_1 + Qb_z[i,1]*moment_arm
                 
             
                 
             elif (ID_current == 2):
+                moment_arm_z=abs(B_array[i,0])
+                moment_arm_y=abs(B_array[i,1]-Z_bar)
                 Line_Integral_qb_2_y=Line_Integral_qb_2_y + (np.multiply(Mult_Dist,Qb_y[i,1]))/t_sk
                 Line_Integral_qb_2_z=Line_Integral_qb_2_z + (np.multiply(Mult_Dist,Qb_z[i,1]))/t_sk
                 
                #Moment
-                Moment_qb_y_2=Moment_qb_y_2 + Qb_y[i,1]*moment_arm
-                Moment_qb_z_2=Moment_qb_z_2 + Qb_z[i,1]*moment_arm
+                Moment_qb_y_2=Moment_qb_y_2 + Qb_y[i,1]*np.cos(theta)*moment_arm_y+Qb_y[i,1]*np.sin(theta)*moment_arm_z
+                Moment_qb_z_2=Moment_qb_z_2 + Qb_z[i,1]*np.cos(theta)*moment_arm_y+Qb_z[i,1]*np.sin(theta)*moment_arm_z
+                
+                
             
                 
             elif (ID_current == 3):
                 
+                moment_arm_y = abs(B_array[i,1]-Z_bar)
+                
                 Line_Integral_qb_3=Line_Integral_qb_3 + (np.multiply(Mult_Dist,Qb_y[i,1]))/t_sp    
                 
                 #Moment Contribution
-                Moment_qb_y_3=Moment_qb_y_3+Qb_y[i,1]*moment_arm
+                Moment_qb_y_3=Moment_qb_y_3+Qb_y[i,1]*moment_arm_y
             
             #Note2: The area in B_array in y-direc and z-direc is almost the same
             qb_z = qb_z + (-(SFIz)/I_yy)*B_array[i,2]*B_array[i,1]
@@ -238,9 +251,3 @@ def baseShearFlows(I_zz,I_yy,SFIz,SFIy,B_array,MIx,Z_bar):
     Shear_Final=getFinalShearFlow()
         
     return Qb_z, Qb_y,B_Distance,Line_Integral_qb_3,A,b,x,Shear_Final
-
-
-
-
-
-
