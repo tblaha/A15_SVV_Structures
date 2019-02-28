@@ -10,7 +10,7 @@ import matplotlib.pyplot as plt
 
 from Centroid import findCentroid
 from DiscretizationV2 import discretizeCrossSection, discretizeSpan
-from DiscretizationMOI import discretizeCrossSectionMOI #Calculates booms for the verification case
+from DiscretizationMOI import discretizeCrossSectionMOI #Calculates booms for the MOI in the verification case
 from InternalLoads import getInternalLoads
 from MomentOfInertia import momentOfInertia
 from ReactionForcesV2 import sampleBendingShape
@@ -84,7 +84,6 @@ else:
 I_zz,I_yy = momentOfInertia(cross_disc)
     
 ## Get bending and reaction forces
-## don't worry about the magic numbers at the end. I tried including Timoshenko shear deformations, but it doesnt make much of a difference
 d_yz_vec, F_2x, Fy, Fz, P_1 = sampleBendingShape(span_disc, x_h1, x_h2, x_h3, p, d_a, q, theta, c_a, h_a, l_a, d_1, d_3,  E,  I_yy, I_zz, 1, 2700e0, 27e3)
 
 
@@ -103,7 +102,7 @@ if plotBending==False:
 
 SFIx, SFIy, SFIz, MIx, MIy, MIz = getInternalLoads(span_disc,F_2x, Fy, Fz, P_1)
 
-#Plot internal loads if enabled
+#Plot internal loads if enabled, 6 plots
 if plotInternal:
     plt.subplot(231)
     plt.plot(span_disc,SFIx)
@@ -131,6 +130,8 @@ if plotInternal:
     
     plt.show ()
 
+#Generates 6 plots, each containing both the Analytical model's values and the 
+#Numerical model's values
 if plotVerInternal:
     if theta==26:
         case=1
@@ -138,6 +139,8 @@ if plotVerInternal:
         case=0
     else:
         case=2
+    #NOTE: Order is not the same as that within VerInternalLoads.py
+    #this is due to an error in the analytical model, do not fix
     xVer,VzVer,VyVer,MyVer,MzVer,MxVer=getVerInternalLoads(case)
     titleFontSize=14
     axisFontSize=12
@@ -214,15 +217,15 @@ plotLETE(U_LEs_FEM, U_TEs_FEM, LE_xlocs, TE_xlocs, correction_LE, correction_TE,
 
 
 ####Compute the shear flow in the ribs
-#systemOfEquationsForShearRib = shearFlowRib(cross_disc, z_bar, y_bar)
-##Rib A, Fy1,Fz1
-#q_A,q_1_A,q_2_A=systemOfEquationsForShearRib.calculateShear(P_1=0, P_2=0, F_z=Fz[0], F_y=Fy[0])
-##Rib B
-#q_B,q_1_B,q_2_B=systemOfEquationsForShearRib.calculateShear(P_1=P_1, P_2=0, F_z=Fz[1]*0.5, F_y=Fy[1]*0.5)
-##Rib C
-#q_C,q_1_C,q_2_C=systemOfEquationsForShearRib.calculateShear(P_1=0, P_2=p, F_z=Fz[1]*0.5, F_y=Fy[1]*0.5)
-##Rib D
-#q_D,q_1_D,q_2_D=systemOfEquationsForShearRib.calculateShear(P_1=0, P_2=0, F_z=Fz[2], F_y=Fy[2])
+systemOfEquationsForShearRib = shearFlowRib(cross_disc, z_bar, y_bar)
+#Rib A, Fy1,Fz1
+q_A,q_1_A,q_2_A=systemOfEquationsForShearRib.calculateShear(P_1=0, P_2=0, F_z=Fz[0], F_y=Fy[0])
+#Rib B
+q_B,q_1_B,q_2_B=systemOfEquationsForShearRib.calculateShear(P_1=P_1, P_2=0, F_z=Fz[1]*0.5, F_y=Fy[1]*0.5)
+#Rib C
+q_C,q_1_C,q_2_C=systemOfEquationsForShearRib.calculateShear(P_1=0, P_2=p, F_z=Fz[1]*0.5, F_y=Fy[1]*0.5)
+#Rib D
+q_D,q_1_D,q_2_D=systemOfEquationsForShearRib.calculateShear(P_1=0, P_2=0, F_z=Fz[2], F_y=Fy[2])
 
 
 

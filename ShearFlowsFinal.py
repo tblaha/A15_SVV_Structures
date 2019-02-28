@@ -13,11 +13,6 @@ Created on Tue Feb 19 14:57:40 2019
 
 import numpy as np
 from UniversalConstants import *
-##from discretization import *
-#from Centroid import *
-#from InternalLoads import *
-#from Stiffeners import *
-
 import matplotlib.pyplot as plt
 
 

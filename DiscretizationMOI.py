@@ -12,8 +12,11 @@ import numpy as np
 
 def discretizeCrossSectionMOI(S_cor, S_uncor, h_a, c_a, n_st, A_st, t_sk, t_sp, y_c, z_c, booms_between, Ybar_st, cg_correction):
     
+    #Init booms array
     spar_scale_up = 4
     B = np.zeros(( (booms_between+1) * (n_st + spar_scale_up) + n_st, 5))
+    
+    #Calculate geometrical properties crosssection    
     
     booms_last_straight = np.floor(booms_between/2)
     
@@ -36,9 +39,8 @@ def discretizeCrossSectionMOI(S_cor, S_uncor, h_a, c_a, n_st, A_st, t_sk, t_sp, 
     boom_leftover_length  = boom_leftover_angle *h_a/2
     
     booms_in_circular = int(stiffs_in_circular + booms_between*(np.floor(stiffs_in_circular/2)*2)+leftover_booms*2)
-    
-    #2.23009806
-    
+
+    #calculate the boom areas and locations for the circular part
     s = 0
     for i in range(booms_in_circular):
         angle = stiff_leftover_angle + (i-leftover_booms)*angle_per_boom
@@ -90,6 +92,7 @@ def discretizeCrossSectionMOI(S_cor, S_uncor, h_a, c_a, n_st, A_st, t_sk, t_sp, 
     booms_in_straight = int(booms_between - leftover_booms + (booms_between+1)*(stiffs_in_each_straight-1) + booms_last_straight + 1)
     first_boom_length = length_per_boom - boom_leftover_length
     
+    #calculate the boom areas and locations for the straight part
     for j in range(booms_in_straight):
         i = i + 1
         
@@ -123,8 +126,7 @@ def discretizeCrossSectionMOI(S_cor, S_uncor, h_a, c_a, n_st, A_st, t_sk, t_sp, 
             
             s = s + 1
             
-        # Fix corner cases, but only for the last one
-        # AM I SURE THAT THERE IS NO CORNER CASE AT THE END OF THIS SECTION         
+        # Fix corner cases, but only for the last one     
         if j == 0:
             B[i,2]  += t_sk/6 * first_boom_length * (2 + 1)
             B[i,3]  += t_sk/6 * first_boom_length * (2 + 1)
@@ -164,8 +166,7 @@ def discretizeCrossSectionMOI(S_cor, S_uncor, h_a, c_a, n_st, A_st, t_sk, t_sp, 
         
         k = k - 1
         
-        # Fix corner cases, but only for the last one
-        # AM I SURE THAT THERE IS NO CORNER CASE AT THE START OF THIS SECTION         
+        # Fix corner cases, but only for the last one  
         if j == int(booms_in_straight)-1:
             B[i,2]  += t_sk/6 * first_boom_length * (2 + 1)
             B[i,3]  += t_sk/6 * first_boom_length * (2 + 1)
@@ -202,7 +203,7 @@ def discretizeCrossSectionMOI(S_cor, S_uncor, h_a, c_a, n_st, A_st, t_sk, t_sp, 
             
             
             
-    # shitty postfix
+    #Postfix for empty lines at the end of the matrix
     emtpy_lines = int(np.floor(len(B[np.where(B[:,0:2] == 0)])/2))
     B = np.delete(B, [np.arange(len(B)-emtpy_lines,len(B))],0)
     
@@ -255,11 +256,3 @@ def plotCrossSection(B, Balt):
     plt.show()
       
     
-#S_uncor = generateStiffeners(h_a, c_a, n_st, A_st, t_sk, t_sp, Ybar_st, 0)
-#S_cor   = generateStiffeners(h_a, c_a, n_st, A_st, t_sk, t_sp, Ybar_st, 1)
-##
-##for i in range(32,-1,-4):
-#bib = 49
-#B = discretizeCrossSection(S_cor, S_uncor, h_a, c_a, n_st, A_st, t_sk, t_sp, 0, -98, bib, Ybar_st, 0)
-#Balt = discretizeCrossSection(S_cor, S_uncor, h_a, c_a, n_st, A_st, t_sk, t_sp, 0, -98, bib, Ybar_st, 1)
-#plotCrossSection(B, Balt)

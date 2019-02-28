@@ -22,13 +22,12 @@ w_st=20     #Width Stiffener,               2cm
 n_st=17     #Number of Stiffeners,          17
 d_1=11.03   #Vertical displacement hinge 1, 1.103cm
 d_3=16.42   #Vertical displacement hinge 3, 1.642cm
-theta=0    #Degrees (max) deflection,      26 Degrees
-theta_radians=theta*(pi/180.)
+theta=26    #Degrees (max) deflection,      26 Degrees
+theta_radians=theta*(pi/180.) #Get theta in radians too
 p=91700     #Force of actuator 2,           91.7kN
 q=4.530     #Distributed aerodynamic load,  4.53kN/m
 E=73.1e3    # Young's modulus Al 2042 T3    73.1GPa
 G=28e3      # Shear modulus Aluminium       28GPa
-A_st=(h_st+w_st-t_st)*t_st
 
 #Stiffener properties
 st_acc=1 #Change this to 1 to increase accuracy, 0 is to be
@@ -46,6 +45,7 @@ Ybar_st=AreaDistance_sum_st/A_st
 #Areas for shear flow calculations
 #Rounded cell area
 Cell_Area1=0.5*pi*(h_a/2)**2
+
 #Cell with two diagonal parts
 Cell_Area2=(c_a-(h_a/2))*(h_a/2)
 
