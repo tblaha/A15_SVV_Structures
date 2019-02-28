@@ -78,7 +78,7 @@ if VerificationAssumptions:
     cross_disc=discretizeCrossSectionMOI(S_cor,S_uncor,h_a, c_a, n_st, A_st, t_sk, t_sp, y_bar, z_bar, booms_between, Ybar_st, cg_cor_stiffeners)
     z_bar=0 #done after the calculations for MOI to not upset the boom discretization
 else:
-    cross_disc=   discretizeCrossSection(S_cor,S_uncor,h_a, c_a, n_st, A_st, t_sk, t_sp, y_bar, z_bar, booms_between, Ybar_st, cg_cor_stiffeners)
+    cross_disc=discretizeCrossSection(S_cor,S_uncor,h_a, c_a, n_st, A_st, t_sk, t_sp, y_bar, z_bar, booms_between, Ybar_st, cg_cor_stiffeners)
 
 ##Calc MOI
 I_zz,I_yy = momentOfInertia(cross_disc)
@@ -206,20 +206,17 @@ disp_le_y_max, disp_te_y_max, disp_le_max_x, disp_te_max_x, displ_le, displ_te=s
 plotLETE(U_LEs_FEM, U_TEs_FEM, LE_xlocs, TE_xlocs, correction_LE, correction_TE, '', span_disc, displ_le, displ_te)
 
 
-##compare deflection FEM to analytical
-
-
-
 ##Compute the shear flow in the ribs
 systemOfEquationsForShearRib = shearFlowRib(cross_disc, z_bar, y_bar)
 #Rib A, Fy1,Fz1
-q_A,q_1_A,q_2_A=systemOfEquationsForShearRib.solveSys(P_1=0, P_2=0, F_z=Fz[0], F_y=Fy[0])
+q_A,q_1_A,q_2_A=systemOfEquationsForShearRib.calculateShear(P_1=0, P_2=0, F_z=Fz[0], F_y=Fy[0])
 #Rib B
-q_B,q_1_B,q_2_B=systemOfEquationsForShearRib.solveSys(P_1=P_1, P_2=0, F_z=0*Fz[1]*0.5, F_y=0*Fy[1]*0.5)
+q_B,q_1_B,q_2_B=systemOfEquationsForShearRib.calculateShear(P_1=P_1, P_2=0, F_z=Fz[1]*0.5, F_y=Fy[1]*0.5)
 #Rib C
-q_C,q_1_C,q_2_C=systemOfEquationsForShearRib.solveSys(P_1=0, P_2=p, F_z=0*Fz[1]*0.5, F_y=0*Fy[1]*0.5)
+q_C,q_1_C,q_2_C=systemOfEquationsForShearRib.calculateShear(P_1=0, P_2=p, F_z=Fz[1]*0.5, F_y=Fy[1]*0.5)
 #Rib D
-q_D,q_1_D,q_2_D=systemOfEquationsForShearRib.solveSys(P_1=0, P_2=0, F_z=Fz[2], F_y=Fy[2])
+q_D,q_1_D,q_2_D=systemOfEquationsForShearRib.calculateShear(P_1=0, P_2=0, F_z=Fz[2], F_y=Fy[2])
+
 
 
 
@@ -276,8 +273,7 @@ if printOutputs:
     print('Magnitude of the maximum shear flow in rib C: ', max(abs(q_C)), '[N/mm]')
     print('Magnitude of the maximum shear flow in rib D: ', max(abs(q_D)), '[N/mm]')
     
-     
+          
 if printMOI==True: #Prints Moment of Inertia 
     print('Iyy=', I_yy) 
     print('Izz=', I_zz) 
-     

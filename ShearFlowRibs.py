@@ -53,10 +53,12 @@ class shearFlowRib:
 	
 	def __init__(self, B, Z_bar, Y_bar):
 		plot_q_sections = True
+		self.plot_q_sections = plot_q_sections
 		plot_cross_section = False
 		plot_cross_section_live = False
 		plot_matrix = False
 		print_statements = False
+		self.print_statements = print_statements
 		
 		if print_statements:
 			print('There are %i points in the cross-section discretization.' % len(B))
@@ -66,6 +68,9 @@ class shearFlowRib:
 		nose = 1
 		tail = 2
 		spar = 3
+		self.nose = nose
+		self.tail = tail
+		self.spar = spar
 		'''
 		points = []
 		points.append([0., h_a/2., spar)
@@ -89,7 +94,9 @@ class shearFlowRib:
 				points_spar.append([point[1] + Z_bar, point[0] + Y_bar, spar])
 		###
 		points = np.array(points)
+		self.points = points
 		points_spar = np.array(points_spar)
+		self.points_spar = points_spar
 		'''
 		points_spar_transpose = points_spar.transpose()
 		plt.plot(points_spar_transpose[0], points_spar_transpose[1], 'bo')
@@ -186,7 +193,7 @@ class shearFlowRib:
 		self.A[len(self.A)-1, len(points)-1] = points[0][1] - points[len(points)-1][1]
 		
 		points_spar_index = 0
-		for i in range(len(points), len(A)):
+		for i in range(len(points), len(self.A)):
 			self.A[len(self.A)-1, i] = points_spar[points_spar_index+1][1] - points_spar[points_spar_index][1]
 			points_spar_index += 1
 		
@@ -204,8 +211,15 @@ class shearFlowRib:
 			plt.show()
 		### END ###
 	
-	def solve(P_1=0., P_2=0., F_z=0., F_y=0.):
+	#def solve(P_1=0., P_2=0., F_z=0., F_y=0.):
+	def calculateShear(self, P_1, P_2, F_z, F_y):
 		### This bit creates the b vector. The b vector is dependend on the load case. ###
+		nose = self.nose
+		tail = self.tail
+		spar = self.spar
+		dim = len(self.A)
+		points = self.points
+		points_spar = self.points_spar
 		b = np.zeros(dim)
 		for i in range(len(points)):
 			b[i] += (points[i][1] - (h_a/2.))*P_1*np.cos(theta_radians) + ((h_a/2.) - points[i][0])*P_1*np.sin(theta_radians)
@@ -223,13 +237,13 @@ class shearFlowRib:
 		
 		### END ###
 		
-		if print_statements:
+		if self.print_statements:
 			print('The determinant of A: det(A) = %i.' % det(self.A))
 		
 		q = lstsq(self.A, b, rcond=1e-10)
 		q = q[0]
 		
-		if plot_q_sections:
+		if self.plot_q_sections:
 			plt.title('Number of points: ' + str(len(points)))
 			plt.plot(range(len(self.A)), q, color='lightgray')
 			for i in range(len(self.A)):
@@ -259,7 +273,7 @@ class shearFlowRib:
 			print('The sum of the forces in the y direction was: %f' % F_y_tot)
 			print('The sum of the calculated shear flows in the y direction was: %f' % fy)
 		
-		if print_statements:
+		if self.print_statements:
 			print('The sum of the shearforces in the z direction: fz = %f.' % F_z_tot)
 			print('The sum of the shearforces in the y direction: fy = %f.' % F_y_tot)
 		### END ###

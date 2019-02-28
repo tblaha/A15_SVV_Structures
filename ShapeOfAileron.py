@@ -68,6 +68,8 @@ def shapeOfAileron(x_coords, displ_na, d_theta, Z_bar, plot_aileron=False, plot_
 	- The x coordinate of the cross-section at which the displacement of the TE is maximum (absolute).
 	'''
 	
+	rotate_about = 'hinge'
+	
 	# We start by calculating the width of the spanwise sections we divide the aileron in.
 	# These widths will be stored in section_widths.
 	# There will be one less section as there are cross-sections thus when initializing
@@ -235,12 +237,24 @@ def shapeOfAileron(x_coords, displ_na, d_theta, Z_bar, plot_aileron=False, plot_
 	# to get the right format of array. Then we'll subtract the coordinates of the LE/TE coordinates
 	# Were there no load.
 	displ_le = le_coords.copy()
-	displ_le[0] = le_coords[0] - np.sin(-theta_radians)*((h_a/2.)-Z_bar)
-	displ_le[1] = le_coords[1] - np.cos(-theta_radians)*((h_a/2.)-Z_bar)
-	
 	displ_te = te_coords.copy()
-	displ_te[0] = te_coords[0] - np.sin(-theta_radians+np.pi)*(c_a - (h_a/2.) + Z_bar)
-	displ_te[1] = te_coords[1] - np.cos(-theta_radians+np.pi)*(c_a - (h_a/2.) + Z_bar)
+	
+	# This bit is for rotation about the centroid.
+	if rotate_about == 'centroid':
+		displ_le[0] = le_coords[0] - np.sin(-theta_radians)*((h_a/2.)-Z_bar)
+		displ_le[1] = le_coords[1] - np.cos(-theta_radians)*((h_a/2.)-Z_bar)
+		
+		displ_te[0] = te_coords[0] - np.sin(-theta_radians+np.pi)*(c_a - (h_a/2.) + Z_bar)
+		displ_te[1] = te_coords[1] - np.cos(-theta_radians+np.pi)*(c_a - (h_a/2.) + Z_bar)
+	
+	# This bit is for rotation about the hinge.
+	elif rotate_about == 'hinge':
+		displ_le[0] = le_coords[0] - np.sin(-theta_radians)*((h_a/2.))
+		displ_le[1] = le_coords[1] - np.cos(-theta_radians)*((h_a/2.))
+		
+		displ_te[0] = te_coords[0] - np.sin(-theta_radians+np.pi)*(c_a - (h_a/2.))
+		displ_te[1] = te_coords[1] - np.cos(-theta_radians+np.pi)*(c_a - (h_a/2.))
+	
 	
 	# Here I plot the NA, LE and TE if so desired (if plot is set to True).
 	if plot_aileron:
