@@ -119,7 +119,7 @@ def baseShearFlows(I_zz,I_yy,SFIz,SFIy,B_array,MIx,Z_bar):
             #Distance between each boom. 
             #FORMAT: / i number / y-direction / z-direction / ID /
             if i==len(B_array[:,0])-1:
-                B_Distance[i,1]=B_Distance[i-1,1]
+                B_Distance[i,1]=B_Distance[i,1]
                 B_Distance[i,2]=0.
                 midpoint_y=0
                 midpoint_z=0
@@ -195,7 +195,7 @@ def baseShearFlows(I_zz,I_yy,SFIz,SFIy,B_array,MIx,Z_bar):
     #Moment_Cont_qs0_1=2*Cell_Area1*qs0_1
     #Moment_Cont_qs0_2=2*Cell_Area_2*qs0_2
     
-     #If centroid lies to right of hinge, then the shear force in y will create a negative moment
+    #If centroid lies to right of hinge, then the shear force in y will create a negative moment
     if Z_bar<0:
         SFIy=-SFIy
         Moment_qb_y_3=-Moment_qb_y_3

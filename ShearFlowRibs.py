@@ -261,7 +261,7 @@ class shearFlowRib:
 		fz += q[len(points)-1]*(points[0][0] - points[len(points)-1][0])
 		fy += q[len(points)-1]*(points[0][1] - points[len(points)-1][1])
 		for i in range(len(points_spar)-1):
-			fy -= q[len(points) + i]*(points_spar[i+1][0] - points_spar[i][0])
+			fy += q[len(points) + i]*(points_spar[i+1][1] - points_spar[i][1])
 		
 		F_z_tot = F_z + (P_1 - P_2)*np.cos(theta_radians)
 		F_y_tot = F_y + (P_1 - P_2)*np.sin(theta_radians)
@@ -315,19 +315,27 @@ booms_between_list = [0, 1, 5, 10, 20]
 #booms_between_list = [0, 1, 2, 5, 10, 20, 50, 100]
 #booms_between_list = range(200, 201)
 #booms_between_list = [0]
-n_st = 3
+n_st = n_st
 for i in booms_between_list:
 	booms_between = i
 	#B = d.discretizeCrossSection(S_cor, S_uncor, h_a, c_a, n_st, A_st, t_sk, t_sp, y_c, z_c, booms_between, Ybar_st, cg_cor_stiffeners)
 	B = d.discretizeCrossSection(h_a, c_a, n_st, A_st, t_sk, t_sp, y_c, z_c, booms_between, Ybar_st, 0.)
 	for line in B: print(line)
-	q, q_1, q_2 = shearFlowRib(B, z_c, y_c, F_z=19390./2., F_y=8397./2., P_1=100.)
+	ShearFlowRibSystemOfEquations = shearFlowRib(B, z_c, y_c)
+	q, q_1, q_2 = ShearFlowRibSystemOfEquations.calculateShear(P_1=100., P_2=0., F_z=19390./2., F_y=8397./2.)
 	q_1_list.append(q_1)
 	q_2_list.append(q_2)
 	q_list.append(q)
 	print('The calculated shearflow in the nose web: q_1 = %f.' % q_1)
 	print('The calculated shearflow in the tail web: q_2 = %f.' % q_2)
 	print()
+for q in q_list:
+	plt.plot(np.linspace(0, 1, len(q)), q, '-o', label=str(len(q)))
+plt.legend()
+plt.grid()
+plt.tight_layout()
+plt.show()
+
 plt.plot(booms_between_list, q_1_list, 'b-o', label='q_1')
 plt.plot(booms_between_list, q_2_list, 'g-o', label='q_2')
 plt.grid()

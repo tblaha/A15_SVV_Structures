@@ -31,7 +31,7 @@ VerificationAssumptions=False #Adjusts the program so that the program matches t
 span_nodes_between=20 #How many nodes between two points of interest
 span_ec=0.001 #How close should the first point be to the point of interest
 span_offset=30 #How concentrated should the points be (Lower is higher concentration)
-booms_between=200 #The amount of booms between each centre
+booms_between=20 #The amount of booms between each centre
 cg_cor_stiffeners=1 #Correct for the stiffeners centroid or not
 
 #plots
@@ -68,7 +68,7 @@ y_bar,z_bar=findCentroid(Stiffeners)
 span_disc=discretizeSpan(x_h1, x_h2, x_h3, d_a, l_a, span_nodes_between,span_ec,span_offset)
 
 #Plot spanwise distribution of nodes if enabled
-if plotSpan==True:
+if plotSpan==False:
     plt.plot(span_disc,len(span_disc)*[1],'x')
     plt.show()
 
@@ -89,7 +89,7 @@ d_yz_vec, F_2x, Fy, Fz, P_1 = sampleBendingShape(span_disc, x_h1, x_h2, x_h3, p,
 
 
 #Plot bending shape if enabled
-if plotBending==True:
+if plotBending==False:
     fig, axs = plt.subplots(2, 1)
     axs[0].plot(span_disc, d_yz_vec[0,:])
     axs[1].plot(span_disc, d_yz_vec[1,:])
