@@ -353,3 +353,24 @@ if printReactionForces==True: #Prints all reaction forces
 if printMOI==True: #Prints Moment of Inertia 
     print('Iyy=', I_yy) 
     print('Izz=', I_zz) 
+    
+
+#####RELATIVE ERROR FOR THE DELFECTION#####
+
+def deflRelativeError(LE_FEM, TE_FEM, LE_NUM, TE_NUM):
+    Relative_Errors_LE=np.zeros(len(LE_FEM))
+    Relative_Errors_TE=np.zeros(len(TE_FEM))
+    for i in range(len(LE_FEM)):
+        Relative_Errors_LE[i]=(LE_FEM[i]-LE_NUM[i])/LE_FEM[i]
+        Relative_Errors_TE[i]=(TE_FEM[i]-TE_NUM[i])/TE_NUM[i]
+    
+    return Relative_Errors_LE, Relative_Errors_TE
+
+#Relative_Errors_LE = deflRelativeError()
+        
+        
+        
+        
+        
+        
+        
