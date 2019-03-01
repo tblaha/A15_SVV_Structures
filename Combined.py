@@ -244,6 +244,9 @@ arc_coords, S_post_ribs, U_LEs_FEM, U_TEs_FEM, LE_xlocs, TE_xlocs, correction_LE
 disp_le_y_max, disp_te_y_max, disp_le_max_x, disp_te_max_x, displ_le, displ_te, section_thetas=shapeOfAileron(span_disc, d_yz_vec, -dtdx, plot_aileron=plotAileron, plot_deflections_theta_0=plotDeflectionsTheta0, plot_deflections=plotDeflections)
 plotLETE(U_LEs_FEM, U_TEs_FEM, LE_xlocs, TE_xlocs, correction_LE, correction_TE, FEMversion, span_disc, displ_le, displ_te) ## add arg!
 
+# trailing edge max
+TE_max_y = np.max(np.sin(26*np.pi/180) * (c_a-h_a/2) + displ_te[0])
+TE_max_z = np.max((1-np.cos(26*np.pi/180)) * (c_a-h_a/2) + displ_te[1])
 
 
 
