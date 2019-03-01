@@ -69,7 +69,7 @@ y_bar,z_bar=findCentroid(Stiffeners)
 span_disc=discretizeSpan(x_h1, x_h2, x_h3, d_a, l_a, span_nodes_between,span_ec,span_offset)
 
 #Plot spanwise distribution of nodes if enabled
-if plotSpan==False:
+if plotSpan:
     plt.plot(span_disc,len(span_disc)*[1],'x')
     plt.show()
 
@@ -89,7 +89,7 @@ d_yz_vec, F_2x, Fy, Fz, P_1 = sampleBendingShape(span_disc, x_h1, x_h2, x_h3, p,
 
 
 #Plot bending shape if enabled
-if plotBending==False:
+if plotBending:
     fig, axs = plt.subplots(2, 1)
     axs[0].plot(span_disc, d_yz_vec[0,:])
     axs[1].plot(span_disc, d_yz_vec[1,:])
