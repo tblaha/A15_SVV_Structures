@@ -15,7 +15,10 @@ def shapeOfAileron(x_coords, displ_na, d_theta, plot_aileron=False, plot_deflect
 	The input for the displacements will be an array consisting of two arrays.
 	The first array holds the displacements in the y-direction, the second array
 	the displacements in the z-direction. The arrays are ordered in the same
-	manner as the x_coords array.
+	manner as the x_coords array. The coordinates are given in the local coordinate
+	system of the aileron which is centered on the hinge line under no deflections
+	and with the z axis pointing in towards the LE and the y axis pointing towards
+	the top spar cap.
 	
 	- d_theta:
 	The rate of twist for each section given in an array. The array is ordered
@@ -58,14 +61,18 @@ def shapeOfAileron(x_coords, displ_na, d_theta, plot_aileron=False, plot_deflect
 	LE and TE in the y direction and the x coordinate of the corresponding cross-sections.
 	
 	OUTPUTS:
-	- The maximum (absolute) displacement of the ailerons LE compared to the unloaded case.
-	- The maximum (absolute) displacement of the ailerons TE compared to the unloaded case.
-	- The x coordinate of the cross-section at which the displacement of the LE is maximum (absolute).
-	- The x coordinate of the cross-section at which the displacement of the TE is maximum (absolute).
+	- The maximum displacement in y of the ailerons LE compared to the unloaded case.
+	- The maximum displacement in y of the ailerons TE compared to the unloaded case.
+	- The x coordinate of the cross-section at which the displacement of the LE in y is maximum.
+	- The x coordinate of the cross-section at which the displacement of the TE in y is maximum.
+	- An array holding the displacements of the LE. The first entry of the array holds the
+	displacements in y and the second entry holds the displacements in z.
+	- An array holding the displacements of the TE. The first entry of the array holds the
+	displacements in y and the second entry holds the displacements in z.
+	- An array that holds the angles of the cross-section as measured against the global coordinate
+	system which is centered on the hinge line under no deflection and points towards the LE if
+	theta is 0. The y axis points towards the top spar cap if theta is 0.
 	'''
-	
-	rotate_about = 'hinge'
-	theta_radians = 0.
 	
 	# We start by calculating the width of the spanwise sections we divide the aileron in.
 	# These widths will be stored in section_widths.
@@ -386,31 +393,3 @@ def shapeOfAileron(x_coords, displ_na, d_theta, plot_aileron=False, plot_deflect
 	# Now we return the maximum displacement of the LE and TE in the y direction and the
 	# x coordinates of the corresponding cross-sections.
 	return disp_le_y_max, disp_te_y_max, disp_le_max_x, disp_te_max_x, displ_le, displ_te, section_theta
-
-def shapeOfAileronTest():
-	'''
-	This function is just to test the shapeOfAileron() function above.
-	It takes no inputs as the inputs with which we are going to test
-	the shapeOfAileron() function will be defined below.
-	We then output the variables that the shapeOfAileron() function outputs.
-	'''
-	
-	# Here we define the variables which we want to pass to the shapeOfAileron() funcion.
-	x_coords = np.array([0., 100., 200., 300., 400., 500.])*10.
-	displ_na = np.array([[0., 1., 2., 3., 4., 5.], [0., 3., 6., 9., 12., 15.]])
-	displ_na = np.array([[0., 0., 0., 0., 0., 0.], [0., 0., 0., 0., 0., 0.]])
-	d_theta = np.array([-1, -0.5, -0.2, 0.3, 1.2])*0.0001
-	d_theta = np.array([0., 0., 0., 0., 30*(np.pi/180.)])*0.001
-	#d_theta = np.ones(5)*0.0005
-	#d_theta = np.zeros(5)
-	#h_a = 12.5
-	#c_a = 50.
-	
-	# And here we run the shapeOfAileron() function and print its outputs.
-	#disp_le_y_max, disp_te_y_max, disp_le_max_x, disp_te_max_x, displ_le, displ_te, section_theta= shapeOfAileron(x_coords, displ_na, d_theta, theta, x_h2, d_a, h_a, c_a, plot=True)
-	disp_le_y_max, disp_te_y_max, disp_le_max_x, disp_te_max_x, displ_le, displ_te, section_theta = shapeOfAileron(x_coords, displ_na, d_theta, plot_aileron=True, plot_deflections_theta_0=True, plot_deflections=True)
-	print(disp_le_y_max)
-	print(disp_te_y_max)
-	print(disp_le_max_x)
-	print(disp_te_max_x)
-#shapeOfAileronTest()
