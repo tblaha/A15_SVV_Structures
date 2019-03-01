@@ -24,6 +24,7 @@ h_a,c_a,n_st,A_st,t_sk,t_sp,Ybar_st,x_h1,x_h2,x_h3,l_a,d_a,p,q,theta,d_1,d_3,E,G
 from VerInternalLoads import getVerInternalLoads
 from vonMises import *
 from InterpretFEMData import *
+from verDeflections import *
 
 #Verification
 VerificationAssumptions=False #Adjusts the program so that the program matches the analytical model as closely as possible.
@@ -43,7 +44,7 @@ plotVerInternal=False #Plots Internal loads in a diagram with the analytical int
 plotAileron=False #Plots a simplified version of the aileron.
 plotDeflectionsTheta0=False	#Plots the displacements of the LE and TE compared to where they would be if theta was 0 and there was no loading.
 plotDeflections=False #Plots the displacements of the LE and TE compared to where they would be if there was no loading.
-
+plotVerificationDisplacements=False #plots verification data for displacements 
 
 #prints
 printInfo=False #Prints all chosen variables
@@ -246,7 +247,24 @@ plotLETE(U_LEs_FEM, U_TEs_FEM, LE_xlocs, TE_xlocs, correction_LE, correction_TE,
 
 
 
-
+if plotVerificationDisplacements:
+    if theta==26:
+        case=1
+    elif theta==0:
+        case=0
+    else:
+        case=2
+    Xver,LE_Z,LE_Y,TE_Z,TE_Y=getVerDeflections(case)
+    
+    plt.figure(5001)
+    plt.title('An. vs. Num. displacement of the leading edge with \n 0 degrees deflection', fontsize=14)
+    plt.xlabel('x-position [mm]', fontsize=12)
+    plt.ylabel('displacement in y [mm]', fontsize=12)
+    plt.plot(Xver,LE_Y, label='Verification data')
+    plt.plot(span_disc, displ_le[0,:], label='Numerical data')
+    plt.legend()
+    plt.show()
+    
 ####Compute the shear flow in the ribs
 systemOfEquationsForShearRib = shearFlowRib(cross_disc, z_bar, y_bar)
 #Rib A, Fy1,Fz1
