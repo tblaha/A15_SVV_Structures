@@ -27,28 +27,9 @@ class shearFlowRib:
 	The y coordinate of the centroid of the idealized cross-section as
 	measured from the hingeline.
 	
-	- P_1:
-	The force of actuator I.
-	
-	- P_2:
-	The force of actuator II.
-	
-	- F_z:
-	The force in the positive z direction of the hinge.
-	
-	- F_y:
-	The force in the positive y direction of the hinge.
-	
 	OUTPUTS:
-	- The shearflows on the perimeter of the rib given in an array.
-	Each entry corresponds with a section of the boom discretization,
-	only considering the sections on the perimeter. The sections are
-	ordered starting from the top of the spar, going down over the nose.
-	The shear flows are also defined positive in this direction.
-	- The shearflow in the web of the nose of the aileron.
-	Defined positive counter-clockwise.
-	- The shearflow in the web of the back of the aileron.
-	Defined positive counter-clockwise.
+	Initializes the matrix A with the geometrical data that can then be
+	used to calculate the shear flows.
 	'''
 	
 	def __init__(self, B, Z_bar, Y_bar):
@@ -213,6 +194,32 @@ class shearFlowRib:
 	
 	#def solve(P_1=0., P_2=0., F_z=0., F_y=0.):
 	def calculateShear(self, P_1, P_2, F_z, F_y):
+		'''
+		INPUTS:
+		- P_1:
+		The force of actuator I.
+		
+		- P_2:
+		The force of actuator II.
+		
+		- F_z:
+		The force in the positive z direction of the hinge.
+		
+		- F_y:
+		The force in the positive y direction of the hinge.
+		
+		OUTPUTS:
+		- The shearflows on the perimeter of the rib given in an array.
+		Each entry corresponds with a section of the boom discretization,
+		only considering the sections on the perimeter. The sections are
+		ordered starting from the top of the spar, going down over the nose.
+		The shear flows are also defined positive in this direction.
+		- The shearflow in the web of the nose of the aileron.
+		Defined positive counter-clockwise.
+		- The shearflow in the web of the back of the aileron.
+		Defined positive counter-clockwise.
+		'''
+		
 		nose = self.nose
 		tail = self.tail
 		spar = self.spar
@@ -293,61 +300,9 @@ class shearFlowRib:
 		### END ###
 		
 		return q, q_1, q_2
-'''
-# This bit was used for testing.
-import Stiffeners as s
-import Centroid as C
-import DiscretizationV2 as d
-import discretization as d
-q_1_list = []
-q_2_list = []
-q_list = []
-S_uncor = s.generateStiffeners(h_a, c_a, n_st, A_st, t_sk, t_sp, Ybar_st, 0)
-S_cor = s.generateStiffeners(h_a, c_a, n_st, A_st, t_sk, t_sp, Ybar_st, 1)
-cg_cor_stiffeners=1
-if cg_cor_stiffeners==1:
-    Stiffeners=S_cor
-else:
-    Stiffeners=S_uncor
-y_c, z_c = C.findCentroid(Stiffeners)
-booms_between_list = [0, 1, 5, 10, 20, 30, 40, 50]
-booms_between_list = range(0, 55, 5)
-booms_between_list = [0, 1, 5, 10, 20]
-#booms_between_list = [0, 1, 2, 5, 10, 20, 50, 100]
-#booms_between_list = range(200, 201)
-#booms_between_list = [0]
-n_st = n_st
-for i in booms_between_list:
-	booms_between = i
-	#B = d.discretizeCrossSection(S_cor, S_uncor, h_a, c_a, n_st, A_st, t_sk, t_sp, y_c, z_c, booms_between, Ybar_st, cg_cor_stiffeners)
-	B = d.discretizeCrossSection(h_a, c_a, n_st, A_st, t_sk, t_sp, y_c, z_c, booms_between, Ybar_st, 0.)
-	for line in B: print(line)
-	ShearFlowRibSystemOfEquations = shearFlowRib(B, z_c, y_c)
-	q, q_1, q_2 = ShearFlowRibSystemOfEquations.calculateShear(P_1=100., P_2=0., F_z=19390./2., F_y=8397./2.)
-	q_1_list.append(q_1)
-	q_2_list.append(q_2)
-	q_list.append(q)
-	print('The calculated shearflow in the nose web: q_1 = %f.' % q_1)
-	print('The calculated shearflow in the tail web: q_2 = %f.' % q_2)
-	print()
-for q in q_list:
-	plt.plot(np.linspace(0, 1, len(q)), q, '-o', label=str(len(q)))
-plt.legend()
-plt.grid()
-plt.tight_layout()
-plt.show()
-
-plt.plot(booms_between_list, q_1_list, 'b-o', label='q_1')
-plt.plot(booms_between_list, q_2_list, 'g-o', label='q_2')
-plt.grid()
-plt.tight_layout()
-plt.show()
-
-'''
-
 
 def plotRibShear(cross_disc, z_bar, q_Rib, arc_coords, vonMises_before, vonMises_after, ribname):
-
+	
 	plt.ioff()
     
 	rib_arc = np.zeros(len(q_Rib)-1)
