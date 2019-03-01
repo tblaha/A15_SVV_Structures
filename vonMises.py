@@ -136,4 +136,3 @@ def plotVonMisesBoth(B, FEMstresses, NUMstresses, xloc, nodes):
     plt.savefig('Plots/CombinedStressSections/S_LC1_x_%d.eps' % xloc, format='eps')
     
     plt.ion()
-    

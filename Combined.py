@@ -262,6 +262,7 @@ q_D,q_1_D,q_2_D=systemOfEquationsForShearRib.calculateShear(P_1=0, P_2=0, F_z=Fz
 #### Rib plots
 all_nodes   = np.genfromtxt('FEMData/NodeLocations.txt', delimiter=',')
 FEM_x_steps = 70/3
+NUM_x_steps = 1
 FEMversion = ''
 
 # Rib A
@@ -269,20 +270,41 @@ arc_coords, vonMises_FEM_rib_before, nodes_FEM = getFEMSection(x_h1-FEM_x_steps,
 arc_coords, vonMises_FEM_rib_after, nodes_FEM = getFEMSection(x_h1+FEM_x_steps, h_a, c_a, 'FEMData/A320_SLC1' + FEMversion + '.rpt', all_nodes, rib_nodes=[])
 plotRibShear(cross_disc, z_bar, q_A, arc_coords, vonMises_FEM_rib_before, vonMises_FEM_rib_after, 'A')
 
+arc_coords, vonMises_FEM_rib, nodes_FEM = getFEMSection(x_h1, h_a, c_a, 'FEMData/A320_SLC1' + FEMversion + '.rpt', all_nodes, rib_nodes=[])
+vonMises_rib_before, dummy1, dummy2 = getVonMises(x_h1-NUM_x_steps, span_disc, cross_disc, SFIz, SFIy, MIx, MIy, MIz, I_yy, I_zz, t_sk, t_sp, z_bar)
+vonMises_rib_after , dummy1, dummy2 = getVonMises(x_h1+NUM_x_steps, span_disc, cross_disc, SFIz, SFIy, MIx, MIy, MIz, I_yy, I_zz, t_sk, t_sp, z_bar)
+plotVonMisesBoth(cross_disc, vonMises_FEM_rib, (vonMises_rib_before + vonMises_rib_after) / 2, x_h1, nodes_FEM)
+
 # Rib B
 arc_coords, vonMises_FEM_rib_before, nodes_FEM = getFEMSection(x_h2-d_a/2-FEM_x_steps, h_a, c_a, 'FEMData/A320_SLC1' + FEMversion + '.rpt', all_nodes, rib_nodes=[])
 arc_coords, vonMises_FEM_rib_after, nodes_FEM = getFEMSection(x_h2-d_a/2+FEM_x_steps, h_a, c_a, 'FEMData/A320_SLC1' + FEMversion + '.rpt', all_nodes, rib_nodes=[])
 plotRibShear(cross_disc, z_bar, q_B, arc_coords, vonMises_FEM_rib_before, vonMises_FEM_rib_after, 'B')
+
+arc_coords, vonMises_FEM_rib, nodes_FEM = getFEMSection(x_h2-d_a/2, h_a, c_a, 'FEMData/A320_SLC1' + FEMversion + '.rpt', all_nodes, rib_nodes=[])
+vonMises_rib_before, dummy1, dummy2 = getVonMises(x_h2-d_a/2-NUM_x_steps, span_disc, cross_disc, SFIz, SFIy, MIx, MIy, MIz, I_yy, I_zz, t_sk, t_sp, z_bar)
+vonMises_rib_after , dummy1, dummy2 = getVonMises(x_h2-d_a/2+NUM_x_steps, span_disc, cross_disc, SFIz, SFIy, MIx, MIy, MIz, I_yy, I_zz, t_sk, t_sp, z_bar)
+plotVonMisesBoth(cross_disc, vonMises_FEM_rib, (vonMises_rib_before + vonMises_rib_after) / 2, x_h2-d_a/2, nodes_FEM)
 
 # Rib C
 arc_coords, vonMises_FEM_rib_before, nodes_FEM = getFEMSection(x_h2+d_a/2-FEM_x_steps, h_a, c_a, 'FEMData/A320_SLC1' + FEMversion + '.rpt', all_nodes, rib_nodes=[])
 arc_coords, vonMises_FEM_rib_after, nodes_FEM = getFEMSection(x_h2+d_a/2+FEM_x_steps, h_a, c_a, 'FEMData/A320_SLC1' + FEMversion + '.rpt', all_nodes, rib_nodes=[])
 plotRibShear(cross_disc, z_bar, q_C, arc_coords, vonMises_FEM_rib_before, vonMises_FEM_rib_after, 'C')
 
+arc_coords, vonMises_FEM_rib, nodes_FEM = getFEMSection(x_h2+d_a/2, h_a, c_a, 'FEMData/A320_SLC1' + FEMversion + '.rpt', all_nodes, rib_nodes=[])
+vonMises_rib_before, dummy1, dummy2       = getVonMises(x_h2+d_a/2-NUM_x_steps, span_disc, cross_disc, SFIz, SFIy, MIx, MIy, MIz, I_yy, I_zz, t_sk, t_sp, z_bar)
+vonMises_rib_after , dummy1, dummy2       = getVonMises(x_h2+d_a/2+NUM_x_steps, span_disc, cross_disc, SFIz, SFIy, MIx, MIy, MIz, I_yy, I_zz, t_sk, t_sp, z_bar)
+plotVonMisesBoth(cross_disc, vonMises_FEM_rib, (vonMises_rib_before + vonMises_rib_after) / 2, x_h2+d_a/2, nodes_FEM)
+
 # Rib D
 arc_coords, vonMises_FEM_rib_before, nodes_FEM = getFEMSection(x_h3-FEM_x_steps, h_a, c_a, 'FEMData/A320_SLC1' + FEMversion + '.rpt', all_nodes, rib_nodes=[])
 arc_coords, vonMises_FEM_rib_after, nodes_FEM = getFEMSection(x_h3+FEM_x_steps, h_a, c_a, 'FEMData/A320_SLC1' + FEMversion + '.rpt', all_nodes, rib_nodes=[])
 plotRibShear(cross_disc, z_bar, q_D, arc_coords, vonMises_FEM_rib_before, vonMises_FEM_rib_after, 'D')
+
+arc_coords, vonMises_FEM_rib, nodes_FEM = getFEMSection(x_h3, h_a, c_a, 'FEMData/A320_SLC1' + FEMversion + '.rpt', all_nodes, rib_nodes=[])
+vonMises_rib_before, dummy1, dummy2 = getVonMises(x_h3-NUM_x_steps, span_disc, cross_disc, SFIz, SFIy, MIx, MIy, MIz, I_yy, I_zz, t_sk, t_sp, z_bar)
+vonMises_rib_after , dummy1, dummy2 = getVonMises(x_h3+NUM_x_steps, span_disc, cross_disc, SFIz, SFIy, MIx, MIy, MIz, I_yy, I_zz, t_sk, t_sp, z_bar)
+plotVonMisesBoth(cross_disc, vonMises_FEM_rib, (vonMises_rib_before + vonMises_rib_after) / 2, x_h3, nodes_FEM)
+
 
 
 
@@ -300,8 +322,9 @@ plotRibShear(cross_disc, z_bar, q_D, arc_coords, vonMises_FEM_rib_before, vonMis
 
 
 # von Mises at other locations (w/out ribs)
-FEMversion = '_V2'
+FEMversion = ''
 vM_locs = np.arange(0,2771,200)
+vM_locs = np.append(vM_locs, 1380)
 vonMises_others = np.zeros((len(vM_locs), len(cross_disc)))
 Qb_y_others = np.zeros((len(vM_locs), len(cross_disc)))
 Qb_z_others = np.zeros((len(vM_locs), len(cross_disc)))
