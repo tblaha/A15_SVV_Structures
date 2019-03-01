@@ -24,6 +24,7 @@ h_a,c_a,n_st,A_st,t_sk,t_sp,Ybar_st,x_h1,x_h2,x_h3,l_a,d_a,p,q,theta,d_1,d_3,E,G
 from VerInternalLoads import getVerInternalLoads
 from vonMises import *
 from InterpretFEMData import *
+from VerDeflections import * 
 
 #Verification
 VerificationAssumptions=False #Adjusts the program so that the program matches the analytical model as closely as possible.
@@ -40,10 +41,10 @@ plotBending=False #Plots the bending shape
 plotSpan=False #Plots the distribution of the points in which forces are calculated
 plotInternal=False #Plots the internal shear and moment diagrams
 plotVerInternal=False #Plots Internal loads in a diagram with the analytical internal loads
-plotAileron=True #Plots a simplified version of the aileron.
-plotDeflectionsTheta0=True	#Plots the displacements of the LE and TE compared to where they would be if theta was 0 and there was no loading.
-plotDeflections=True #Plots the displacements of the LE and TE compared to where they would be if there was no loading.
-
+plotAileron=False #Plots a simplified version of the aileron.
+plotDeflectionsTheta0=False	#Plots the displacements of the LE and TE compared to where they would be if theta was 0 and there was no loading.
+plotDeflections=False #Plots the displacements of the LE and TE compared to where they would be if there was no loading.
+plotVerificationDisplacements=True #plots verification data for displacements  
 
 #prints
 printInfo=False #Prints all chosen variables
@@ -248,6 +249,23 @@ plotLETE(U_LEs_FEM, U_TEs_FEM, LE_xlocs, TE_xlocs, correction_LE, correction_TE,
 TE_max_y = np.max(np.sin(26*np.pi/180) * (c_a-h_a/2) + displ_te[0])
 TE_max_z = np.max((1-np.cos(26*np.pi/180)) * (c_a-h_a/2) + displ_te[1])
 
+if plotVerificationDisplacements: 
+    if theta==26: 
+        case=1 
+    elif theta==0: 
+        case=0 
+    else: 
+        case=2 
+    Xver,LE_Z,LE_Y,TE_Z,TE_Y=getVerDeflections(case) 
+     
+    plt.figure(9001) 
+    plt.title('An. vs. Num. displacement of the leading edge with \n 0 degrees deflection', fontsize=14) 
+    plt.xlabel('x-position [mm]', fontsize=12) 
+    plt.ylabel('displacement in y [mm]', fontsize=12) 
+    plt.plot(Xver,LE_Y, label='Verification data') 
+    plt.plot(span_disc, displ_le[0,:], label='Numerical data') 
+    plt.legend() 
+    plt.show() 
 
 
 ###Compute the shear flow in the ribs
