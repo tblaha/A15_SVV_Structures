@@ -40,9 +40,9 @@ plotBending=False #Plots the bending shape
 plotSpan=False #Plots the distribution of the points in which forces are calculated
 plotInternal=False #Plots the internal shear and moment diagrams
 plotVerInternal=False #Plots Internal loads in a diagram with the analytical internal loads
-plotAileron=False #Plots a simplified version of the aileron.
-plotDeflectionsTheta0=False	#Plots the displacements of the LE and TE compared to where they would be if theta was 0 and there was no loading.
-plotDeflections=False #Plots the displacements of the LE and TE compared to where they would be if there was no loading.
+plotAileron=True #Plots a simplified version of the aileron.
+plotDeflectionsTheta0=True	#Plots the displacements of the LE and TE compared to where they would be if theta was 0 and there was no loading.
+plotDeflections=True #Plots the displacements of the LE and TE compared to where they would be if there was no loading.
 
 
 #prints
@@ -233,7 +233,7 @@ FEMversion = ''
 arc_coords, S_post_ribs, U_LEs_FEM, U_TEs_FEM, LE_xlocs, TE_xlocs, correction_LE, correction_TE = InterpretFEM(h_a, c_a, FEMversion)
 
 ##Compute shape of aileron    
-disp_le_y_max, disp_te_y_max, disp_le_max_x, disp_te_max_x, displ_le, displ_te, section_thetas=shapeOfAileron(span_disc, d_yz_vec, -dtdx, z_bar, plot_aileron=plotAileron, plot_deflections_theta_0=plotDeflectionsTheta0, plot_deflections=plotDeflections)
+disp_le_y_max, disp_te_y_max, disp_le_max_x, disp_te_max_x, displ_le, displ_te, section_thetas=shapeOfAileron(span_disc, d_yz_vec, -dtdx, plot_aileron=plotAileron, plot_deflections_theta_0=plotDeflectionsTheta0, plot_deflections=plotDeflections)
 plotLETE(U_LEs_FEM, U_TEs_FEM, LE_xlocs, TE_xlocs, correction_LE, correction_TE, FEMversion, span_disc, displ_le, displ_te)
 
 FEMversion = '_V2'
@@ -241,7 +241,7 @@ FEMversion = '_V2'
 arc_coords, S_post_ribs, U_LEs_FEM, U_TEs_FEM, LE_xlocs, TE_xlocs, correction_LE, correction_TE = InterpretFEM(h_a, c_a, FEMversion)
 
 ##Compute shape of aileron    
-disp_le_y_max, disp_te_y_max, disp_le_max_x, disp_te_max_x, displ_le, displ_te, section_thetas=shapeOfAileron(span_disc, d_yz_vec, -dtdx, z_bar, plot_aileron=plotAileron, plot_deflections_theta_0=plotDeflectionsTheta0, plot_deflections=plotDeflections)
+disp_le_y_max, disp_te_y_max, disp_le_max_x, disp_te_max_x, displ_le, displ_te, section_thetas=shapeOfAileron(span_disc, d_yz_vec, -dtdx, plot_aileron=plotAileron, plot_deflections_theta_0=plotDeflectionsTheta0, plot_deflections=plotDeflections)
 plotLETE(U_LEs_FEM, U_TEs_FEM, LE_xlocs, TE_xlocs, correction_LE, correction_TE, FEMversion, span_disc, displ_le, displ_te) ## add arg!
 
 

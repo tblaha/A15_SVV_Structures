@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 from UniversalConstants import *
 from mpl_toolkits.mplot3d import Axes3D
 
-def shapeOfAileron(x_coords, displ_na, d_theta, Z_bar, plot_aileron=False, plot_deflections_theta_0=False, plot_deflections=False):
+def shapeOfAileron(x_coords, displ_na, d_theta, plot_aileron=False, plot_deflections_theta_0=False, plot_deflections=False):
 	'''
 	INPUTS:
 	- x_coords:
@@ -22,10 +22,6 @@ def shapeOfAileron(x_coords, displ_na, d_theta, Z_bar, plot_aileron=False, plot_
 	in the order that the sections are on the aileron, starting from the part
 	closest the the fuselage (positive x-direction).  Note that angles are taken
 	positive counter clockwise.
-	
-	- Z_bar:
-	The z coordinate of the centroid of the cross-section as measured from the
-	hingeline.
 	
 	- plot_aileron:
 	This variable will dictate whether a plot of the aileron will be made or not.
@@ -69,6 +65,7 @@ def shapeOfAileron(x_coords, displ_na, d_theta, Z_bar, plot_aileron=False, plot_
 	'''
 	
 	rotate_about = 'hinge'
+	theta_radians = 0.
 	
 	# We start by calculating the width of the spanwise sections we divide the aileron in.
 	# These widths will be stored in section_widths.
@@ -242,21 +239,12 @@ def shapeOfAileron(x_coords, displ_na, d_theta, Z_bar, plot_aileron=False, plot_
 	displ_le = le_coords.copy()
 	displ_te = te_coords.copy()
 	
-	# This bit is for rotation about the centroid.
-	if rotate_about == 'centroid':
-		displ_le[0] = le_coords[0] - np.sin(-theta_radians)*((h_a/2.)-Z_bar)
-		displ_le[1] = le_coords[1] - np.cos(-theta_radians)*((h_a/2.)-Z_bar)
-		
-		displ_te[0] = te_coords[0] - np.sin(-theta_radians+np.pi)*(c_a - (h_a/2.) + Z_bar)
-		displ_te[1] = te_coords[1] - np.cos(-theta_radians+np.pi)*(c_a - (h_a/2.) + Z_bar)
+	# This bit is for the rotation about the hinge line.
+	displ_le[0] = le_coords[0] - np.sin(-theta_radians)*((h_a/2.))
+	displ_le[1] = le_coords[1] - np.cos(-theta_radians)*((h_a/2.))
 	
-	# This bit is for rotation about the hinge.
-	elif rotate_about == 'hinge':
-		displ_le[0] = le_coords[0] - np.sin(-theta_radians)*((h_a/2.))
-		displ_le[1] = le_coords[1] - np.cos(-theta_radians)*((h_a/2.))
-		
-		displ_te[0] = te_coords[0] - np.sin(-theta_radians+np.pi)*(c_a - (h_a/2.))
-		displ_te[1] = te_coords[1] - np.cos(-theta_radians+np.pi)*(c_a - (h_a/2.))
+	displ_te[0] = te_coords[0] - np.sin(-theta_radians+np.pi)*(c_a - (h_a/2.))
+	displ_te[1] = te_coords[1] - np.cos(-theta_radians+np.pi)*(c_a - (h_a/2.))
 	
 	
 	# Here I plot the NA, LE and TE if so desired (if plot is set to True).
@@ -415,13 +403,12 @@ def shapeOfAileronTest():
 	d_theta = np.array([0., 0., 0., 0., 30*(np.pi/180.)])*0.001
 	#d_theta = np.ones(5)*0.0005
 	#d_theta = np.zeros(5)
-	Z_bar = 0.
 	#h_a = 12.5
 	#c_a = 50.
 	
 	# And here we run the shapeOfAileron() function and print its outputs.
 	#disp_le_y_max, disp_te_y_max, disp_le_max_x, disp_te_max_x, displ_le, displ_te, section_theta= shapeOfAileron(x_coords, displ_na, d_theta, theta, x_h2, d_a, h_a, c_a, plot=True)
-	disp_le_y_max, disp_te_y_max, disp_le_max_x, disp_te_max_x, displ_le, displ_te, section_theta = shapeOfAileron(x_coords, displ_na, d_theta, Z_bar, plot_aileron=True, plot_deflections_theta_0=True, plot_deflections=True)
+	disp_le_y_max, disp_te_y_max, disp_le_max_x, disp_te_max_x, displ_le, displ_te, section_theta = shapeOfAileron(x_coords, displ_na, d_theta, plot_aileron=True, plot_deflections_theta_0=True, plot_deflections=True)
 	print(disp_le_y_max)
 	print(disp_te_y_max)
 	print(disp_le_max_x)
