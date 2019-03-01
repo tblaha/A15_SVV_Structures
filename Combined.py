@@ -24,6 +24,7 @@ h_a,c_a,n_st,A_st,t_sk,t_sp,Ybar_st,x_h1,x_h2,x_h3,l_a,d_a,p,q,theta,d_1,d_3,E,G
 from VerInternalLoads import getVerInternalLoads
 from vonMises import *
 from InterpretFEMData import *
+from VerDeflections import * 
 
 #Verification
 VerificationAssumptions=False #Adjusts the program so that the program matches the analytical model as closely as possible.
@@ -40,10 +41,10 @@ plotBending=False #Plots the bending shape
 plotSpan=False #Plots the distribution of the points in which forces are calculated
 plotInternal=False #Plots the internal shear and moment diagrams
 plotVerInternal=False #Plots Internal loads in a diagram with the analytical internal loads
-plotAileron=True #Plots a simplified version of the aileron.
-plotDeflectionsTheta0=True	#Plots the displacements of the LE and TE compared to where they would be if theta was 0 and there was no loading.
-plotDeflections=True #Plots the displacements of the LE and TE compared to where they would be if there was no loading.
-
+plotAileron=False #Plots a simplified version of the aileron.
+plotDeflectionsTheta0=False	#Plots the displacements of the LE and TE compared to where they would be if theta was 0 and there was no loading.
+plotDeflections=False #Plots the displacements of the LE and TE compared to where they would be if there was no loading.
+plotVerificationDisplacements=True #plots verification data for displacements  
 
 #prints
 printInfo=False #Prints all chosen variables
@@ -236,7 +237,7 @@ arc_coords, S_post_ribs, U_LEs_FEM, U_TEs_FEM, LE_xlocs, TE_xlocs, correction_LE
 disp_le_y_max, disp_te_y_max, disp_le_max_x, disp_te_max_x, displ_le, displ_te, section_thetas=shapeOfAileron(span_disc, d_yz_vec, -dtdx, plot_aileron=plotAileron, plot_deflections_theta_0=plotDeflectionsTheta0, plot_deflections=plotDeflections)
 plotLETE(U_LEs_FEM, U_TEs_FEM, LE_xlocs, TE_xlocs, correction_LE, correction_TE, FEMversion, span_disc, displ_le, displ_te)
 
-FEMversion = '_V2'
+FEMversion = ''
 #FEMversion = ''
 arc_coords, S_post_ribs, U_LEs_FEM, U_TEs_FEM, LE_xlocs, TE_xlocs, correction_LE, correction_TE = InterpretFEM(h_a, c_a, FEMversion)
 
@@ -250,11 +251,26 @@ TE_max_z = np.max((1-np.cos(26*np.pi/180)) * (c_a-h_a/2) + displ_te[1])
 LE_max_y = -np.max(np.sin(26*np.pi/180) * (h_a/2) + displ_le[0])
 LE_max_z = -np.max((1-np.cos(26*np.pi/180)) * (h_a/2) + displ_le[1])
 
-# rib shear max
-print(max(q_1_A,q_2_A,q_1_B,q_2_B,q_1_C,q_2_C,q_1_D,q_2_D, key=abs))
+if plotVerificationDisplacements: 
+    if theta==26: 
+        case=1 
+    elif theta==0: 
+        case=0 
+    else: 
+        case=2 
+    Xver,LE_Z,LE_Y,TE_Z,TE_Y=getVerDeflections(case) 
+     
+    plt.figure(9001) 
+    plt.title('An. vs. Num. displacement of the leading edge with \n 0 degrees deflection', fontsize=14) 
+    plt.xlabel('x-position [mm]', fontsize=12) 
+    plt.ylabel('displacement in y [mm]', fontsize=12) 
+    plt.plot(Xver,LE_Y, label='Verification data') 
+    plt.plot(span_disc, displ_le[0,:], label='Numerical data') 
+    plt.legend() 
+    plt.show() 
 
 
-####Compute the shear flow in the ribs
+###Compute the shear flow in the ribs
 systemOfEquationsForShearRib = shearFlowRib(cross_disc, z_bar, y_bar)
 #Rib A, Fy1,Fz1
 q_A,q_1_A,q_2_A=systemOfEquationsForShearRib.calculateShear(P_1=0, P_2=0, F_z=Fz[0], F_y=Fy[0])
@@ -308,7 +324,7 @@ plotRibShear(cross_disc, z_bar, q_D, arc_coords, vonMises_FEM_rib_before, vonMis
 
 
 # von Mises at other locations (w/out ribs)
-FEMversion = '_V2'
+FEMversion = ''
 vM_locs = np.arange(0,2771,200)
 vonMises_others = np.zeros((len(vM_locs), len(cross_disc)))
 Qb_y_others = np.zeros((len(vM_locs), len(cross_disc)))
@@ -368,19 +384,75 @@ if printMOI==True: #Prints Moment of Inertia
 
 #####RELATIVE ERROR FOR THE DELFECTION#####
 
-def deflRelativeError(LE_FEM, TE_FEM, LE_NUM, TE_NUM):
-    Relative_Errors_LE=np.zeros(len(LE_FEM))
-    Relative_Errors_TE=np.zeros(len(TE_FEM))
-    for i in range(len(LE_FEM)):
-        Relative_Errors_LE[i]=(LE_FEM[i]-LE_NUM[i])/LE_FEM[i]
-        Relative_Errors_TE[i]=(TE_FEM[i]-TE_NUM[i])/TE_NUM[i]
+def deflRelativeError(LE_FEM, TE_FEM, LE_NUM, TE_NUM,span_disc1,LE_xlocs1,TE_xlocs1):
     
-    return Relative_Errors_LE, Relative_Errors_TE
+    correction_TE=26*(np.pi/180)*(c_a-h_a/2)
+    correction_LE=-26*(np.pi/180)*(h_a/2)
+    #Interpolate to get comprable values
+    LE_interp_x=(np.interp(span_disc1, LE_xlocs1, LE_FEM[0,:,0]))
+    LE_interp_y=(np.interp(span_disc1, LE_xlocs1, LE_FEM[0,:,1]-correction_LE))
+    LE_interp_z=(np.interp(span_disc1, LE_xlocs1, LE_FEM[0,:,2]))
+    TE_interp_x=(np.interp(span_disc1, TE_xlocs1, TE_FEM[0,:,0]))
+    TE_interp_y=(np.interp(span_disc1, TE_xlocs1, TE_FEM[0,:,1]-correction_TE))
+    TE_interp_z=(np.interp(span_disc1, TE_xlocs1, TE_FEM[0,:,2]))
+    
+    Final_LE_FEM=np.zeros(len(LE_interp_x))
+    Final_TE_FEM=np.zeros(len(TE_interp_y))
+    Final_NUM_LE=np.zeros(len(LE_interp_x))
+    Final_NUM_TE=np.zeros(len(LE_interp_x))
+    
+    for i in range(len(LE_interp_x)):
+        Final_LE_FEM[i] = np.sqrt(LE_interp_x[i]**2+LE_interp_y[i]**2+LE_interp_z[i]**2)
+        Final_TE_FEM[i] = np.sqrt(TE_interp_x[i]**2+TE_interp_y[i]**2+TE_interp_z[i]**2)
+        Final_NUM_LE[i]=np.sqrt(LE_NUM[0,i]**2+LE_NUM[1,i]**2)
+        Final_NUM_TE[i]=np.sqrt(TE_NUM[0,i]**2+TE_NUM[1,i]**2)
+    
+    Relative_Errors_LE=np.zeros(len(Final_LE_FEM))
+    Relative_Errors_TE=np.zeros(len(Final_TE_FEM))
+    Squares_Sum_LE=0.
+    Squares_Sum_TE=0.
+    for i in range(len(Relative_Errors_LE)):
+        Relative_Errors_LE[i]=(Final_LE_FEM[i]-Final_NUM_LE[i])/Final_LE_FEM[i]
+        Relative_Errors_TE[i]=(Final_TE_FEM[i]-Final_NUM_TE[i])/Final_TE_FEM[i]
+        Squares_Sum_LE+=(Final_LE_FEM[i]-Final_NUM_LE[i])**2
+        Squares_Sum_TE+=(Final_TE_FEM[i]-Final_NUM_TE[i])**2
+    
+    RMSE_LE=np.sqrt((Squares_Sum_LE)/len(Relative_Errors_LE))
+    RMSE_TE=np.sqrt((Squares_Sum_TE)/len(Relative_Errors_LE))
+        
+        
+    
+    return Relative_Errors_LE, Relative_Errors_TE,RMSE_LE,RMSE_TE
+FEMversion=''
+arc_coords, S_post_ribs, U_LEs_FEM, U_TEs_FEM, LE_xlocs, TE_xlocs, correction_LE, correction_TE = InterpretFEM(h_a, c_a, FEMversion)
+Relative_Errors_LE = deflRelativeError(U_LEs_FEM, U_TEs_FEM,displ_le,displ_te,span_disc,LE_xlocs,TE_xlocs)[0]
+Relative_Errors_TE = deflRelativeError(U_LEs_FEM, U_TEs_FEM,displ_le,displ_te,span_disc,LE_xlocs,TE_xlocs)[1]
 
-#Relative_Errors_LE = deflRelativeError()
-        
-        
-        
+#Plot the relative error
+#plt.close('all')
+#fig = plt.figure(3001)
+plt.subplot(211)
+plt.title('LE deflection relative error', fontsize=18)
+plt.plot(span_disc,Relative_Errors_LE, marker='x')
+plt.grid()
+plt.xlabel('x_position[mm]', fontsize=16)
+plt.ylabel('Relative Error[-]', fontsize=16)
+plt.tick_params(labelsize=13)
+
+plt.subplot(212)
+plt.title('TE deflection relative error', fontsize=18)
+plt.plot(span_disc,Relative_Errors_TE,marker='x')
+plt.grid()
+plt.xlabel('x_position[mm]', fontsize=16)
+plt.ylabel('Relative Error[-]', fontsize=16)
+plt.tick_params(labelsize=13)
+fig.subplots_adjust(hspace=.5)
+plt.show()
+
+#Output RSME
+print("RMSE_LE = ", deflRelativeError(U_LEs_FEM, U_TEs_FEM,displ_le,displ_te,span_disc,LE_xlocs,TE_xlocs)[2] )
+print("RMSE_TE = ", deflRelativeError(U_LEs_FEM, U_TEs_FEM,displ_le,displ_te,span_disc,LE_xlocs,TE_xlocs)[3] )
+
         
         
         
