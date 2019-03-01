@@ -40,9 +40,9 @@ plotBending=False #Plots the bending shape
 plotSpan=False #Plots the distribution of the points in which forces are calculated
 plotInternal=False #Plots the internal shear and moment diagrams
 plotVerInternal=False #Plots Internal loads in a diagram with the analytical internal loads
-plotAileron=False #Plots a simplified version of the aileron.
-plotDeflectionsTheta0=False	#Plots the displacements of the LE and TE compared to where they would be if theta was 0 and there was no loading.
-plotDeflections=False #Plots the displacements of the LE and TE compared to where they would be if there was no loading.
+plotAileron=True #Plots a simplified version of the aileron.
+plotDeflectionsTheta0=True	#Plots the displacements of the LE and TE compared to where they would be if theta was 0 and there was no loading.
+plotDeflections=True #Plots the displacements of the LE and TE compared to where they would be if there was no loading.
 
 
 #prints
@@ -233,7 +233,7 @@ FEMversion = ''
 arc_coords, S_post_ribs, U_LEs_FEM, U_TEs_FEM, LE_xlocs, TE_xlocs, correction_LE, correction_TE = InterpretFEM(h_a, c_a, FEMversion)
 
 ##Compute shape of aileron    
-disp_le_y_max, disp_te_y_max, disp_le_max_x, disp_te_max_x, displ_le, displ_te, section_thetas=shapeOfAileron(span_disc, d_yz_vec, -dtdx, z_bar, plot_aileron=plotAileron, plot_deflections_theta_0=plotDeflectionsTheta0, plot_deflections=plotDeflections)
+disp_le_y_max, disp_te_y_max, disp_le_max_x, disp_te_max_x, displ_le, displ_te, section_thetas=shapeOfAileron(span_disc, d_yz_vec, -dtdx, plot_aileron=plotAileron, plot_deflections_theta_0=plotDeflectionsTheta0, plot_deflections=plotDeflections)
 plotLETE(U_LEs_FEM, U_TEs_FEM, LE_xlocs, TE_xlocs, correction_LE, correction_TE, FEMversion, span_disc, displ_le, displ_te)
 
 FEMversion = '_V2'
@@ -241,7 +241,7 @@ FEMversion = '_V2'
 arc_coords, S_post_ribs, U_LEs_FEM, U_TEs_FEM, LE_xlocs, TE_xlocs, correction_LE, correction_TE = InterpretFEM(h_a, c_a, FEMversion)
 
 ##Compute shape of aileron    
-disp_le_y_max, disp_te_y_max, disp_le_max_x, disp_te_max_x, displ_le, displ_te, section_thetas=shapeOfAileron(span_disc, d_yz_vec, -dtdx, z_bar, plot_aileron=plotAileron, plot_deflections_theta_0=plotDeflectionsTheta0, plot_deflections=plotDeflections)
+disp_le_y_max, disp_te_y_max, disp_le_max_x, disp_te_max_x, displ_le, displ_te, section_thetas=shapeOfAileron(span_disc, d_yz_vec, -dtdx, plot_aileron=plotAileron, plot_deflections_theta_0=plotDeflectionsTheta0, plot_deflections=plotDeflections)
 plotLETE(U_LEs_FEM, U_TEs_FEM, LE_xlocs, TE_xlocs, correction_LE, correction_TE, FEMversion, span_disc, displ_le, displ_te) ## add arg!
 
 # trailing edge max
@@ -251,21 +251,20 @@ TE_max_z = np.max((1-np.cos(26*np.pi/180)) * (c_a-h_a/2) + displ_te[1])
 
 
 ####Compute the shear flow in the ribs
-systemOfEquationsForShearRib = shearFlowRib(cross_disc, z_bar, y_bar)
-#Rib A, Fy1,Fz1
-q_A,q_1_A,q_2_A=systemOfEquationsForShearRib.calculateShear(P_1=0, P_2=0, F_z=Fz[0], F_y=Fy[0])
-#Rib B
-q_B,q_1_B,q_2_B=systemOfEquationsForShearRib.calculateShear(P_1=P_1, P_2=0, F_z=Fz[1]*0.5, F_y=Fy[1]*0.5)
-#Rib C
-q_C,q_1_C,q_2_C=systemOfEquationsForShearRib.calculateShear(P_1=0, P_2=p, F_z=Fz[1]*0.5, F_y=Fy[1]*0.5)
-#Rib D
-q_D,q_1_D,q_2_D=systemOfEquationsForShearRib.calculateShear(P_1=0, P_2=0, F_z=Fz[2], F_y=Fy[2])
+#systemOfEquationsForShearRib = shearFlowRib(cross_disc, z_bar, y_bar)
+##Rib A, Fy1,Fz1
+#q_A,q_1_A,q_2_A=systemOfEquationsForShearRib.calculateShear(P_1=0, P_2=0, F_z=Fz[0], F_y=Fy[0])
+##Rib B
+#q_B,q_1_B,q_2_B=systemOfEquationsForShearRib.calculateShear(P_1=P_1, P_2=0, F_z=Fz[1]*0.5, F_y=Fy[1]*0.5)
+##Rib C
+#q_C,q_1_C,q_2_C=systemOfEquationsForShearRib.calculateShear(P_1=0, P_2=p, F_z=Fz[1]*0.5, F_y=Fy[1]*0.5)
+##Rib D
+#q_D,q_1_D,q_2_D=systemOfEquationsForShearRib.calculateShear(P_1=0, P_2=0, F_z=Fz[2], F_y=Fy[2])
 
 
 #### Rib plots
 all_nodes   = np.genfromtxt('FEMData/NodeLocations.txt', delimiter=',')
 FEM_x_steps = 70/3
-NUM_x_steps = 1
 FEMversion = ''
 
 # Rib A
@@ -273,41 +272,20 @@ arc_coords, vonMises_FEM_rib_before, nodes_FEM = getFEMSection(x_h1-FEM_x_steps,
 arc_coords, vonMises_FEM_rib_after, nodes_FEM = getFEMSection(x_h1+FEM_x_steps, h_a, c_a, 'FEMData/A320_SLC1' + FEMversion + '.rpt', all_nodes, rib_nodes=[])
 plotRibShear(cross_disc, z_bar, q_A, arc_coords, vonMises_FEM_rib_before, vonMises_FEM_rib_after, 'A')
 
-arc_coords, vonMises_FEM_rib, nodes_FEM = getFEMSection(x_h1, h_a, c_a, 'FEMData/A320_SLC1' + FEMversion + '.rpt', all_nodes, rib_nodes=[])
-vonMises_rib_before, dummy1, dummy2 = getVonMises(x_h1-NUM_x_steps, span_disc, cross_disc, SFIz, SFIy, MIx, MIy, MIz, I_yy, I_zz, t_sk, t_sp, z_bar)
-vonMises_rib_after , dummy1, dummy2 = getVonMises(x_h1+NUM_x_steps, span_disc, cross_disc, SFIz, SFIy, MIx, MIy, MIz, I_yy, I_zz, t_sk, t_sp, z_bar)
-plotVonMisesBoth(cross_disc, vonMises_FEM_rib, (vonMises_rib_before + vonMises_rib_after) / 2, x_h1, nodes_FEM)
-
 # Rib B
 arc_coords, vonMises_FEM_rib_before, nodes_FEM = getFEMSection(x_h2-d_a/2-FEM_x_steps, h_a, c_a, 'FEMData/A320_SLC1' + FEMversion + '.rpt', all_nodes, rib_nodes=[])
 arc_coords, vonMises_FEM_rib_after, nodes_FEM = getFEMSection(x_h2-d_a/2+FEM_x_steps, h_a, c_a, 'FEMData/A320_SLC1' + FEMversion + '.rpt', all_nodes, rib_nodes=[])
 plotRibShear(cross_disc, z_bar, q_B, arc_coords, vonMises_FEM_rib_before, vonMises_FEM_rib_after, 'B')
-
-arc_coords, vonMises_FEM_rib, nodes_FEM = getFEMSection(x_h2-d_a/2, h_a, c_a, 'FEMData/A320_SLC1' + FEMversion + '.rpt', all_nodes, rib_nodes=[])
-vonMises_rib_before, dummy1, dummy2 = getVonMises(x_h2-d_a/2-NUM_x_steps, span_disc, cross_disc, SFIz, SFIy, MIx, MIy, MIz, I_yy, I_zz, t_sk, t_sp, z_bar)
-vonMises_rib_after , dummy1, dummy2 = getVonMises(x_h2-d_a/2+NUM_x_steps, span_disc, cross_disc, SFIz, SFIy, MIx, MIy, MIz, I_yy, I_zz, t_sk, t_sp, z_bar)
-plotVonMisesBoth(cross_disc, vonMises_FEM_rib, (vonMises_rib_before + vonMises_rib_after) / 2, x_h2-d_a/2, nodes_FEM)
 
 # Rib C
 arc_coords, vonMises_FEM_rib_before, nodes_FEM = getFEMSection(x_h2+d_a/2-FEM_x_steps, h_a, c_a, 'FEMData/A320_SLC1' + FEMversion + '.rpt', all_nodes, rib_nodes=[])
 arc_coords, vonMises_FEM_rib_after, nodes_FEM = getFEMSection(x_h2+d_a/2+FEM_x_steps, h_a, c_a, 'FEMData/A320_SLC1' + FEMversion + '.rpt', all_nodes, rib_nodes=[])
 plotRibShear(cross_disc, z_bar, q_C, arc_coords, vonMises_FEM_rib_before, vonMises_FEM_rib_after, 'C')
 
-arc_coords, vonMises_FEM_rib, nodes_FEM = getFEMSection(x_h2+d_a/2, h_a, c_a, 'FEMData/A320_SLC1' + FEMversion + '.rpt', all_nodes, rib_nodes=[])
-vonMises_rib_before, dummy1, dummy2       = getVonMises(x_h2+d_a/2-NUM_x_steps, span_disc, cross_disc, SFIz, SFIy, MIx, MIy, MIz, I_yy, I_zz, t_sk, t_sp, z_bar)
-vonMises_rib_after , dummy1, dummy2       = getVonMises(x_h2+d_a/2+NUM_x_steps, span_disc, cross_disc, SFIz, SFIy, MIx, MIy, MIz, I_yy, I_zz, t_sk, t_sp, z_bar)
-plotVonMisesBoth(cross_disc, vonMises_FEM_rib, (vonMises_rib_before + vonMises_rib_after) / 2, x_h2+d_a/2, nodes_FEM)
-
 # Rib D
 arc_coords, vonMises_FEM_rib_before, nodes_FEM = getFEMSection(x_h3-FEM_x_steps, h_a, c_a, 'FEMData/A320_SLC1' + FEMversion + '.rpt', all_nodes, rib_nodes=[])
 arc_coords, vonMises_FEM_rib_after, nodes_FEM = getFEMSection(x_h3+FEM_x_steps, h_a, c_a, 'FEMData/A320_SLC1' + FEMversion + '.rpt', all_nodes, rib_nodes=[])
 plotRibShear(cross_disc, z_bar, q_D, arc_coords, vonMises_FEM_rib_before, vonMises_FEM_rib_after, 'D')
-
-arc_coords, vonMises_FEM_rib, nodes_FEM = getFEMSection(x_h3, h_a, c_a, 'FEMData/A320_SLC1' + FEMversion + '.rpt', all_nodes, rib_nodes=[])
-vonMises_rib_before, dummy1, dummy2 = getVonMises(x_h3-NUM_x_steps, span_disc, cross_disc, SFIz, SFIy, MIx, MIy, MIz, I_yy, I_zz, t_sk, t_sp, z_bar)
-vonMises_rib_after , dummy1, dummy2 = getVonMises(x_h3+NUM_x_steps, span_disc, cross_disc, SFIz, SFIy, MIx, MIy, MIz, I_yy, I_zz, t_sk, t_sp, z_bar)
-plotVonMisesBoth(cross_disc, vonMises_FEM_rib, (vonMises_rib_before + vonMises_rib_after) / 2, x_h3, nodes_FEM)
-
 
 
 
@@ -325,9 +303,8 @@ plotVonMisesBoth(cross_disc, vonMises_FEM_rib, (vonMises_rib_before + vonMises_r
 
 
 # von Mises at other locations (w/out ribs)
-FEMversion = ''
+FEMversion = '_V2'
 vM_locs = np.arange(0,2771,200)
-vM_locs = np.append(vM_locs, 1380)
 vonMises_others = np.zeros((len(vM_locs), len(cross_disc)))
 Qb_y_others = np.zeros((len(vM_locs), len(cross_disc)))
 Qb_z_others = np.zeros((len(vM_locs), len(cross_disc)))
