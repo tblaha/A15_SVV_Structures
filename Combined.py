@@ -247,20 +247,23 @@ plotLETE(U_LEs_FEM, U_TEs_FEM, LE_xlocs, TE_xlocs, correction_LE, correction_TE,
 # trailing edge max
 TE_max_y = np.max(np.sin(26*np.pi/180) * (c_a-h_a/2) + displ_te[0])
 TE_max_z = np.max((1-np.cos(26*np.pi/180)) * (c_a-h_a/2) + displ_te[1])
-
+LE_max_y = -np.max(np.sin(26*np.pi/180) * (h_a/2) + displ_le[0])
+LE_max_z = -np.max((1-np.cos(26*np.pi/180)) * (h_a/2) + displ_le[1])
+print(max(q_1_A,q_2_A,q_1_B,q_2_B,q_1_C,q_2_C,q_1_D,q_2_D, key=abs))
 
 
 ####Compute the shear flow in the ribs
-#systemOfEquationsForShearRib = shearFlowRib(cross_disc, z_bar, y_bar)
-##Rib A, Fy1,Fz1
-#q_A,q_1_A,q_2_A=systemOfEquationsForShearRib.calculateShear(P_1=0, P_2=0, F_z=Fz[0], F_y=Fy[0])
-##Rib B
-#q_B,q_1_B,q_2_B=systemOfEquationsForShearRib.calculateShear(P_1=P_1, P_2=0, F_z=Fz[1]*0.5, F_y=Fy[1]*0.5)
-##Rib C
-#q_C,q_1_C,q_2_C=systemOfEquationsForShearRib.calculateShear(P_1=0, P_2=p, F_z=Fz[1]*0.5, F_y=Fy[1]*0.5)
-##Rib D
-#q_D,q_1_D,q_2_D=systemOfEquationsForShearRib.calculateShear(P_1=0, P_2=0, F_z=Fz[2], F_y=Fy[2])
+systemOfEquationsForShearRib = shearFlowRib(cross_disc, z_bar, y_bar)
+#Rib A, Fy1,Fz1
+q_A,q_1_A,q_2_A=systemOfEquationsForShearRib.calculateShear(P_1=0, P_2=0, F_z=Fz[0], F_y=Fy[0])
+#Rib B
+q_B,q_1_B,q_2_B=systemOfEquationsForShearRib.calculateShear(P_1=P_1, P_2=0, F_z=Fz[1]*0.5, F_y=Fy[1]*0.5)
+#Rib C
+q_C,q_1_C,q_2_C=systemOfEquationsForShearRib.calculateShear(P_1=0, P_2=p, F_z=Fz[1]*0.5, F_y=Fy[1]*0.5)
+#Rib D
+q_D,q_1_D,q_2_D=systemOfEquationsForShearRib.calculateShear(P_1=0, P_2=0, F_z=Fz[2], F_y=Fy[2])
 
+print(max(q_1_A,q_2_A,q_1_B,q_2_B,q_1_C,q_2_C,q_1_D,q_2_D))
 
 #### Rib plots
 all_nodes   = np.genfromtxt('FEMData/NodeLocations.txt', delimiter=',')
