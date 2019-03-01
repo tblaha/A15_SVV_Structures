@@ -245,9 +245,11 @@ arc_coords, S_post_ribs, U_LEs_FEM, U_TEs_FEM, LE_xlocs, TE_xlocs, correction_LE
 disp_le_y_max, disp_te_y_max, disp_le_max_x, disp_te_max_x, displ_le, displ_te, section_thetas=shapeOfAileron(span_disc, d_yz_vec, -dtdx, plot_aileron=plotAileron, plot_deflections_theta_0=plotDeflectionsTheta0, plot_deflections=plotDeflections)
 plotLETE(U_LEs_FEM, U_TEs_FEM, LE_xlocs, TE_xlocs, correction_LE, correction_TE, FEMversion, span_disc, displ_le, displ_te) ## add arg!
 
-# trailing edge max
+# trailing, leading edge max
 TE_max_y = np.max(np.sin(26*np.pi/180) * (c_a-h_a/2) + displ_te[0])
 TE_max_z = np.max((1-np.cos(26*np.pi/180)) * (c_a-h_a/2) + displ_te[1])
+LE_max_y = -np.max(np.sin(26*np.pi/180) * (h_a/2) + displ_le[0])
+LE_max_z = -np.max((1-np.cos(26*np.pi/180)) * (h_a/2) + displ_le[1])
 
 if plotVerificationDisplacements: 
     if theta==26: 
@@ -279,6 +281,7 @@ q_C,q_1_C,q_2_C=systemOfEquationsForShearRib.calculateShear(P_1=0, P_2=p, F_z=Fz
 #Rib D
 q_D,q_1_D,q_2_D=systemOfEquationsForShearRib.calculateShear(P_1=0, P_2=0, F_z=Fz[2], F_y=Fy[2])
 
+print(max(q_1_A,q_2_A,q_1_B,q_2_B,q_1_C,q_2_C,q_1_D,q_2_D))
 
 #### Rib plots
 all_nodes   = np.genfromtxt('FEMData/NodeLocations.txt', delimiter=',')
@@ -361,12 +364,15 @@ if printInputs:
     print('cg_cor_stiffeners=',cg_cor_stiffeners)
 #Print output
 if printOutputs:
-    print('Maximum displacement in Y of the leading edge: ', disp_le_y_max, '[mm] at X coordinate: ', disp_le_max_x, '[mm]')
-    print('Maximum displacement in Y of the trailing edge: ', disp_te_y_max, '[mm] at X coordinate: ', disp_te_max_x, '[mm]')
-    print('Magnitude of the maximum shear flow in rib A: ', max(abs(q_A)), '[N/mm]')
-    print('Magnitude of the maximum shear flow in rib B: ', max(abs(q_B)), '[N/mm]')
-    print('Magnitude of the maximum shear flow in rib C: ', max(abs(q_C)), '[N/mm]')
-    print('Magnitude of the maximum shear flow in rib D: ', max(abs(q_D)), '[N/mm]')
+    # trailing, leading edge max
+    print('%.2f' % TE_max_y = np.max(np.sin(26*np.pi/180) * (c_a-h_a/2) + displ_te[0]))
+    print('%.2f' % TE_max_z = np.max((1-np.cos(26*np.pi/180)) * (c_a-h_a/2) + displ_te[1]))
+    print('%.2f' % LE_max_y = -np.max(np.sin(26*np.pi/180) * (h_a/2) + displ_le[0]))
+    print('%.2f' % LE_max_z = -np.max((1-np.cos(26*np.pi/180)) * (h_a/2) + displ_le[1]))
+    
+    # rib shear max
+    print('%.2f' % max(q_1_A,q_2_A,q_1_B,q_2_B,q_1_C,q_2_C,q_1_D,q_2_D, key=abs))
+
     
 if printReactionForces==True: #Prints all reaction forces  
     print('Fyh1,2,3,Fzh1,2,3,P_1',Fy,Fz,P_1)  
