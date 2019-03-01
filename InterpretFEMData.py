@@ -210,7 +210,7 @@ def plotLETE(U_LEs_FEM, U_TEs_FEM, LE_xlocs, TE_xlocs, correction_LE, correction
         plt.plot(span_disc, np.sqrt(U_LE_Model[0,:]**2 + U_LE_Model[1,:]**2), '-x')
         plt.legend(['Val. w/out loads', 'Val. full load case', 'Num. Model full load case'])
                 
-        plt.savefig('Plots/LC1_UM_LE_Model_shifted' + version + '.eps', format='eps')
+        plt.savefig('Plots/Deflections/LC1_UM_LE_Model_shifted' + version + '.eps', format='eps')
         
         ### Trailing Edge comparison ### magnitude
         plt.figure(15, figsize=(8, 6))
@@ -224,8 +224,28 @@ def plotLETE(U_LEs_FEM, U_TEs_FEM, LE_xlocs, TE_xlocs, correction_LE, correction
         plt.plot(span_disc, np.sqrt(U_TE_Model[0,:]**2 + U_TE_Model[1,:]**2), '-x')
         plt.legend(['Val. w/out loads', 'Val. full load case', 'Num. Model full load case'])
                 
-        plt.savefig('Plots/LC1_UM_TE_Val_Model_shifted' + version + '.eps', format='eps')
+        plt.savefig('Plots/Deflections/LC1_UM_TE_Val_Model_shifted' + version + '.eps', format='eps')
 
+        ### Trailing Edge ###
+        plt.figure(16, figsize=(8, 6))
+        plt.clf()
+        axs = plt.axes()
+        plt.subplot(211)
+        plt.title('Validation Data -- Global TE Deflection -- Maximum: %.2f mm' % np.max(U_TEs_FEM[1,:,1]))
+        plt.ylabel('y-displacement [mm]')
+        plt.plot(TE_xlocs, U_TEs_FEM[1,:,1]+ (version != '_V2') * correction_TE, '-')
+        plt.plot(TE_xlocs, U_TEs_FEM[0,:,1]+ (version != '_V2') * correction_TE, '-.')
+        plt.plot(span_disc, U_TE_Model[0,:], '-x')
+        plt.legend(['Val. w/out loads', 'Val. full load case', 'Num. Model full load case'])
+        
+        plt.subplot(212)
+        plt.xlabel('x location (spanwise) [mm]')
+        plt.ylabel('z-displacement [mm]')
+        plt.plot(TE_xlocs, U_TEs_FEM[1,:,2], '-')
+        plt.plot(TE_xlocs, U_TEs_FEM[0,:,2], '-.')
+        plt.plot(span_disc, U_TE_Model[1,:], '-x')
+        
+        plt.savefig('Plots/Deflections/LC1_UYZ_TE_Val_Model' + version + '.eps', format='eps')
         
     ### Leading Edge ###
     plt.figure(10, figsize=(8, 6))
@@ -244,7 +264,7 @@ def plotLETE(U_LEs_FEM, U_TEs_FEM, LE_xlocs, TE_xlocs, correction_LE, correction
     plt.plot(LE_xlocs, U_LEs_FEM[1,:,2], '-')
     plt.plot(LE_xlocs, U_LEs_FEM[0,:,2], '-.')
     
-    plt.savefig('Plots/LC1_UYZ_LE_Val' + version + '.eps', format='eps')
+    plt.savefig('Plots/Deflections/LC1_UYZ_LE_Val' + version + '.eps', format='eps')
     
     
     ### Trailing Edge ###
@@ -264,7 +284,7 @@ def plotLETE(U_LEs_FEM, U_TEs_FEM, LE_xlocs, TE_xlocs, correction_LE, correction
     plt.plot(TE_xlocs, U_TEs_FEM[1,:,2], '-')
     plt.plot(TE_xlocs, U_TEs_FEM[0,:,2], '-.')
     
-    plt.savefig('Plots/LC1_UYZ_TE_Val' + version + '.eps', format='eps')
+    plt.savefig('Plots/Deflections/LC1_UYZ_TE_Val' + version + '.eps', format='eps')
     
     
     plt.ion()
@@ -359,15 +379,15 @@ def getFEMSection(xloc, h_a, c_a, filename, all_nodes, rib_nodes=[]):
     for node in nodes_slice_sort:
         if j < len(left):
             # circular section
-            arc_coords[j] = h_a/2 * np.arctan2(nodes[node-1, 3], nodes[node-1, 2])
+            arc_coords[j] = h_a/2 * np.arctan2(all_nodes[node-1, 3], all_nodes[node-1, 2])
         elif j < len(left) + len(right_bottom):
-            arc_coords[j] = np.pi * h_a/2 + np.linalg.norm(nodes[node-1, 2:] - np.array([-h_a/2, 0]))
+            arc_coords[j] = np.pi * h_a/2 + np.linalg.norm(all_nodes[node-1, 2:] - np.array([-h_a/2, 0]))
         elif j < len(left) + len(right_bottom) + len(right_top):
             arc_coords[j] = np.pi * h_a/2 + np.linalg.norm(np.array([h_a/2, c_a-h_a/2]))\
-                                            + np.linalg.norm(nodes[node-1, 2:] - np.array([0, -c_a+h_a/2]))
+                                            + np.linalg.norm(all_nodes[node-1, 2:] - np.array([0, -c_a+h_a/2]))
         else:
             arc_coords[j] = np.pi * h_a/2 + np.linalg.norm(np.array([h_a/2, c_a-h_a/2]))*2\
-                                            - nodes[node-1, 2] + h_a/2
+                                            - all_nodes[node-1, 2] + h_a/2
         
         j = j + 1
         
@@ -402,6 +422,4 @@ def plotFEMSection(nodes, stresses, title, filename):
     plt.savefig('Plots/'+filename+'.eps', format='eps')
     
     plt.ion()
-
-
 

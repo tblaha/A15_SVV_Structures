@@ -213,13 +213,14 @@ class shearFlowRib:
 	
 	#def solve(P_1=0., P_2=0., F_z=0., F_y=0.):
 	def calculateShear(self, P_1, P_2, F_z, F_y):
-		### This bit creates the b vector. The b vector is dependend on the load case. ###
 		nose = self.nose
 		tail = self.tail
 		spar = self.spar
 		dim = len(self.A)
 		points = self.points
 		points_spar = self.points_spar
+        
+		### This bit creates the b vector. The b vector is dependend on the load case. ###
 		b = np.zeros(dim)
 		for i in range(len(points)):
 			b[i] += (points[i][1] - (h_a/2.))*P_1*np.cos(theta_radians) + ((h_a/2.) - points[i][0])*P_1*np.sin(theta_radians)
@@ -341,4 +342,41 @@ plt.plot(booms_between_list, q_2_list, 'g-o', label='q_2')
 plt.grid()
 plt.tight_layout()
 plt.show()
+
 '''
+
+
+def plotRibShear(cross_disc, z_bar, q_Rib, arc_coords, vonMises_before, vonMises_after, ribname):
+
+	plt.ioff()
+    
+	rib_arc = np.zeros(len(q_Rib)-1)
+	D_coord = (np.arctan2(cross_disc[1,1]+z_bar,cross_disc[1,0]) - np.arctan2(cross_disc[0,1]+z_bar,cross_disc[0,0])) * h_a/2
+	first_spar = sum(cross_disc[:,4] != 3)
+	D_spar  = cross_disc[first_spar,0] - cross_disc[first_spar+1,0]
+	j = 0
+	k = 0
+	for i in range(len(q_Rib)-1):
+		if cross_disc[i,4] == 1:
+			rib_arc[i] = i * D_coord
+		elif cross_disc[i,4] == 2:
+			rib_arc[i] = np.pi * h_a/2 + j * D_coord
+			j += 1
+		else:
+			rib_arc[i] = np.pi * h_a/2 + 2*np.sqrt( (h_a/2)**2 + (c_a - h_a/2)**2 )\
+                         + k * D_spar
+			k += 1
+    
+	fig = plt.figure(2001)
+	plt.clf()
+	plt.title('Rib ' + ribname + ' shear plotted over perimeter')
+	plt.xlabel('Tangential coordinate along Aileron [mm]', fontsize=14)
+	plt.ylabel('Shear flow [N/mm] and Shear stress [MPa]', fontsize=14)
+	plt.plot(rib_arc, q_Rib[0:-1], '-x')
+	plt.plot(arc_coords, -(vonMises_after - vonMises_before) / sqrt(3), '-o')
+	plt.tight_layout()
+	plt.grid()
+	plt.legend(['Numerical Model (Flow)', 'Validation Data (Stress)'])
+	plt.savefig('Plots/Ribs/Rib' + ribname + '.eps', format='eps')
+	
+	plt.ion()
